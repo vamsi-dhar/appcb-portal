@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APPCB — Soil &amp; Buildings Division</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
+<link href="https://fonts.googleapis.com/css2?family=Tiro+Telugu&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════
+   TOKENS
+══════════════════════════════════════ */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --cream:#f7f3ec; --cream2:#f0ead8; --linen:#ede8df; --linen2:#ddd6c8; --white:#fff;
+  --forest:#1c4a2f; --forest2:#27653f; --forest3:#3a8055; --fern:#6ba880; --mint:#b8d4c0; --mist:#e8f2ec;
+  --soil:#7a4f2e; --soil2:#a06840; --clay:#d4a574; --sand:#f2e4d0;
+  --ink:#1a2018; --ink2:#3d4a38; --ink3:#6b7a65; --stone:#8a9485; --fog:#c4ccc0;
+  --gold:#c49a2a; --sky:#2a6899;
+  --sh-xs:0 1px 3px rgba(26,74,47,.06);
+  --sh-sm:0 2px 8px rgba(26,74,47,.08),0 1px 3px rgba(26,74,47,.05);
+  --sh-md:0 6px 20px rgba(26,74,47,.10),0 2px 8px rgba(26,74,47,.06);
+  --sh-lg:0 16px 48px rgba(26,74,47,.12),0 4px 16px rgba(26,74,47,.07);
+  --ff:'Outfit',system-ui,sans-serif;
+  --ff-s:'Cormorant Garamond',Georgia,serif;
+  --ff-m:'DM Mono',monospace;
+  --ff-t:'Tiro Telugu',serif;
+  --nav-h:58px;
+}
+html{height:100%}
+body{height:100%;font-family:var(--ff);color:var(--ink);-webkit-font-smoothing:antialiased;background:var(--cream);overflow:hidden;display:flex;flex-direction:column}
+
+/* ══════════════════════════════════════
+   FIXED TOP NAV
+══════════════════════════════════════ */
+.nav{
+  position:fixed;top:0;left:0;right:0;height:var(--nav-h);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 32px;background:var(--white);
+  border-bottom:1px solid var(--linen2);
+  box-shadow:var(--sh-xs);z-index:2000;
+}
+.nav-brand{display:flex;align-items:center;gap:10px;cursor:pointer;text-decoration:none}
+.nav-seal{width:32px;height:32px;border-radius:8px;flex-shrink:0;background:linear-gradient(145deg,var(--forest),var(--forest3));display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 8px rgba(28,74,47,.3)}
+.nav-name{font-family:var(--ff-s);font-size:1.05rem;font-weight:700;color:var(--forest);line-height:1.1}
+.nav-org{font-size:.57rem;color:var(--stone);letter-spacing:.13em;text-transform:uppercase;margin-top:1px}
+.nav-bc{display:flex;align-items:center;gap:5px;font-size:.7rem}
+.nbc-link{color:var(--forest2);cursor:pointer;font-weight:500;transition:color .2s}
+.nbc-link:hover{color:var(--forest)}
+.nbc-sep{color:var(--fog)}
+.nbc-cur{color:var(--stone)}
+.nav-r{display:flex;align-items:center;gap:9px}
+.btn-back{display:none;align-items:center;gap:5px;padding:5px 14px;border-radius:20px;border:1.5px solid var(--forest);background:transparent;color:var(--forest);font-size:.72rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:var(--ff)}
+.btn-back:hover{background:var(--forest);color:#fff}
+.btn-back.show{display:flex}
+.nav-date{font-family:var(--ff-m);font-size:.6rem;color:var(--stone);padding:3px 9px;border:1px solid var(--linen2);border-radius:4px;background:var(--cream)}
+
+/* ══════════════════════════════════════
+   PAGE WRAPPER (below fixed nav)
+══════════════════════════════════════ */
+#app{
+  margin-top:var(--nav-h);
+  flex:1;overflow:hidden;position:relative;
+}
+.page{
+  position:absolute;inset:0;
+  display:flex;flex-direction:column;
+  background:var(--cream);
+  opacity:0;pointer-events:none;
+  transition:opacity .38s ease,transform .38s ease;
+  transform:translateY(12px);
+}
+.page.active{opacity:1;pointer-events:all;transform:none}
+
+/* ══════════════════════════════════════
+   HOME PAGE
+══════════════════════════════════════ */
+#pg-home{overflow-y:auto}
+.home-wrap{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 32px 32px;position:relative}
+.home-deco{position:absolute;top:0;right:0;width:320px;height:320px;pointer-events:none;overflow:hidden;opacity:.06;z-index:0}
+.home-deco svg{position:absolute;top:-50px;right:-50px}
+.home-z{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%}
+.home-kicker{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--forest3);font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.home-kicker::before,.home-kicker::after{content:'';flex:0 0 32px;height:1px;background:linear-gradient(to right,transparent,var(--fern))}
+.home-kicker::after{background:linear-gradient(to left,transparent,var(--fern))}
+.home-title{font-family:var(--ff-s);font-size:clamp(2rem,5vw,3.4rem);font-weight:700;color:var(--ink);line-height:1.05;text-align:center;letter-spacing:-.01em;margin-bottom:8px}
+.home-title em{color:var(--forest);font-style:italic}
+.home-tel{font-family:var(--ff-t);font-size:.95rem;color:var(--forest2);opacity:.75;text-align:center;margin-bottom:8px}
+.home-place{font-size:.78rem;color:var(--stone);text-align:center;letter-spacing:.04em}
+.home-rule{display:flex;align-items:center;gap:10px;margin:22px 0 30px;width:160px}
+.home-rule::before,.home-rule::after{content:'';flex:1;height:1px;background:var(--linen2)}
+.home-rule-dot{width:5px;height:5px;background:var(--fern);border-radius:50%;flex-shrink:0}
+.home-cards{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;max-width:660px;width:100%;margin-bottom:36px}
+
+/* HOME CARDS — only button clickable */
+.h-card{flex:1;min-width:240px;max-width:290px;background:var(--white);border:1px solid var(--linen2);border-radius:18px;padding:34px 26px 30px;text-align:center;position:relative;box-shadow:var(--sh-sm);transition:box-shadow .25s}
+.h-card:hover{box-shadow:var(--sh-md)}
+.h-card.soil{border-top:3px solid var(--soil2)}
+.h-card.bldg{border-top:3px solid var(--forest2)}
+.hci{font-size:2.8rem;margin-bottom:16px;display:block;filter:drop-shadow(0 4px 8px rgba(0,0,0,.1))}
+.hcl{font-family:var(--ff-s);font-size:1.75rem;font-weight:700;color:var(--ink);margin-bottom:22px}
+.hcb{display:inline-flex;align-items:center;gap:6px;padding:10px 26px;border-radius:100px;border:none;cursor:pointer;font-family:var(--ff);font-size:.78rem;font-weight:600;letter-spacing:.04em;transition:transform .2s,box-shadow .2s,filter .2s}
+.hcb:hover{transform:translateY(-2px);filter:brightness(1.07)}
+.hcb:active{transform:scale(.97)}
+.hcb .arr{display:inline-block;transition:transform .2s}
+.hcb:hover .arr{transform:translateX(4px)}
+.home-footer{font-size:.62rem;color:var(--stone);text-align:center;letter-spacing:.05em;line-height:2.1}
+
+/* ══════════════════════════════════════
+   INNER PAGE LAYOUT
+══════════════════════════════════════ */
+#pg-soil,#pg-buildings{overflow:hidden}
+.sec-hd{flex-shrink:0;background:var(--white);border-bottom:1px solid var(--linen2);box-shadow:var(--sh-xs);padding:16px 32px 0;z-index:10;position:relative}
+.shd-row{display:flex;align-items:flex-end;justify-content:space-between;padding-bottom:12px;gap:12px;flex-wrap:wrap}
+.shd-icon{font-size:1.6rem;margin-bottom:3px;display:block}
+.shd-title{font-family:var(--ff-s);font-size:1.9rem;font-weight:700;color:var(--ink);line-height:1}
+.shd-title em{font-style:italic}
+.shd-sub{font-size:.68rem;color:var(--stone);margin-top:4px;letter-spacing:.02em}
+.shd-badge{padding:4px 13px;border-radius:20px;font-family:var(--ff-m);font-size:.58rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;border:1.5px solid}
+
+/* TAB BAR */
+.tab-bar{display:flex;gap:0;overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--linen2)}
+.tab-bar::-webkit-scrollbar{display:none}
+.tb{display:flex;align-items:center;gap:6px;padding:8px 16px 10px;white-space:nowrap;font-family:var(--ff);font-size:.7rem;font-weight:500;color:var(--stone);background:transparent;border:none;cursor:pointer;border-bottom:2.5px solid transparent;transition:color .2s,border-color .2s,background .2s}
+.tb .ti{font-size:.95rem;transition:transform .2s}
+.tb:hover{color:var(--ink2);background:rgba(0,0,0,.02)}
+.tb:hover .ti{transform:scale(1.15)}
+.tb.on{color:var(--forest);font-weight:600;border-bottom-color:var(--forest)}
+.tb .tnew{font-size:.48rem;padding:1px 5px;border-radius:6px;background:var(--mist);color:var(--forest2);border:1px solid var(--mint);font-weight:700;letter-spacing:.04em}
+
+/* PANE WRAP + PANES */
+.pane-wrap{flex:1;overflow:hidden;position:relative;min-height:0}
+.pane{position:absolute;inset:0;overflow-y:auto;padding:24px 32px 36px;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .25s,transform .25s;background:var(--cream);scrollbar-width:thin;scrollbar-color:var(--linen2) transparent}
+.pane::-webkit-scrollbar{width:4px}
+.pane::-webkit-scrollbar-thumb{background:var(--linen2);border-radius:4px}
+.pane.on{opacity:1;pointer-events:all;transform:none}
+
+/* ══════════════════════════════════════
+   DYNAMIC WORKSPACE
+══════════════════════════════════════ */
+.ws-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px}
+.ws-info h3{font-family:var(--ff-s);font-size:1.2rem;font-weight:700;color:var(--ink)}
+.ws-info p{font-size:.68rem;color:var(--stone);margin-top:2px}
+.ws-add-btn{display:flex;align-items:center;gap:6px;padding:8px 18px;border-radius:8px;background:var(--forest);color:#fff;border:none;cursor:pointer;font-family:var(--ff);font-size:.75rem;font-weight:600;letter-spacing:.03em;transition:all .2s;box-shadow:0 2px 8px rgba(28,74,47,.2)}
+.ws-add-btn:hover{background:var(--forest2);box-shadow:var(--sh-md)}
+.ws-add-btn svg{width:14px;height:14px;flex-shrink:0}
+
+/* CARD GRID */
+.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
+
+/* INDIVIDUAL WORKSPACE CARD */
+.ws-card{background:var(--white);border:1px solid var(--linen2);border-radius:14px;padding:20px 16px 16px;text-align:center;position:relative;box-shadow:var(--sh-xs);cursor:pointer;transition:all .22s;display:flex;flex-direction:column;align-items:center;gap:8px;min-height:140px}
+.ws-card:hover{box-shadow:var(--sh-md);transform:translateY(-2px);border-color:var(--fern)}
+.ws-card-ico{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;margin-bottom:2px}
+.ws-card-name{font-family:var(--ff-s);font-size:.95rem;font-weight:700;color:var(--ink);line-height:1.2;word-break:break-word}
+.ws-card-count{font-size:.62rem;color:var(--stone);margin-top:auto}
+.ws-card-actions{position:absolute;top:6px;right:6px;display:flex;gap:3px;opacity:0;transition:opacity .2s}
+.ws-card:hover .ws-card-actions{opacity:1}
+.wca{width:20px;height:20px;border-radius:4px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.7rem;background:var(--cream);color:var(--stone);transition:all .15s}
+.wca:hover{background:var(--linen2);color:var(--ink)}
+.wca.del:hover{background:#fee2e2;color:#dc2626}
+
+/* ADD CARD BUTTON (last in grid) */
+.ws-card-add{background:transparent;border:2px dashed var(--fog);cursor:pointer;transition:all .2s}
+.ws-card-add:hover{border-color:var(--fern);background:var(--mist)}
+.ws-card-add .plus{font-size:1.6rem;color:var(--fog);transition:color .2s}
+.ws-card-add:hover .plus{color:var(--fern)}
+.ws-card-add span{font-size:.7rem;color:var(--stone)}
+
+/* ══════════════════════════════════════
+   CARD DETAIL MODAL (file viewer)
+══════════════════════════════════════ */
+.modal-bg{position:fixed;inset:0;background:rgba(26,32,24,.55);backdrop-filter:blur(4px);z-index:3000;display:none;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:var(--white);border-radius:18px;width:100%;max-width:820px;max-height:88vh;display:flex;flex-direction:column;box-shadow:var(--sh-lg);overflow:hidden;animation:mIn .28s ease}
+@keyframes mIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+.modal-head{padding:16px 20px 14px;border-bottom:1px solid var(--linen2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.modal-title{font-family:var(--ff-s);font-size:1.25rem;font-weight:700;color:var(--ink)}
+.modal-title-input{font-family:var(--ff-s);font-size:1.2rem;font-weight:700;color:var(--ink);border:none;outline:none;background:transparent;width:calc(100% - 40px);padding:0}
+.modal-x{width:28px;height:28px;border-radius:50%;border:none;background:var(--cream);color:var(--stone);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
+.modal-x:hover{background:var(--linen2)}
+.modal-body{flex:1;overflow-y:auto;padding:20px;scrollbar-width:thin;scrollbar-color:var(--linen2) transparent}
+.modal-body::-webkit-scrollbar{width:4px}
+.modal-body::-webkit-scrollbar-thumb{background:var(--linen2);border-radius:4px}
+
+/* File upload area in modal */
+.upload-drop{border:2px dashed var(--fog);border-radius:12px;padding:28px 20px;text-align:center;transition:all .2s;cursor:pointer;margin-bottom:18px;position:relative}
+.upload-drop:hover,.upload-drop.drag{border-color:var(--fern);background:var(--mist)}
+.upload-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
+.ud-ico{font-size:2rem;margin-bottom:8px;display:block;opacity:.5}
+.ud-title{font-family:var(--ff-s);font-size:1.05rem;color:var(--stone);margin-bottom:4px}
+.ud-sub{font-size:.7rem;color:var(--stone);opacity:.8}
+.ud-btn{display:inline-flex;align-items:center;gap:5px;margin-top:12px;padding:7px 18px;border-radius:7px;background:var(--forest);color:#fff;font-size:.72rem;font-weight:600;border:none;cursor:pointer;font-family:var(--ff);transition:all .2s;pointer-events:none}
+
+/* Files list */
+.files-list{display:flex;flex-direction:column;gap:8px}
+.file-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--cream);border:1px solid var(--linen2);border-radius:9px;transition:all .2s;cursor:pointer}
+.file-row:hover{background:var(--mist);border-color:var(--mint)}
+.file-ico{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
+.file-name{flex:1;font-size:.78rem;font-weight:500;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.file-size{font-size:.62rem;color:var(--stone);white-space:nowrap}
+.file-del{width:22px;height:22px;border-radius:5px;border:none;background:transparent;color:var(--fog);cursor:pointer;font-size:.75rem;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
+.file-del:hover{background:#fee2e2;color:#dc2626}
+.file-view-badge{font-size:.58rem;padding:2px 7px;border-radius:8px;background:var(--mist);color:var(--forest2);border:1px solid var(--mint);white-space:nowrap;flex-shrink:0}
+
+/* File preview overlay */
+.preview-bg{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:4000;display:none;flex-direction:column;align-items:center;justify-content:center}
+.preview-bg.open{display:flex}
+.preview-bar{position:absolute;top:0;left:0;right:0;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,.5);backdrop-filter:blur(4px)}
+.preview-name{font-size:.82rem;color:#fff;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.preview-x{padding:5px 14px;border-radius:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:.72rem;cursor:pointer;font-family:var(--ff);transition:background .2s}
+.preview-x:hover{background:rgba(255,255,255,.22)}
+.preview-content{max-width:92vw;max-height:80vh;border-radius:8px;overflow:auto}
+.preview-content img{max-width:88vw;max-height:78vh;border-radius:8px;display:block}
+.preview-content iframe{width:80vw;height:78vh;border:none;border-radius:8px;background:#fff}
+
+/* New card dialog */
+.nc-dialog{position:fixed;inset:0;background:rgba(26,32,24,.5);backdrop-filter:blur(3px);z-index:5000;display:none;align-items:center;justify-content:center}
+.nc-dialog.open{display:flex}
+.nc-box{background:var(--white);border-radius:16px;width:360px;padding:28px 26px 24px;box-shadow:var(--sh-lg);animation:mIn .25s ease}
+.nc-title{font-family:var(--ff-s);font-size:1.3rem;font-weight:700;color:var(--ink);margin-bottom:16px}
+.nc-label{font-size:.68rem;font-weight:600;color:var(--stone);text-transform:uppercase;letter-spacing:.09em;margin-bottom:6px}
+.nc-input{width:100%;padding:9px 12px;border:1.5px solid var(--linen2);border-radius:8px;font-family:var(--ff);font-size:.85rem;color:var(--ink);outline:none;transition:border-color .2s;background:var(--cream)}
+.nc-input:focus{border-color:var(--fern);background:var(--white)}
+.nc-icons{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;margin-bottom:16px}
+.nc-ico-btn{width:36px;height:36px;border-radius:8px;border:1.5px solid var(--linen2);background:var(--cream);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.nc-ico-btn:hover,.nc-ico-btn.sel{border-color:var(--forest);background:var(--mist)}
+.nc-row{display:flex;gap:8px;margin-top:4px}
+.nc-cancel{flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--linen2);background:transparent;color:var(--stone);font-family:var(--ff);font-size:.78rem;cursor:pointer;transition:all .2s}
+.nc-cancel:hover{background:var(--cream)}
+.nc-ok{flex:1;padding:9px;border-radius:8px;border:none;background:var(--forest);color:#fff;font-family:var(--ff);font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s}
+.nc-ok:hover{background:var(--forest2)}
+
+/* ══════════════════════════════════════
+   BUILDINGS — MAP SECTION
+══════════════════════════════════════ */
+.map-shell{border-radius:14px;overflow:hidden;border:1px solid var(--linen2);box-shadow:var(--sh-md);height:calc(100vh - 340px);min-height:400px;display:flex;flex-direction:column;background:var(--white)}
+.map-bar{flex-shrink:0;padding:9px 14px;background:var(--white);border-bottom:1px solid var(--linen2);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.map-bar-t{font-size:.7rem;font-weight:600;color:var(--forest);letter-spacing:.06em;text-transform:uppercase}
+.map-bar-s{font-size:.6rem;color:var(--stone);margin-top:1px}
+.lyr-btns{display:flex;gap:5px}
+.lbtn{font-size:.62rem;padding:4px 12px;border-radius:14px;border:1.5px solid var(--linen2);background:var(--cream);color:var(--stone);cursor:pointer;font-family:var(--ff);font-weight:500;transition:all .2s}
+.lbtn.on{background:var(--forest);border-color:var(--forest);color:#fff}
+.lbtn.on.sky{background:var(--sky);border-color:var(--sky)}
+.map-body{flex:1;position:relative;overflow:hidden}
+#embMap{width:100%;height:100%;background:#e6ede6}
+.leaflet-container{background:#e6ede6!important}
+.leaflet-tile-pane{display:none!important}
+.map-spin{position:absolute;inset:0;z-index:200;background:linear-gradient(135deg,#eef3ee,#e6ede6);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
+.spin{width:30px;height:30px;border-radius:50%;border:3px solid rgba(28,74,47,.1);border-top-color:var(--forest3);animation:sp .8s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
+.map-spin p{font-size:.72rem;color:var(--stone);font-weight:500}
+#map-leg{position:absolute;bottom:12px;left:12px;z-index:300;background:rgba(255,255,255,.94);border:1px solid var(--linen2);border-radius:8px;padding:8px 12px;max-width:185px;backdrop-filter:blur(4px);box-shadow:var(--sh-xs)}
+#map-leg h4{font-size:.54rem;text-transform:uppercase;letter-spacing:.1em;color:var(--forest);margin-bottom:6px;font-weight:700}
+.lg-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;font-size:.62rem;color:var(--stone)}
+.lg-sw{width:10px;height:10px;border-radius:2px;flex-shrink:0;border:1px solid rgba(0,0,0,.1)}
+.ap-tt{background:var(--white)!important;border:1px solid var(--linen2)!important;color:var(--ink)!important;font-family:var(--ff)!important;font-size:.7rem!important;font-weight:600!important;padding:4px 10px!important;border-radius:5px!important;box-shadow:var(--sh-md)!important;white-space:nowrap!important}
+.ap-tt::before{display:none!important}
+.leaflet-control-zoom a{background:var(--white)!important;color:var(--forest)!important;border-color:var(--linen2)!important}
+.leaflet-control-zoom a:hover{background:var(--mist)!important}
+.leaflet-control-attribution{background:rgba(255,255,255,.8)!important;color:var(--stone)!important;font-size:.5rem!important}
+.ro-marker-icon{background:transparent;border:none}
+.ro-pin{width:24px;height:24px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.8);box-shadow:0 2px 6px rgba(0,0,0,.18);cursor:pointer}
+.ro-pin-i{transform:rotate(45deg);font-size:11px;line-height:1}
+.msp{position:absolute;right:0;top:0;bottom:0;width:0;overflow:hidden;background:var(--white);border-left:1px solid var(--linen2);box-shadow:-3px 0 20px rgba(26,64,47,.08);transition:width .35s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;z-index:400}
+.msp.open{width:320px}
+.msp-in{width:320px;height:100%;display:flex;flex-direction:column;overflow:hidden}
+.msp-hd{padding:13px 13px 10px;border-bottom:1px solid var(--linen2);flex-shrink:0;position:relative;background:linear-gradient(to bottom,var(--mist),var(--white))}
+.msp-bdg{font-size:.54rem;text-transform:uppercase;letter-spacing:.1em;padding:2px 7px;border-radius:7px;margin-bottom:5px;display:inline-block;font-weight:700}
+.msp-bdg.ro{background:var(--mist);color:var(--forest2);border:1px solid var(--mint)}
+.msp-bdg.dst{background:var(--sand);color:var(--soil);border:1px solid rgba(212,165,116,.4)}
+.msp-name{font-family:var(--ff-s);font-size:1.15rem;font-weight:700;color:var(--ink);line-height:1.1}
+.msp-sub{font-size:.67rem;color:var(--stone);margin-top:2px}
+.msp-tel{font-family:var(--ff-t);font-size:.77rem;color:var(--forest2);margin-top:2px}
+.msp-meta{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
+.msp-pill{font-size:.56rem;padding:2px 7px;border-radius:7px;background:var(--cream);border:1px solid var(--linen2);color:var(--stone);text-transform:uppercase;letter-spacing:.04em}
+.msp-x{position:absolute;top:10px;right:10px;background:var(--cream);border:1px solid var(--linen2);color:var(--stone);width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.msp-x:hover{background:var(--sand);color:var(--soil)}
+.msp-tabs{display:flex;border-bottom:1px solid var(--linen2);flex-shrink:0}
+.msp-tab{flex:1;padding:7px 4px;font-size:.58rem;text-align:center;text-transform:uppercase;letter-spacing:.07em;color:var(--stone);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-family:var(--ff);font-weight:500}
+.msp-tab.on{color:var(--forest);border-bottom-color:var(--forest);background:var(--mist)}
+.msp-body{flex:1;overflow-y:auto;padding:12px 13px;scrollbar-width:thin;scrollbar-color:var(--linen2) transparent}
+.msp-body::-webkit-scrollbar{width:3px}
+.msp-body::-webkit-scrollbar-thumb{background:var(--linen2);border-radius:3px}
+.ms-sec{font-size:.54rem;text-transform:uppercase;letter-spacing:.12em;color:var(--forest2);margin-bottom:7px;display:flex;align-items:center;gap:5px;font-weight:700}
+.ms-sec::after{content:'';flex:1;height:1px;background:var(--mint)}
+.ms-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:11px}
+.ms-card{background:var(--cream);border:1px solid var(--linen2);border-radius:7px;padding:6px 9px}
+.ms-lbl{font-size:.52rem;color:var(--stone);text-transform:uppercase;letter-spacing:.08em}
+.ms-val{font-size:.85rem;font-weight:700;color:var(--forest);font-family:var(--ff-s);margin-top:1px}
+.ms-addr{background:var(--mist);border:1px solid var(--mint);border-radius:7px;padding:8px 10px;margin-bottom:10px;font-size:.69rem;line-height:1.65;color:var(--ink2)}
+.ms-addr-l{font-size:.52rem;color:var(--forest2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;font-weight:700}
+.ms-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.ms-chip{font-size:.64rem;padding:3px 8px;border-radius:5px;cursor:pointer;border:1px solid;transition:all .15s;font-weight:500}
+.ms-chip:hover{filter:brightness(.93)}
+.ms-tl{position:relative;padding-left:17px}
+.ms-tl::before{content:'';position:absolute;left:4px;top:6px;bottom:6px;width:2px;background:linear-gradient(to bottom,var(--forest),var(--mint),transparent);border-radius:2px}
+.ms-ti{position:relative;margin-bottom:10px}
+.ms-dot{position:absolute;left:-13px;top:4px;width:7px;height:7px;border-radius:50%;border:2px solid var(--white)}
+.ms-dot.d{background:var(--gold)}.ms-dot.i{background:var(--forest3)}.ms-dot.h{background:var(--soil2)}
+.ms-yr{font-size:.58rem;font-weight:700;letter-spacing:.06em;margin-bottom:1px}
+.ms-yr.d{color:var(--gold)}.ms-yr.i{color:var(--forest2)}.ms-yr.h{color:var(--soil2)}
+.ms-txt{font-size:.71rem;line-height:1.55;color:var(--ink2)}
+.ms-txt strong{color:var(--ink);font-weight:600}
+.ms-ea{width:100%;background:var(--cream);border:1.5px solid var(--linen2);border-radius:6px;color:var(--ink2);font-family:var(--ff-m);font-size:.66rem;line-height:1.7;padding:8px 10px;resize:vertical;min-height:100px;outline:none;transition:border-color .2s}
+.ms-ea:focus{border-color:var(--fern);background:var(--white)}
+.ms-ea::placeholder{color:var(--fog)}
+.ms-sv-row{display:flex;justify-content:flex-end;align-items:center;margin-top:4px;gap:6px}
+.ms-sv-btn{font-size:.67rem;padding:5px 13px;border-radius:6px;background:var(--forest);border:none;color:#fff;cursor:pointer;font-weight:600;transition:all .2s;font-family:var(--ff)}
+.ms-sv-btn:hover{background:var(--forest2)}
+.ms-svd{font-size:.59rem;color:var(--forest3);opacity:0;transition:opacity .3s}
+.ms-svd.show{opacity:1}
+
+/* Responsive */
+@media(max-width:640px){
+  .home-cards{flex-direction:column}
+  .h-card{max-width:100%;min-width:unset}
+  .nav,.sec-hd,.pane{padding-left:16px;padding-right:16px}
+  .msp.open{width:100%;position:absolute}
+  .msp-in{width:100%}
+  #map-leg{display:none}
+  .card-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+}
+</style>
+</head>
+<body>
+
+<!-- ════════════ FIXED NAV ════════════ -->
+<nav class="nav">
+  <div class="nav-brand" onclick="goHome()">
+    <div class="nav-seal">🌿</div>
+    <div>
+      <div class="nav-name">Soil &amp; Buildings Division</div>
+      <div class="nav-org">APPCB · Head Office · Vijayawada</div>
+    </div>
+  </div>
+  <div id="nav-bc" class="nav-bc" style="display:none">
+    <span class="nbc-link" onclick="goHome()">Home</span>
+    <span class="nbc-sep">›</span>
+    <span class="nbc-cur" id="bc-s">—</span>
+    <span class="nbc-sep" id="bc-s2" style="display:none">›</span>
+    <span class="nbc-cur" id="bc-t"></span>
+  </div>
+  <div class="nav-r">
+    <button class="btn-back" id="btn-back" onclick="goHome()">← Back</button>
+    <div class="nav-date" id="nav-date"></div>
+  </div>
+</nav>
+
+<!-- ════════════ APP WRAPPER ════════════ -->
+<div id="app">
+
+<!-- ════ HOME ════ -->
+<div class="page active" id="pg-home">
+  <div class="home-wrap">
+    <div class="home-deco">
+      <svg width="400" height="400" viewBox="0 0 400 400" fill="none">
+        <circle cx="200" cy="200" r="170" stroke="#1c4a2f" stroke-width="1"/>
+        <circle cx="200" cy="200" r="120" stroke="#1c4a2f" stroke-width=".7"/>
+        <circle cx="200" cy="200" r="70"  stroke="#1c4a2f" stroke-width=".5"/>
+        <line x1="30" y1="200" x2="370" y2="200" stroke="#1c4a2f" stroke-width=".5"/>
+        <line x1="200" y1="30" x2="200" y2="370" stroke="#1c4a2f" stroke-width=".5"/>
+        <line x1="80" y1="80" x2="320" y2="320" stroke="#1c4a2f" stroke-width=".4"/>
+        <line x1="320" y1="80" x2="80" y2="320" stroke="#1c4a2f" stroke-width=".4"/>
+      </svg>
+    </div>
+    <div class="home-z">
+      <div class="home-kicker">Andhra Pradesh Pollution Control Board</div>
+      <h1 class="home-title">Soil &amp; <em>Buildings</em><br>Division</h1>
+      <p class="home-tel">మట్టి &amp; భవనాల విభాగం</p>
+      <p class="home-place">Head Office, Vijayawada &nbsp;·&nbsp; Government of Andhra Pradesh</p>
+      <div class="home-rule"><div class="home-rule-dot"></div></div>
+      <div class="home-cards">
+        <div class="h-card soil">
+          <span class="hci">🪨</span>
+          <div class="hcl">Soil</div>
+          <button class="hcb" onclick="openSec('soil')"
+            style="background:linear-gradient(135deg,#7a4f2e,#a06840);color:#fff;box-shadow:0 4px 14px rgba(122,79,46,.28)">
+            Open Section <span class="arr">→</span>
+          </button>
+        </div>
+        <div class="h-card bldg">
+          <span class="hci">🏛️</span>
+          <div class="hcl">Buildings</div>
+          <button class="hcb" onclick="openSec('buildings')"
+            style="background:linear-gradient(135deg,#1c4a2f,#27653f);color:#fff;box-shadow:0 4px 14px rgba(28,74,47,.28)">
+            Open Section <span class="arr">→</span>
+          </button>
+        </div>
+      </div>
+      <div class="home-footer">
+        <strong style="color:var(--ink2)">Andhra Pradesh Pollution Control Board</strong> &nbsp;·&nbsp; Soil &amp; Buildings Division<br>
+        Paryavaran Bhavan, APIIC Colony, Autonagar, Vijayawada – 520 007
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ SOIL ════ -->
+<div class="page" id="pg-soil">
+  <div class="sec-hd">
+    <div class="shd-row">
+      <div>
+        <span class="shd-icon">🪨</span>
+        <div class="shd-title">Soil <em style="color:var(--soil)">Section</em></div>
+        <div class="shd-sub">Waste Management · Circular Economy · Capacity Building · APPCB Soil &amp; Buildings Division, Vijayawada</div>
+      </div>
+      <span class="shd-badge" style="color:var(--soil);border-color:rgba(160,104,64,.3);background:var(--sand)">Soil Division</span>
+    </div>
+    <div class="tab-bar" id="soil-bar">
+      <button class="tb on"  onclick="soilTab('plastic',this)"><span class="ti">♻️</span>Plastic Waste</button>
+      <button class="tb"     onclick="soilTab('ewaste',this)"><span class="ti">💻</span>E-Waste</button>
+      <button class="tb"     onclick="soilTab('battery',this)"><span class="ti">🔋</span>Battery Waste</button>
+      <button class="tb"     onclick="soilTab('cnd',this)"><span class="ti">🧱</span>C&amp;D Waste</button>
+      <button class="tb"     onclick="soilTab('flyash',this)"><span class="ti">🌫️</span>Fly Ash</button>
+      <button class="tb"     onclick="soilTab('circular',this)"><span class="ti">🔄</span>Circular Economy<span class="tnew">New</span></button>
+      <button class="tb"     onclick="soilTab('training',this)"><span class="ti">🎓</span>Training &amp; Workshops</button>
+    </div>
+  </div>
+  <div class="pane-wrap">
+    <div class="pane on"  id="sp-plastic"></div>
+    <div class="pane"     id="sp-ewaste"></div>
+    <div class="pane"     id="sp-battery"></div>
+    <div class="pane"     id="sp-cnd"></div>
+    <div class="pane"     id="sp-flyash"></div>
+    <div class="pane"     id="sp-circular"></div>
+    <div class="pane"     id="sp-training"></div>
+  </div>
+</div>
+
+<!-- ════ BUILDINGS ════ -->
+<div class="page" id="pg-buildings">
+  <div class="sec-hd">
+    <div class="shd-row">
+      <div>
+        <span class="shd-icon">🏛️</span>
+        <div class="shd-title">Buildings <em style="color:var(--forest)">Section</em></div>
+        <div class="shd-sub">Office Infrastructure · Land Records · Property Management · 13 Regional Offices · 28 Districts</div>
+      </div>
+      <span class="shd-badge" style="color:var(--forest);border-color:var(--mint);background:var(--mist)">Buildings Division</span>
+    </div>
+    <div class="tab-bar" id="bldg-bar">
+      <button class="tb on" onclick="bldgTab('map',this)"><span class="ti">🗺️</span>RO Map<span class="tnew">Live</span></button>
+      <button class="tb" onclick="bldgTab('land',this)"><span class="ti">📋</span>Land Records</button>
+      <button class="tb" onclick="bldgTab('construct',this)"><span class="ti">🏗️</span>Constructions</button>
+      <button class="tb" onclick="bldgTab('lease',this)"><span class="ti">📝</span>Leases &amp; Rentals</button>
+      <button class="tb" onclick="bldgTab('repair',this)"><span class="ti">🔧</span>Repairs &amp; Maintenance</button>
+      <button class="tb" onclick="bldgTab('misc',this)"><span class="ti">📁</span>Section 6</button>
+    </div>
+  </div>
+  <div class="pane-wrap">
+    <div class="pane on" id="bp-map">
+      <!-- Map pane — special layout -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+        <div>
+          <div style="font-family:var(--ff-s);font-size:1.2rem;font-weight:700;color:var(--ink)">APPCB Regional Offices — AP District Map</div>
+          <div style="font-size:.7rem;color:var(--stone);margin-top:2px">13 ROs · 28 Districts · Click any district or RO pin for editable Lands &amp; Buildings details</div>
+        </div>
+        <div class="lyr-btns">
+          <button class="lbtn on" id="lb-d" onclick="mLyr('d')">Districts</button>
+          <button class="lbtn on sky" id="lb-r" onclick="mLyr('r')">RO Pins</button>
+        </div>
+      </div>
+      <div class="map-shell">
+        <div class="map-bar">
+          <div><div class="map-bar-t">🌿 APPCB · 13 ROs · 28 Districts</div><div class="map-bar-s">Colour-coded by RO jurisdiction</div></div>
+          <div id="map-leg"><h4>RO Legend</h4><div id="leg-rows"></div><div class="lg-row" style="margin-top:5px;padding-top:5px;border-top:1px solid var(--linen2)"><span>📍</span><span style="margin-left:4px">APPCB Regional Office</span></div></div>
+        </div>
+        <div class="map-body">
+          <div id="embMap"></div>
+          <div class="map-spin" id="map-spin"><div class="spin"></div><p>Loading AP district boundaries…</p></div>
+          <div class="msp" id="msp"><div class="msp-in">
+            <div class="msp-hd">
+              <div class="msp-bdg ro" id="msp-bdg">Regional Office</div>
+              <div class="msp-name" id="msp-name">—</div>
+              <div class="msp-sub" id="msp-sub"></div>
+              <div class="msp-tel" id="msp-tel"></div>
+              <div class="msp-meta" id="msp-meta"></div>
+              <button class="msp-x" onclick="closeMsp()">✕</button>
+            </div>
+            <div class="msp-tabs">
+              <div class="msp-tab on" id="mt-ov" onclick="mspTab('ov')">Overview</div>
+              <div class="msp-tab" id="mt-lb" onclick="mspTab('lb')">Lands &amp; Bldgs</div>
+              <div class="msp-tab" id="mt-nt" onclick="mspTab('nt')">Notes</div>
+            </div>
+            <div class="msp-body" id="msp-body"></div>
+          </div></div>
+        </div>
+      </div>
+    </div>
+    <div class="pane" id="bp-land"></div>
+    <div class="pane" id="bp-construct"></div>
+    <div class="pane" id="bp-lease"></div>
+    <div class="pane" id="bp-repair"></div>
+    <div class="pane" id="bp-misc"></div>
+  </div>
+</div>
+
+</div><!-- #app -->
+
+<!-- ════ NEW CARD DIALOG ════ -->
+<div class="nc-dialog" id="nc-dialog">
+  <div class="nc-box">
+    <div class="nc-title">Add New Card</div>
+    <div class="nc-label">Card Name</div>
+    <input class="nc-input" id="nc-name" placeholder="e.g. PWM Rules, EPR Data…" maxlength="50" onkeydown="if(event.key==='Enter')ncOk()">
+    <div class="nc-label" style="margin-top:12px">Choose Icon</div>
+    <div class="nc-icons" id="nc-icons"></div>
+    <div class="nc-row">
+      <button class="nc-cancel" onclick="ncClose()">Cancel</button>
+      <button class="nc-ok" onclick="ncOk()">Create Card</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ CARD DETAIL MODAL ════ -->
+<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-head">
+      <input class="modal-title-input" id="modal-title" placeholder="Card name…" onblur="saveModalTitle()">
+      <button class="modal-x" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="upload-drop" id="upload-drop">
+        <input type="file" id="file-input" multiple accept="*/*" onchange="handleFiles(this.files)">
+        <span class="ud-ico">📎</span>
+        <div class="ud-title">Drop files here or click to browse</div>
+        <div class="ud-sub">PDF, Images, Word, Excel, any document<br>Files are stored locally in your browser</div>
+        <button class="ud-btn" style="pointer-events:none">Browse Files</button>
+      </div>
+      <div class="files-list" id="files-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ════ FILE PREVIEW ════ -->
+<div class="preview-bg" id="preview-bg">
+  <div class="preview-bar">
+    <span class="preview-name" id="preview-name"></span>
+    <button class="preview-x" onclick="closePreview()">✕ Close</button>
+  </div>
+  <div class="preview-content" id="preview-content"></div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+/* ── Date ──────────────────────────────────────────── */
+document.getElementById('nav-date').textContent =
+  new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+
+/* ── Page nav ──────────────────────────────────────── */
+function goHome(){
+  showPage('pg-home');
+  document.getElementById('nav-bc').style.display='none';
+  document.getElementById('btn-back').classList.remove('show');
+}
+function openSec(s){
+  showPage('pg-'+s);
+  document.getElementById('nav-bc').style.display='flex';
+  document.getElementById('bc-s').textContent=s==='soil'?'Soil Section':'Buildings Section';
+  document.getElementById('bc-t').textContent='';
+  document.getElementById('bc-s2').style.display='none';
+  document.getElementById('btn-back').classList.add('show');
+  if(s==='buildings'&&!mapOk) setTimeout(initMap,200);
+}
+function showPage(id){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+/* ── Tab helpers ───────────────────────────────────── */
+function soilTab(t,btn){switchTab('soil-bar','sp-',t,btn)}
+function bldgTab(t,btn){switchTab('bldg-bar','bp-',t,btn)}
+function switchTab(barId,pre,t,btn){
+  document.querySelectorAll('#'+barId+' .tb').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.pane[id^="'+pre+'"]').forEach(p=>p.classList.remove('on'));
+  document.getElementById(pre+t).classList.add('on');
+  document.getElementById('bc-t').textContent=btn.textContent.trim().replace('New','').trim();
+  document.getElementById('bc-s2').style.display='inline';
+  // Render workspace if empty
+  const pane=document.getElementById(pre+t);
+  if(!pane.dataset.rendered) renderWorkspace(pane,pre+t);
+}
+
+/* ══════════════════════════════════════════════════════
+   DYNAMIC WORKSPACE ENGINE
+══════════════════════════════════════════════════════ */
+const WS_META = {
+  'sp-plastic':  {title:'Plastic Waste Management',   icon:'♻️', color:'#dc2626', desc:'PWM Rules 2016 (amended 2022) · EPR · SUP Ban · ULB Data'},
+  'sp-ewaste':   {title:'E-Waste Management',          icon:'💻', color:'#2563eb', desc:'E-Waste Rules 2022 · EPR Compliance · Authorised Recyclers'},
+  'sp-battery':  {title:'Battery Waste Management',    icon:'🔋', color:'#d97706', desc:'BWM Rules 2022 · EPR Targets · Lead-Acid Channelisation'},
+  'sp-cnd':      {title:'C&D Waste',                   icon:'🧱', color:'#57534e', desc:'C&D Rules 2016 · Bulk Generators · Processing Facilities'},
+  'sp-flyash':   {title:'Fly Ash Utilisation',         icon:'🌫️', color:'#64748b', desc:'Fly Ash Notification 2021 · Thermal Power Plants · Annual Returns'},
+  'sp-circular': {title:'Circular Economy',            icon:'🔄', color:'#059669', desc:'Resource Efficiency · Industrial Symbiosis · Waste-to-Resource'},
+  'sp-training': {title:'Training &amp; Workshops',    icon:'🎓', color:'#2a6899', desc:'Capacity Building · Stakeholder Workshops · Awareness Campaigns'},
+  'bp-land':     {title:'Land Records',                icon:'📋', color:'#c49a2a', desc:'Survey Numbers · Extent · Ownership · Patta Documents'},
+  'bp-construct':{title:'Constructions',               icon:'🏗️', color:'#1c4a2f', desc:'Tender Details · Work Orders · Physical & Financial Progress'},
+  'bp-lease':    {title:'Leases &amp; Rentals',        icon:'📝', color:'#7c3aed', desc:'Lease Agreements · Rental Status · Renewal Correspondence'},
+  'bp-repair':   {title:'Repairs &amp; Maintenance',   icon:'🔧', color:'#c2410c', desc:'AMC Documents · Repair Works · Inspection Reports'},
+  'bp-misc':     {title:'Section 6',                   icon:'📁', color:'#6b7280', desc:'Renameable section — add content as needed'},
+};
+
+const CARD_ICONS=['📄','📑','📊','📈','📉','🗂️','📂','📌','📎','🖇️','✉️','📧','📬','💼','🏷️','🔖','📝','✏️','🖊️','📷','🖼️','🗃️','💾','📡','🔍','⚖️','🏛️','🌿','♻️','🔄'];
+
+/* Storage helpers */
+function lsGet(k){try{return JSON.parse(localStorage.getItem('appcb3_'+k))}catch(e){return null}}
+function lsSet(k,v){try{localStorage.setItem('appcb3_'+k,JSON.stringify(v))}catch(e){}}
+
+/* Render workspace into a pane */
+function renderWorkspace(pane,wsId){
+  pane.dataset.rendered='1';
+  const meta=WS_META[wsId]||{title:wsId,icon:'📁',color:'#6b7280',desc:''};
+  const cards=lsGet('ws_'+wsId)||[];
+  const accentBg=meta.color+'18', accentBdr=meta.color+'44';
+
+  pane.innerHTML=`
+    <div class="ws-topbar">
+      <div class="ws-info">
+        <h3>${meta.icon} ${meta.title}</h3>
+        <p>${meta.desc}</p>
+      </div>
+      <button class="ws-add-btn" onclick="openNewCard('${wsId}')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Card
+      </button>
+    </div>
+    <div class="card-grid" id="grid-${wsId}"></div>`;
+
+  renderCards(wsId, meta);
+}
+
+function renderCards(wsId, meta){
+  meta=meta||WS_META[wsId]||{title:wsId,icon:'📁',color:'#6b7280',desc:''};
+  const grid=document.getElementById('grid-'+wsId);
+  if(!grid) return;
+  const cards=lsGet('ws_'+wsId)||[];
+  grid.innerHTML='';
+
+  cards.forEach((card,i)=>{
+    const fileCount=(lsGet('files_'+wsId+'_'+card.id)||[]).length;
+    const div=document.createElement('div');
+    div.className='ws-card';
+    div.innerHTML=`
+      <div class="ws-card-actions">
+        <button class="wca" title="Rename" onclick="event.stopPropagation();renameCard('${wsId}',${i})">✏️</button>
+        <button class="wca del" title="Delete" onclick="event.stopPropagation();deleteCard('${wsId}',${i})">🗑</button>
+      </div>
+      <div class="ws-card-ico" style="background:${meta.color}18;border:1.5px solid ${meta.color}33">${card.icon||'📄'}</div>
+      <div class="ws-card-name">${card.name}</div>
+      <div class="ws-card-count">${fileCount} file${fileCount!==1?'s':''}</div>`;
+    div.onclick=()=>openModal(wsId,i);
+    grid.appendChild(div);
+  });
+
+  // Add card button
+  const addDiv=document.createElement('div');
+  addDiv.className='ws-card ws-card-add';
+  addDiv.innerHTML='<div class="plus">+</div><span>Add Card</span>';
+  addDiv.onclick=()=>openNewCard(wsId);
+  grid.appendChild(addDiv);
+}
+
+/* ── New card dialog ───────────────────────────── */
+let _ncWs='';
+const iconsEl=document.getElementById('nc-icons');
+CARD_ICONS.forEach(ico=>{
+  const b=document.createElement('button');
+  b.className='nc-ico-btn';b.textContent=ico;
+  b.onclick=()=>{document.querySelectorAll('.nc-ico-btn').forEach(x=>x.classList.remove('sel'));b.classList.add('sel')};
+  iconsEl.appendChild(b);
+});
+// Default select first
+iconsEl.firstChild?.classList.add('sel');
+
+function openNewCard(wsId){
+  _ncWs=wsId;
+  document.getElementById('nc-name').value='';
+  document.querySelectorAll('.nc-ico-btn').forEach(b=>b.classList.remove('sel'));
+  iconsEl.firstChild?.classList.add('sel');
+  document.getElementById('nc-dialog').classList.add('open');
+  setTimeout(()=>document.getElementById('nc-name').focus(),80);
+}
+function ncClose(){document.getElementById('nc-dialog').classList.remove('open')}
+function ncOk(){
+  const name=document.getElementById('nc-name').value.trim();
+  if(!name){document.getElementById('nc-name').focus();return}
+  const ico=document.querySelector('.nc-ico-btn.sel')?.textContent||'📄';
+  const cards=lsGet('ws_'+_ncWs)||[];
+  cards.push({id:Date.now().toString(36),name,icon:ico});
+  lsSet('ws_'+_ncWs,cards);
+  ncClose();
+  renderCards(_ncWs);
+}
+
+function renameCard(wsId,idx){
+  const cards=lsGet('ws_'+wsId)||[];
+  const card=cards[idx];if(!card)return;
+  const name=prompt('Rename card:',card.name);
+  if(name&&name.trim()){cards[idx].name=name.trim();lsSet('ws_'+wsId,cards);renderCards(wsId)}
+}
+function deleteCard(wsId,idx){
+  const cards=lsGet('ws_'+wsId)||[];
+  const card=cards[idx];if(!card)return;
+  if(!confirm(`Delete "${card.name}" and all its files?`))return;
+  lsSet('files_'+wsId+'_'+card.id,[]);
+  cards.splice(idx,1);lsSet('ws_'+wsId,cards);renderCards(wsId);
+}
+
+/* ── Modal (card files) ────────────────────────── */
+let _mWs='',_mIdx=-1,_mId='';
+function openModal(wsId,idx){
+  const cards=lsGet('ws_'+wsId)||[];
+  const card=cards[idx];if(!card)return;
+  _mWs=wsId;_mIdx=idx;_mId=card.id;
+  document.getElementById('modal-title').value=card.name;
+  document.getElementById('modal-bg').classList.add('open');
+  renderFilesList();
+}
+function saveModalTitle(){
+  const name=document.getElementById('modal-title').value.trim();
+  if(!name||!_mWs)return;
+  const cards=lsGet('ws_'+_mWs)||[];
+  if(cards[_mIdx]){cards[_mIdx].name=name;lsSet('ws_'+_mWs,cards);renderCards(_mWs)}
+}
+function closeModal(){
+  document.getElementById('modal-bg').classList.remove('open');
+  _mWs='';_mIdx=-1;_mId='';
+}
+
+/* File type helpers */
+function fileIcon(name){
+  const ext=(name.split('.').pop()||'').toLowerCase();
+  if(['pdf'].includes(ext)) return '📄';
+  if(['jpg','jpeg','png','gif','webp','svg','bmp'].includes(ext)) return '🖼️';
+  if(['doc','docx'].includes(ext)) return '📝';
+  if(['xls','xlsx','csv'].includes(ext)) return '📊';
+  if(['ppt','pptx'].includes(ext)) return '📑';
+  if(['zip','rar','7z'].includes(ext)) return '🗜️';
+  return '📎';
+}
+function fmtSize(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(1)+'MB'}
+function canPreview(name){
+  const ext=(name.split('.').pop()||'').toLowerCase();
+  return ['pdf','jpg','jpeg','png','gif','webp','bmp','svg'].includes(ext);
+}
+
+function handleFiles(files){
+  if(!_mId) return;
+  const stored=lsGet('files_'+_mWs+'_'+_mId)||[];
+  Array.from(files).forEach(file=>{
+    const reader=new FileReader();
+    reader.onload=e=>{
+      stored.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2),name:file.name,size:file.size,type:file.type,data:e.target.result});
+      lsSet('files_'+_mWs+'_'+_mId,stored);
+      renderFilesList();
+      renderCards(_mWs);
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+function renderFilesList(){
+  const stored=lsGet('files_'+_mWs+'_'+_mId)||[];
+  const el=document.getElementById('files-list');
+  el.innerHTML='';
+  if(!stored.length){
+    el.innerHTML='<div style="text-align:center;padding:18px;font-size:.75rem;color:var(--stone)">No files yet — drag &amp; drop or use the area above</div>';
+    return;
+  }
+  stored.forEach((f,i)=>{
+    const row=document.createElement('div');row.className='file-row';
+    row.innerHTML=`
+      <div class="file-ico" style="background:var(--cream)">${fileIcon(f.name)}</div>
+      <div class="file-name" title="${f.name}">${f.name}</div>
+      <div class="file-size">${fmtSize(f.size)}</div>
+      ${canPreview(f.name)?'<span class="file-view-badge">Preview</span>':''}
+      <button class="file-del" onclick="event.stopPropagation();deleteFile(${i})" title="Delete">✕</button>`;
+    if(canPreview(f.name)) row.onclick=()=>openPreview(f);
+    el.appendChild(row);
+  });
+}
+
+function deleteFile(idx){
+  const stored=lsGet('files_'+_mWs+'_'+_mId)||[];
+  stored.splice(idx,1);
+  lsSet('files_'+_mWs+'_'+_mId,stored);
+  renderFilesList();renderCards(_mWs);
+}
+
+/* ── Preview ───────────────────────────────────── */
+function openPreview(f){
+  document.getElementById('preview-name').textContent=f.name;
+  const ext=(f.name.split('.').pop()||'').toLowerCase();
+  const el=document.getElementById('preview-content');
+  if(ext==='pdf'){
+    el.innerHTML=`<iframe src="${f.data}"></iframe>`;
+  } else {
+    el.innerHTML=`<img src="${f.data}" alt="${f.name}">`;
+  }
+  document.getElementById('preview-bg').classList.add('open');
+}
+function closePreview(){
+  document.getElementById('preview-bg').classList.remove('open');
+  document.getElementById('preview-content').innerHTML='';
+}
+
+/* Drag & drop */
+const dd=document.getElementById('upload-drop');
+dd.addEventListener('dragover',e=>{e.preventDefault();dd.classList.add('drag')});
+dd.addEventListener('dragleave',()=>dd.classList.remove('drag'));
+dd.addEventListener('drop',e=>{e.preventDefault();dd.classList.remove('drag');handleFiles(e.dataTransfer.files)});
+
+/* Init soil panes on first load */
+document.querySelectorAll('.pane[id^="sp-"].on, .pane[id^="bp-"].on').forEach(p=>{
+  if(!p.dataset.rendered && p.id!=='bp-map') renderWorkspace(p,p.id);
+});
+// Init visible soil tab
+renderWorkspace(document.getElementById('sp-plastic'),'sp-plastic');
+
+/* ══════════════════════════════════════════════════════
+   MAP — 13 ROs × 28 Districts
+══════════════════════════════════════════════════════ */
+let mapOk=false,emb=null,gL=null,mL=null,aL=null,curRO=null;
+let showD=true,showR=true;
+
+const RO={
+"Srikakulam RO":{id:"skl",c:"#0e7490",d:["Srikakulam","Parvathipuram Manyam"],loc:{a:18.2993,n:83.8813},addr:"Purushotham Nagar Colony, Gujarathipeta, Srikakulam – 532005",ph:"",st:[{l:"Districts",v:"2"},{l:"Zone",v:"Vizag Zone"},{l:"Region",v:"Uttarandhra"}],ov:[{y:"Established",t:"i",x:"Covers <strong>Srikakulam</strong> and <strong>Parvathipuram Manyam</strong>."},{y:"Add Event",t:"d",x:"Enter chronological details here."}],lb:"Add land & building details for Srikakulam RO.\n\n• Survey No / Extent:\n• Date of Acquisition:\n• Construction:\n• Status:\n• Litigation:",nt:""},
+"Vizianagaram RO":{id:"vzm",c:"#1d4ed8",d:["Vizianagaram","Alluri Sitharama Raju","Polavaram"],loc:{a:18.1038,n:83.4013},addr:"Gayatri Nagar, Kasibugga, Vizianagaram – 535003",ph:"",st:[{l:"Districts",v:"3"},{l:"Zone",v:"Vizag Zone"},{l:"Region",v:"Uttarandhra"}],ov:[{y:"Established",t:"i",x:"Covers <strong>Vizianagaram</strong>, <strong>Alluri Sitharama Raju</strong> and <strong>Polavaram</strong>."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Vizianagaram RO.",nt:""},
+"Visakhapatnam RO":{id:"vsp",c:"#6d28d9",d:["Visakhapatnam","Anakapalli"],loc:{a:17.75,n:83.2481},addr:"AP Pollution Control Board Rd, Vuda Layout, Madhavadhara, Visakhapatnam – 530018",ph:"",st:[{l:"Districts",v:"2"},{l:"Zone",v:"Vizag Zone"},{l:"Zonal Lab",v:"Yes"}],ov:[{y:"Established",t:"i",x:"Zonal Office + RO covering <strong>Visakhapatnam</strong> and <strong>Anakapalli</strong>. Zonal Lab."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Visakhapatnam RO.",nt:""},
+"Kakinada RO":{id:"kkd",c:"#065f46",d:["East Godavari","Konaseema","Kakinada"],loc:{a:17.0024,n:82.2464},addr:"Ramanayyapeta, Rajeshwari Nagar, Kakinada – 533005",ph:"+91 884 237 4066",st:[{l:"Districts",v:"3"},{l:"Zone",v:"Vizag Zone"},{l:"RO Lab",v:"Yes"}],ov:[{y:"Established",t:"i",x:"Covers <strong>East Godavari</strong>, <strong>B.R. Ambedkar Konaseema</strong> and <strong>Kakinada</strong>."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Kakinada RO.",nt:""},
+"Eluru RO":{id:"elr",c:"#3f6212",d:["Eluru","West Godavari"],loc:{a:16.7125,n:81.1073},addr:"Kanukolanu Vari St, near Power Pet, Agraharam, Eluru – 534002",ph:"+91 88122 49668",st:[{l:"Districts",v:"2"},{l:"Zone",v:"Vijayawada Zone"},{l:"RO Lab",v:"Yes"}],ov:[{y:"Established",t:"i",x:"Covers <strong>Eluru</strong> and <strong>West Godavari</strong>."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Eluru RO.",nt:""},
+"Vijayawada RO":{id:"vjw",c:"#b45309",d:["NTR","Krishna"],loc:{a:16.5039,n:80.6709},addr:"Paryavaran Bhavan, APIIC Colony, Autonagar, Vijayawada – 520007",ph:"+91 99488 52909",st:[{l:"Districts",v:"2"},{l:"Zone",v:"Vijayawada Zone"},{l:"Type",v:"Head Office"}],ov:[{y:"Established",t:"i",x:"Houses <strong>APPCB Head Office</strong>. Covers <strong>NTR</strong> and <strong>Krishna</strong>."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Vijayawada RO / Head Office.",nt:""},
+"Guntur RO":{id:"gnt",c:"#ca8a04",d:["Guntur","Palnadu"],loc:{a:16.3286,n:80.4186},addr:"JKC College Rd, Vijayapuri Colony, Guntur – 522006",ph:"",st:[{l:"Districts",v:"2"},{l:"Zone",v:"Vijayawada Zone"},{l:"Region",v:"Coastal AP"}],ov:[{y:"Established",t:"i",x:"Covers <strong>Guntur</strong> and <strong>Palnadu</strong>."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Guntur RO.",nt:""},
+"Ongole RO":{id:"ongl",c:"#991b1b",d:["Prakasam","Bapatla","Markapuram"],loc:{a:15.5061,n:80.0285},addr:"MDR127, Siva Prasad Colony, Ongole – 523002",ph:"+91 85922 95001",st:[{l:"Districts",v:"3"},{l:"Zone",v:"Vijayawada Zone"},{l:"Region",v:"Coastal AP"}],ov:[{y:"Established",t:"i",x:"Covers <strong>Prakasam</strong>, <strong>Bapatla</strong> and <strong>Markapuram</strong>."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Ongole RO.",nt:""},
+"Nellore RO":{id:"nlr",c:"#374151",d:["SPSR Nellore"],loc:{a:14.4363,n:79.965},addr:"PRASANTHI Nagar, Dargamitta, Nellore – 524003",ph:"",st:[{l:"Districts",v:"1"},{l:"Zone",v:"Vijayawada Zone"},{l:"Est.",v:"Sep 1994"}],ov:[{y:"Sep 1994",t:"h",x:"<strong>Established 14 September 1994.</strong> Covers <strong>SPSR Nellore</strong>."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Nellore RO.",nt:""},
+"Tirupati RO":{id:"tpt",c:"#4338ca",d:["Tirupati","Chittoor"],loc:{a:13.6329,n:79.4088},addr:"APSFC Building, Narasimhatheertham Rd, near LIC, Tirupati – 517501",ph:"+91 877 225 3981",st:[{l:"Districts",v:"2"},{l:"Zone",v:"Kurnool Zone"},{l:"New Bldg",v:"Aug 2023"}],ov:[{y:"Established",t:"i",x:"Covers <strong>Tirupati</strong> and <strong>Chittoor</strong>. Regional Lab available."},{y:"Aug 2023",t:"h",x:"<strong>New building inaugurated</strong> by Minister for Environment."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Tirupati RO.",nt:""},
+"Kurnool RO":{id:"knl",c:"#1e40af",d:["Kurnool","Nandyal"],loc:{a:15.8054,n:78.0371},addr:"Shanker Shopping Complex, Krishna Reddy Nagar, Kalluru – 518002",ph:"+91 85182 33619",st:[{l:"Districts",v:"2"},{l:"Zone",v:"Kurnool Zone"},{l:"Zonal Lab",v:"Yes"}],ov:[{y:"Established",t:"i",x:"Covers <strong>Kurnool</strong> and <strong>Nandyal</strong>. Zonal Office with Zonal Laboratory."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Kurnool RO.",nt:""},
+"Kadapa RO":{id:"kdp",c:"#166534",d:["YSR Kadapa","Annamayya"],loc:{a:14.4861,n:78.8088},addr:"Vinayaka Nagar, Guduru, Kadapa – 516003",ph:"",st:[{l:"Districts",v:"2"},{l:"Zone",v:"Kurnool Zone"},{l:"Region",v:"Rayalaseema"}],ov:[{y:"Established",t:"i",x:"Covers <strong>YSR Kadapa</strong> and <strong>Annamayya</strong>."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Kadapa RO.",nt:""},
+"Anantapur RO":{id:"ant",c:"#9d174d",d:["Anantapur","Sri Sathya Sai"],loc:{a:14.6711,n:77.5906},addr:"D.No.6-3-145, Revenue Colony, Ram Nagar, Anantapur – 515004",ph:"",st:[{l:"Districts",v:"2"},{l:"Zone",v:"Kurnool Zone"},{l:"Region",v:"Rayalaseema"}],ov:[{y:"Established",t:"i",x:"Covers <strong>Anantapur</strong> and <strong>Sri Sathya Sai</strong>."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Anantapur RO.",nt:""}
+};
+const TEL={"Srikakulam":"శ్రీకాకుళం","Parvathipuram Manyam":"పార్వతీపురం మన్యం","Vizianagaram":"విజయనగరం","Alluri Sitharama Raju":"అల్లూరి సీతారామ రాజు","Polavaram":"పోలవరం","Visakhapatnam":"విశాఖపట్నం","Anakapalli":"అనకాపల్లి","East Godavari":"తూర్పు గోదావరి","Konaseema":"కోనసీమ","Kakinada":"కాకినాడ","Eluru":"ఏలూరు","West Godavari":"పశ్చిమ గోదావరి","NTR":"ఎన్.టి.ఆర్ జిల్లా","Krishna":"కృష్ణా","Guntur":"గుంటూరు","Palnadu":"పల్నాడు","Prakasam":"ప్రకాశం","Bapatla":"బాపట్ల","Markapuram":"మార్కాపురం","SPSR Nellore":"శ్రీ పొట్టి శ్రీరాములు నెల్లూరు","Tirupati":"తిరుపతి","Chittoor":"చిత్తూరు","Kurnool":"కర్నూలు","Nandyal":"నంద్యాల","YSR Kadapa":"వై.యస్.ఆర్. కడప","Annamayya":"అన్నమయ్య","Anantapur":"అనంతపురం","Sri Sathya Sai":"శ్రీ సత్య సాయి"};
+
+const D2R={};
+for(const[ro,d] of Object.entries(RO)) for(const dist of d.d) D2R[dist.toLowerCase().replace(/[^a-z0-9]/g,'')]=ro;
+function getRO(n){const k=n.toLowerCase().replace(/[^a-z0-9]/g,'');if(D2R[k])return D2R[k];for(const[dk,ro] of Object.entries(D2R))if(dk.includes(k)||k.includes(dk))return ro;return null}
+function gCol(n){const ro=getRO(n);return ro?RO[ro].c:'#6b7280'}
+function gN(p){return p.district||p.District||p.DISTRICT||p.NAME_2||p.dtname||p.Dist_Name||p.DISTNAME||p.NAME_1||p.name||"Unknown"}
+function h2r(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return`rgba(${r},${g},${b},${a})`}
+const sDef=f=>{const c=gCol(gN(f.properties));return{fillColor:h2r(c,.42),weight:1.5,opacity:1,color:h2r(c,.7),fillOpacity:1}};
+const sHov=f=>{const c=gCol(gN(f.properties));return{fillColor:h2r(c,.62),weight:2,opacity:1,color:c,fillOpacity:1}};
+const sAct=()=>({fillColor:'rgba(28,74,47,.12)',weight:2.5,opacity:1,color:'#1c4a2f',fillOpacity:1});
+
+function onEF(feat,layer){
+  const name=gN(feat.properties),ro=getRO(name);
+  layer.on({
+    mouseover(){if(layer!==aL)layer.setStyle(sHov(feat));layer.bindTooltip(`<b>${name}</b>${ro?`<br><span style="font-size:.62rem;color:var(--forest2)">${ro}</span>`:''}`,{permanent:false,direction:'center',className:'ap-tt',offset:[0,-4]}).openTooltip()},
+    mouseout(){if(layer!==aL)layer.setStyle(sDef(feat));layer.closeTooltip()},
+    click(e){if(aL&&aL!==layer)aL.setStyle(sDef(feat));layer.setStyle(sAct());aL=layer;L.DomEvent.stopPropagation(e);ro?openMspRO(ro):openMspDist(name)}
+  });
+}
+function initMap(){
+  if(mapOk)return;mapOk=true;
+  emb=L.map('embMap',{center:[15.9,79.7],zoom:7,zoomControl:true});
+  const URLS=["https://cdn.jsdelivr.net/gh/udit-001/india-maps-data@main/geojson/states/andhra-pradesh.geojson","https://raw.githubusercontent.com/udit-001/india-maps-data/main/geojson/states/andhra-pradesh.geojson"];
+  (async()=>{
+    for(const url of URLS){
+      try{
+        const r=await fetch(url);if(!r.ok)continue;
+        const data=await r.json();if(!data.features?.length)continue;
+        let feats=data.features;
+        const s=feats[0]?.properties||{};
+        if(s.ST_NM||s.STATE||s.state_name)feats=feats.filter(f=>(f.properties.ST_NM||f.properties.STATE||f.properties.state_name||'').toLowerCase().includes('andhra'));
+        if(!feats.length)continue;
+        gL=L.geoJSON({type:"FeatureCollection",features:feats},{style:sDef,onEachFeature:onEF}).addTo(emb);
+        const b=gL.getBounds();emb.fitBounds(b,{padding:[14,14]});emb.setMaxBounds(b.pad(0.08));
+        addPins();buildLeg();
+        const el=document.getElementById('map-spin');
+        if(el){el.style.opacity='0';el.style.transition='opacity .4s';setTimeout(()=>el.remove(),400);}
+        return;
+      }catch(e){}
+    }
+    const el=document.getElementById('map-spin');
+    if(el)el.innerHTML=`<div style="text-align:center;padding:20px"><div style="font-size:2rem;margin-bottom:8px">🌐</div><div style="font-size:.78rem;color:var(--stone);font-weight:500">Internet connection required</div><div style="font-size:.67rem;color:var(--stone);opacity:.7;margin-top:5px;line-height:1.6">Open in a browser with internet access to load the AP boundary map.</div></div>`;
+  })();
+  emb.on('click',()=>{if(aL){aL.setStyle(sDef({properties:{}}));aL=null;}closeMsp()});
+}
+function addPins(){
+  mL=L.layerGroup().addTo(emb);
+  for(const[rn,ro] of Object.entries(RO)){
+    const icon=L.divIcon({className:'ro-marker-icon',html:`<div class="ro-pin" style="background:${ro.c}"><div class="ro-pin-i">🏢</div></div>`,iconSize:[24,24],iconAnchor:[12,24],popupAnchor:[0,-26]});
+    const mk=L.marker([ro.loc.a,ro.loc.n],{icon,zIndexOffset:1000});
+    mk.bindTooltip(`<b>${rn}</b><br><span style="font-size:.62rem;color:var(--forest2)">${ro.d.join(' · ')}</span>`,{permanent:false,className:'ap-tt',offset:[0,-26]});
+    mk.on('click',e=>{L.DomEvent.stopPropagation(e);openMspRO(rn)});
+    mk.addTo(mL);
+  }
+}
+function buildLeg(){
+  const el=document.getElementById('leg-rows');el.innerHTML='';
+  for(const[n,ro] of Object.entries(RO))el.innerHTML+=`<div class="lg-row"><div class="lg-sw" style="background:${ro.c}"></div><span>${n.replace(' RO','')} (${ro.d.length})</span></div>`;
+}
+function mLyr(l){
+  if(l==='d'){showD=!showD;document.getElementById('lb-d').classList.toggle('on',showD);if(gL){showD?emb.addLayer(gL):emb.removeLayer(gL)}}
+  else{showR=!showR;const b=document.getElementById('lb-r');b.className='lbtn'+(showR?' on sky':'');if(mL){showR?emb.addLayer(mL):emb.removeLayer(mL)}}
+}
+
+/* Map side panel */
+function sv(k,v){try{localStorage.setItem('appcb3_map_'+k,v)}catch(e){}}
+function ld(k,d){try{const v=localStorage.getItem('appcb3_map_'+k);if(v!==null)return v}catch(e){}return d}
+function openMspRO(rn){
+  const ro=RO[rn];if(!ro)return;curRO=rn;
+  document.getElementById('msp-bdg').textContent='Regional Office';document.getElementById('msp-bdg').className='msp-bdg ro';
+  document.getElementById('msp-name').textContent=rn;document.getElementById('msp-sub').textContent='Covers: '+ro.d.join(' · ');
+  document.getElementById('msp-tel').textContent='';
+  document.getElementById('msp-meta').innerHTML=ro.st.map(s=>`<span class="msp-pill">${s.l}: ${s.v}</span>`).join('');
+  document.querySelectorAll('.msp-tab').forEach(t=>t.classList.remove('on'));document.getElementById('mt-ov').classList.add('on');
+  renderMsp('ov');document.getElementById('msp').classList.add('open');
+}
+function mspTab(t){if(curRO)renderMsp(t)}
+function renderMsp(tab){
+  const ro=RO[curRO];
+  document.querySelectorAll('.msp-tab').forEach(t=>t.classList.remove('on'));document.getElementById('mt-'+tab).classList.add('on');
+  const body=document.getElementById('msp-body');
+  if(tab==='ov'){
+    let h=`<div class="ms-addr"><div class="ms-addr-l">📍 Address</div>${ro.addr}</div>`;
+    if(ro.ph)h+=`<div class="ms-addr" style="margin-top:-6px"><div class="ms-addr-l">📞 Phone</div>${ro.ph}</div>`;
+    h+=`<div class="ms-sec">Quick Info</div><div class="ms-grid">`;
+    ro.st.forEach(s=>h+=`<div class="ms-card"><div class="ms-lbl">${s.l}</div><div class="ms-val">${s.v}</div></div>`);
+    h+=`</div><div class="ms-sec">Districts</div><div class="ms-chips">`;
+    ro.d.forEach(d=>h+=`<div class="ms-chip" style="background:${h2r(ro.c,.1)};color:${ro.c};border-color:${h2r(ro.c,.3)}" onclick="openMspDist('${d}')">${d}</div>`);
+    h+=`</div><div class="ms-sec">Chronology</div><div class="ms-tl">`;
+    ro.ov.forEach(it=>h+=`<div class="ms-ti"><div class="ms-dot ${it.t||'i'}"></div><div class="ms-yr ${it.t||'i'}">${it.y}</div><div class="ms-txt">${it.x}</div></div>`);
+    h+=`</div>`;body.innerHTML=h;
+  }else if(tab==='lb'){
+    const saved=ld(ro.id+'_lb',ro.lb||'');
+    body.innerHTML=`<div class="ms-sec">Lands &amp; Buildings — ${curRO}</div>
+    <div style="font-size:.64rem;color:var(--stone);margin-bottom:7px;line-height:1.65">Survey numbers, construction history, ownership, litigation details.</div>
+    <textarea class="ms-ea" id="ea-lb" placeholder="• Survey No:\n• Acquisition:\n• Construction:\n• Status:">${saved}</textarea>
+    <div class="ms-sv-row"><div class="ms-svd" id="svd-lb">✓ Saved</div><button class="ms-sv-btn" onclick="saveLb()">Save</button></div>`;
+  }else{
+    const saved=ld(ro.id+'_nt','');
+    body.innerHTML=`<div class="ms-sec">Notes — ${curRO}</div>
+    <textarea class="ms-ea" id="ea-nt" style="min-height:130px" placeholder="Notes, pending actions...">${saved}</textarea>
+    <div class="ms-sv-row"><div class="ms-svd" id="svd-nt">✓ Saved</div><button class="ms-sv-btn" onclick="saveNt()">Save</button></div>`;
+  }
+}
+function saveLb(){const v=document.getElementById('ea-lb')?.value||'';if(curRO)sv(RO[curRO].id+'_lb',v);flash2('svd-lb')}
+function saveNt(){const v=document.getElementById('ea-nt')?.value||'';if(curRO)sv(RO[curRO].id+'_nt',v);flash2('svd-nt')}
+function flash2(id){const n=document.getElementById(id);if(n){n.classList.add('show');setTimeout(()=>n.classList.remove('show'),2000)}}
+function openMspDist(dist){
+  const ro=getRO(dist),roD=ro?RO[ro]:null,c=roD?roD.c:'#6b7280';
+  document.getElementById('msp-bdg').textContent=ro?`Under ${ro}`:'District';document.getElementById('msp-bdg').className='msp-bdg dst';
+  document.getElementById('msp-name').textContent=dist;document.getElementById('msp-sub').textContent=ro?`Jurisdiction: ${ro}`:'AP';
+  document.getElementById('msp-tel').textContent=TEL[dist]||'';
+  document.getElementById('msp-meta').innerHTML=`<span class="msp-pill" style="background:${h2r(c,.1)};border-color:${h2r(c,.3)};color:${c}">${ro||'AP'}</span>`;
+  document.querySelectorAll('.msp-tab').forEach(t=>t.classList.remove('on'));document.getElementById('mt-ov').classList.add('on');
+  let h='';
+  if(roD){
+    h+=`<div class="ms-addr"><div class="ms-addr-l">Jurisdictional RO</div><strong style="color:${c}">${ro}</strong><br><span style="font-size:.64rem">${roD.addr}</span></div>`;
+    h+=`<div class="ms-sec">All Districts Under ${ro}</div><div class="ms-chips">`;
+    roD.d.forEach(d=>{const a=d.toLowerCase()===dist.toLowerCase();h+=`<div class="ms-chip" style="background:${a?h2r(c,.2):h2r(c,.08)};color:${c};border-color:${h2r(c,.3)};${a?'font-weight:700':''}" onclick="openMspDist('${d}')">${d}${a?' ✦':''}</div>`});
+    h+=`</div><button style="font-size:.64rem;padding:4px 11px;border-radius:6px;background:${h2r(c,.1)};border:1px solid ${h2r(c,.3)};color:${c};cursor:pointer;font-family:var(--ff);margin-top:4px" onclick="openMspRO('${ro}')">← Back to ${ro}</button>`;
+  }
+  document.getElementById('msp-body').innerHTML=h;document.getElementById('msp').classList.add('open');
+}
+function closeMsp(){document.getElementById('msp').classList.remove('open');curRO=null}
+
+/* Init buildings panes when tab switches */
+document.querySelectorAll('#bldg-bar .tb').forEach(btn=>{
+  const orig=btn.onclick;
+  btn.onclick=function(e){
+    orig.call(this,e);
+    const t=this.getAttribute('onclick').match(/'([^']+)'/)?.[1];
+    if(t&&t!=='map'){
+      const pane=document.getElementById('bp-'+t);
+      if(pane&&!pane.dataset.rendered) renderWorkspace(pane,'bp-'+t);
+    }
+  }
+});
+</script>
+</body>
+</html>
