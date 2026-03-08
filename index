@@ -31,7 +31,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);m
 .nav-brand-sub{font-size:10.5px;color:rgba(255,255,255,.58);letter-spacing:.4px}
 
 /* APP */
-#app{padding-top:var(--nav-h);min-height:100vh}
+#app{padding-top:var(--nav-h);min-height:100vh;transition:padding-top .2s}
+body.glocked #app{padding-top:calc(var(--nav-h) + 34px)}
 .page{display:none;min-height:calc(100vh - var(--nav-h));flex-direction:column}
 .page.active{display:flex}
 
@@ -65,23 +66,26 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);m
 .sec-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--forest);flex:1}
 .breadcrumb{font-size:11px;color:var(--smoke)}
 .card-area{flex:1;overflow-y:auto;padding:26px 22px}
-.card-grid{display:flex;flex-wrap:wrap;gap:22px;align-content:flex-start}
+.card-grid{display:flex;flex-wrap:wrap;gap:22px;align-content:flex-start;overflow:visible}
 
 /* L1 */
-.l1-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;width:128px;position:relative}
+.l1-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;width:128px;position:relative;overflow:visible}
 .l1-circle{width:106px;height:106px;border-radius:50%;display:flex;align-items:center;
   justify-content:center;font-size:36px;box-shadow:var(--sh-s);
-  transition:transform .2s,box-shadow .2s;cursor:pointer;position:relative}
+  transition:transform .2s,box-shadow .2s;cursor:pointer;position:relative;overflow:visible}
 .l1-wrap:hover .l1-circle{transform:scale(1.06);box-shadow:var(--sh-m)}
 .l1-label{font-size:12.5px;font-weight:500;text-align:center;color:var(--ink);line-height:1.3;cursor:pointer}
 .l1-lock-badge{position:absolute;bottom:2px;right:2px;width:22px;height:22px;border-radius:50%;
   background:rgba(0,0,0,.55);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
-.l1-controls{position:absolute;top:-4px;right:-4px;display:none;gap:3px;flex-direction:column}
+.l1-controls{position:absolute;top:-8px;right:-8px;display:none;gap:4px;flex-direction:column;z-index:20}
 .l1-wrap:hover .l1-controls{display:flex}
-.l1-ctrl-btn{width:22px;height:22px;border-radius:50%;border:none;cursor:pointer;font-size:10px;
-  display:flex;align-items:center;justify-content:center;color:#fff}
+.l1-ctrl-btn{width:24px;height:24px;border-radius:50%;border:none;cursor:pointer;font-size:11px;
+  display:flex;align-items:center;justify-content:center;color:#fff;box-shadow:0 2px 6px rgba(0,0,0,.25);
+  transition:transform .15s;z-index:20;position:relative}
+.l1-ctrl-btn:hover{transform:scale(1.15)}
 .l1-ctrl-btn.del{background:var(--red)}
 .l1-ctrl-btn.lk{background:#555}
+.l1-ctrl-btn.ren{background:var(--forest)}
 .map-l1-circle{background:linear-gradient(135deg,#1a5e38,#3d7a55);color:#fff}
 .map-l1-label{font-size:12.5px;font-weight:600;text-align:center;color:var(--forest);line-height:1.3;cursor:pointer}
 .add-l1-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;width:128px}
@@ -92,19 +96,21 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);m
 .add-l1-label{font-size:12px;color:#aaa}
 
 /* L2 */
-.l2-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;width:108px;position:relative}
+.l2-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;width:108px;position:relative;overflow:visible}
 .l2-circle{width:86px;height:86px;border-radius:50%;background:var(--white);
   border:2px solid var(--border);display:flex;align-items:center;justify-content:center;
-  font-size:26px;box-shadow:var(--sh-s);transition:transform .2s,border-color .2s,box-shadow .2s;cursor:pointer;position:relative}
+  font-size:26px;box-shadow:var(--sh-s);transition:transform .2s,border-color .2s,box-shadow .2s;cursor:pointer;position:relative;overflow:visible}
 .l2-wrap:hover .l2-circle{border-color:var(--forest);transform:scale(1.07);box-shadow:0 8px 24px rgba(26,94,56,.15)}
 .l2-label{font-size:11.5px;font-weight:500;text-align:center;color:var(--ink);line-height:1.3;cursor:pointer}
 .l2-lock-badge{position:absolute;bottom:0;right:0;width:20px;height:20px;border-radius:50%;
   background:rgba(0,0,0,.5);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
-.l2-badge{position:absolute;top:-2px;left:-2px;background:var(--forest);color:#fff;font-size:9px;padding:1px 5px;border-radius:8px}
-.l2-actions{position:absolute;top:-5px;right:-5px;display:none;gap:2px}
+.l2-badge{position:absolute;top:-2px;left:-2px;background:var(--forest);color:#fff;font-size:9px;padding:1px 5px;border-radius:8px;z-index:10}
+.l2-actions{position:absolute;top:-8px;right:-8px;display:none;gap:3px;z-index:20}
 .l2-wrap:hover .l2-actions{display:flex}
-.l2-act{width:20px;height:20px;border-radius:50%;border:none;cursor:pointer;font-size:10px;
-  display:flex;align-items:center;justify-content:center;color:#fff}
+.l2-act{width:22px;height:22px;border-radius:50%;border:none;cursor:pointer;font-size:11px;
+  display:flex;align-items:center;justify-content:center;color:#fff;
+  box-shadow:0 2px 6px rgba(0,0,0,.25);transition:transform .15s;position:relative;z-index:20}
+.l2-act:hover{transform:scale(1.15)}
 .l2-act.ren{background:var(--forest)}.l2-act.del{background:var(--red)}.l2-act.lk{background:#555}
 .add-l2-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;width:108px}
 .add-l2-btn{width:86px;height:86px;border-radius:50%;border:2.5px dashed var(--border);
@@ -112,8 +118,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);m
   display:flex;align-items:center;justify-content:center}
 .add-l2-btn:hover{border-color:var(--forest);color:var(--forest);background:rgba(26,94,56,.04)}
 .add-l2-label{font-size:11px;color:#aaa}
-.card-locked-overlay{position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.45);
-  display:flex;align-items:center;justify-content:center;font-size:22px;cursor:default;z-index:5}
+/* Locked overlay — pointer-events:none so underlying click handler still fires */
+.card-locked-overlay{position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.42);
+  display:flex;align-items:center;justify-content:center;font-size:22px;
+  pointer-events:none;z-index:2}
 
 /* DIALOGS */
 .overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);
@@ -346,6 +354,110 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);m
   .panel-inner{width:100vw}
   #mapLegend{display:none}
 }
+
+/* ══════════════════════════════════════
+   RENAME DIALOG
+══════════════════════════════════════ */
+.rename-preview{
+  display:flex;align-items:center;gap:10px;
+  background:var(--parch);border:1px solid var(--border);
+  border-radius:10px;padding:10px 13px;margin-bottom:14px;
+}
+.rename-preview-icon{font-size:26px}
+.rename-preview-name{font-size:13px;color:var(--smoke)}
+
+/* L1 rename button */
+.l1-ctrl-btn.ren{background:var(--forest)}
+
+/* ══════════════════════════════════════
+   CARD LOCK METHOD PICKER
+   (same 3-method system as global lock,
+    but scoped to individual cards)
+══════════════════════════════════════ */
+.cl-method-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:12px 0}
+.cl-method-card{border:2px solid var(--border);border-radius:12px;padding:12px 8px;
+  text-align:center;cursor:pointer;transition:all .2s;background:var(--cream)}
+.cl-method-card:hover{border-color:var(--forest);background:rgba(26,94,56,.05)}
+.cl-method-card.sel{border-color:var(--forest);background:rgba(26,94,56,.09)}
+.cl-method-icon{font-size:22px;margin-bottom:4px}
+.cl-method-name{font-size:11px;font-weight:600;color:var(--ink)}
+/* card otp-input (reuse global style) */
+/* card face box — smaller than global */
+.cl-face-box{position:relative;width:160px;height:160px;margin:0 auto 10px;
+  border-radius:50%;overflow:hidden;background:#000;border:3px solid var(--forest)}
+.cl-face-box video{width:100%;height:100%;object-fit:cover}
+.cl-face-overlay{position:absolute;inset:0;border-radius:50%;border:3px solid transparent;transition:border-color .3s}
+.cl-face-overlay.scanning{border-color:#22c55e;animation:facePulse 1s ease-in-out infinite}
+
+/* ══════════════════════════════════════
+   GLOBAL LOCK SYSTEM
+══════════════════════════════════════ */
+/* Lock button in nav */
+#gLockBtn{
+  background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);
+  color:#fff;padding:6px 14px;border-radius:20px;cursor:pointer;
+  font-family:'DM Sans',sans-serif;font-size:12.5px;font-weight:600;
+  display:flex;align-items:center;gap:6px;transition:all .2s;white-space:nowrap;
+  flex-shrink:0;
+}
+#gLockBtn:hover{background:rgba(255,255,255,.25)}
+#gLockBtn.locked{background:rgba(220,60,60,.35);border-color:rgba(255,100,100,.5)}
+
+/* Lock banner */
+#gLockBanner{
+  display:none;position:fixed;top:var(--nav-h);left:0;right:0;z-index:8500;
+  background:linear-gradient(90deg,#b91c1c,#991b1b);
+  padding:7px 18px;font-size:12.5px;color:#fff;
+  display:none;align-items:center;justify-content:center;gap:10px;
+  font-family:'DM Sans',sans-serif;font-weight:500;
+}
+#gLockBanner.show{display:flex}
+#gLockBanner strong{font-weight:700}
+.gband-unlock{background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.4);
+  color:#fff;padding:3px 12px;border-radius:12px;cursor:pointer;font-size:12px;
+  font-family:'DM Sans',sans-serif;margin-left:4px}
+.gband-unlock:hover{background:rgba(255,255,255,.32)}
+
+/* when locked, hide only add/upload/delete actions — lock & rename btns stay visible */
+body.glocked .add-l1-wrap,
+body.glocked .add-l2-wrap,
+body.glocked .drop-zone,
+body.glocked .url-row,
+body.glocked .file-del{display:none!important}
+/* hide only the ren and del buttons when globally locked, but keep lk button */
+body.glocked .l1-ctrl-btn.ren,
+body.glocked .l1-ctrl-btn.del,
+body.glocked .l2-act.ren,
+body.glocked .l2-act.del{display:none!important}
+
+/* Method picker dialog */
+.lk-method-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.lk-method-card{border:2px solid var(--border);border-radius:14px;padding:16px 10px;
+  text-align:center;cursor:pointer;transition:all .2s;background:var(--cream)}
+.lk-method-card:hover{border-color:var(--forest);background:rgba(26,94,56,.05)}
+.lk-method-card.sel{border-color:var(--forest);background:rgba(26,94,56,.08)}
+.lk-method-icon{font-size:26px;margin-bottom:6px}
+.lk-method-name{font-size:12px;font-weight:600;color:var(--ink)}
+.lk-method-desc{font-size:10.5px;color:var(--smoke);margin-top:3px;line-height:1.4}
+
+/* OTP input */
+.otp-input{letter-spacing:.35em;font-size:22px;font-family:'DM Mono',monospace,sans-serif;
+  text-align:center;font-weight:700;color:var(--forest)}
+
+/* Face scan area */
+.face-box{position:relative;width:200px;height:200px;margin:0 auto 14px;border-radius:50%;
+  overflow:hidden;background:#000;border:3px solid var(--forest)}
+.face-box video{width:100%;height:100%;object-fit:cover}
+.face-overlay{position:absolute;inset:0;border-radius:50%;
+  border:3px solid transparent;transition:border-color .3s}
+.face-overlay.scanning{border-color:#22c55e;
+  animation:facePulse 1s ease-in-out infinite}
+@keyframes facePulse{0%,100%{box-shadow:0 0 0 0 rgba(34,197,94,.4)}
+  50%{box-shadow:0 0 0 12px rgba(34,197,94,0)}}
+.face-status{font-size:12.5px;text-align:center;color:var(--smoke);min-height:18px}
+.face-bar-wrap{background:var(--parch);border-radius:8px;height:6px;margin:8px 0;overflow:hidden}
+.face-bar{height:100%;border-radius:8px;background:var(--forest);
+  width:0%;transition:width .3s}
 </style>
 </head>
 <body>
@@ -355,7 +467,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);m
     <div class="nav-brand-title">🌿 APPCB</div>
     <div class="nav-brand-sub">Soil & Buildings Division · HQ Vijayawada</div>
   </div>
+  <button id="gLockBtn" onclick="gLockToggle()">🔓 Lock Editing</button>
 </nav>
+
+<!-- Global lock banner (shown when locked) -->
+<div id="gLockBanner">
+  🔒 <strong>Portal is locked</strong> — viewing only. Editing is disabled.
+  <button class="gband-unlock" onclick="gUnlockPrompt()">🔓 Unlock</button>
+</div>
 
 <div id="app">
   <div class="page active" id="pg-home">
@@ -495,17 +614,229 @@ body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);m
     </div>
   </div>
 </div>
-<!-- CARD LOCK -->
-<div class="overlay" id="cardLockDlg">
+<!-- ══ RENAME DIALOG ══ -->
+<div class="overlay" id="renameDlg">
   <div class="dlg">
-    <h3 id="clTitle">🔒 Lock Card</h3>
-    <div id="clBody"></div>
+    <h3>✏️ Rename Card</h3>
+    <div class="rename-preview">
+      <span class="rename-preview-icon" id="renIcon">📄</span>
+      <span class="rename-preview-name" id="renOldName">Current name</span>
+    </div>
+    <input type="text" id="renNameIn" placeholder="New name">
+    <div class="dlg-row">
+      <button class="btn-c" onclick="closeDlg('renameDlg')">Cancel</button>
+      <button class="btn-p" onclick="confirmRename()">✅ Save Name</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CARD LOCK DIALOG — Step 1: choose method ══ -->
+<div class="overlay" id="cardLockDlg">
+  <div class="dlg" style="max-width:420px">
+    <h3 id="clTitle">🔒 Lock This Card</h3>
+    <div id="clBody">
+      <!-- dynamically filled by openCardLock / openCardUnlock -->
+    </div>
+  </div>
+</div>
+
+<!-- ══ CARD LOCK — OTP Setup ══ -->
+<div class="overlay" id="clOtpSetDlg">
+  <div class="dlg">
+    <h3>📧 Email OTP — Card Lock Setup</h3>
+    <p style="font-size:13px;color:var(--smoke);margin-bottom:10px">Uses <strong>EmailJS</strong> (free). <a href="https://www.emailjs.com" target="_blank" style="color:var(--forest)">emailjs.com</a> — needs <code>{{otp}}</code> &amp; <code>{{to_email}}</code> in template.</p>
+    <input type="text" id="clEjsPub" placeholder="EmailJS Public Key">
+    <input type="text" id="clEjsSvc" placeholder="Service ID">
+    <input type="text" id="clEjsTpl" placeholder="Template ID">
+    <input type="email" id="clEjsEmail" placeholder="Your email address">
+    <div class="dlg-row">
+      <button class="btn-c" onclick="closeDlg('clOtpSetDlg')">Cancel</button>
+      <button class="btn-p" onclick="clOtpSetConfirm()">Save &amp; Lock Card</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CARD LOCK — OTP Unlock ══ -->
+<div class="overlay" id="clOtpUnlDlg">
+  <div class="dlg">
+    <h3>📧 Enter OTP to Unlock Card</h3>
+    <p style="font-size:13px;color:var(--smoke);margin-bottom:12px" id="clOtpMsg">Sending OTP…</p>
+    <input type="text" id="clOtpIn" class="otp-input" placeholder="000000" maxlength="6">
+    <div class="dlg-row" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-link" onclick="clSendOtp()">Resend OTP</button>
+        <button class="btn-link" onclick="clResetCardLock()">Remove lock</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-c" onclick="closeDlg('clOtpUnlDlg')">Cancel</button>
+        <button class="btn-p" onclick="clOtpUnlConfirm()">🔓 Unlock</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CARD LOCK — Face Setup ══ -->
+<div class="overlay" id="clFaceSetDlg">
+  <div class="dlg" style="text-align:center">
+    <h3>👁️ Register Face — Card Lock</h3>
+    <p style="font-size:13px;color:var(--smoke);margin-bottom:12px">Look at camera. We'll capture 3 frames. Data stays on this device only.</p>
+    <div class="cl-face-box"><video id="clFaceVid" autoplay playsinline muted></video><div class="cl-face-overlay" id="clFaceOverlay"></div></div>
+    <div class="face-bar-wrap"><div class="face-bar" id="clFaceBar"></div></div>
+    <div class="face-status" id="clFaceStatus">Camera starting…</div>
+    <div class="dlg-row" style="justify-content:center;margin-top:10px">
+      <button class="btn-c" onclick="clFaceCancel('set')">Cancel</button>
+      <button class="btn-p" id="clFaceCapBtn" onclick="clFaceCapture()" disabled>📸 Capture</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══ CARD LOCK — Face Unlock ══ -->
+<div class="overlay" id="clFaceUnlDlg">
+  <div class="dlg" style="text-align:center">
+    <h3>👁️ Face Scan — Unlock Card</h3>
+    <p style="font-size:13px;color:var(--smoke);margin-bottom:12px">Look at the camera to unlock this card.</p>
+    <div class="cl-face-box"><video id="clFaceUnlVid" autoplay playsinline muted></video><div class="cl-face-overlay" id="clFaceUnlOverlay"></div></div>
+    <div class="face-bar-wrap"><div class="face-bar" id="clFaceUnlBar"></div></div>
+    <div class="face-status" id="clFaceUnlStatus">Camera starting…</div>
+    <div class="dlg-row" style="justify-content:center;margin-top:10px;flex-wrap:wrap;gap:8px">
+      <button class="btn-link" onclick="clResetCardLock()">Remove lock</button>
+      <button class="btn-c" onclick="clFaceCancel('unl')">Cancel</button>
+      <button class="btn-p" id="clFaceUnlBtn" onclick="clFaceScan()" disabled>🔍 Scan Face</button>
+    </div>
   </div>
 </div>
 <!-- PREVIEW -->
 <div id="previewOv">
   <div id="previewContent"></div>
   <button class="prev-close" onclick="closePreview()">✕ Close</button>
+</div>
+
+<!-- ══ GLOBAL LOCK DIALOGS ══ -->
+
+<!-- Method Picker (first time setup) -->
+<div class="overlay" id="gMethodDlg">
+  <div class="dlg" style="max-width:460px">
+    <h3>🔒 Choose Lock Method</h3>
+    <p style="font-size:13px;color:var(--smoke);margin-bottom:4px">Select how you want to lock and unlock editing. Visitors can always view content.</p>
+    <div class="lk-method-grid">
+      <div class="lk-method-card" id="mc-pwd" onclick="selectMethod('pwd')">
+        <div class="lk-method-icon">🔑</div>
+        <div class="lk-method-name">Password</div>
+        <div class="lk-method-desc">Set a secret password to lock/unlock</div>
+      </div>
+      <div class="lk-method-card" id="mc-otp" onclick="selectMethod('otp')">
+        <div class="lk-method-icon">📧</div>
+        <div class="lk-method-name">Email OTP</div>
+        <div class="lk-method-desc">One-time code sent to your email</div>
+      </div>
+      <div class="lk-method-card" id="mc-face" onclick="selectMethod('face')">
+        <div class="lk-method-icon">👁️</div>
+        <div class="lk-method-name">Face ID</div>
+        <div class="lk-method-desc">Unlock with your camera (device only)</div>
+      </div>
+    </div>
+    <div class="dlg-row">
+      <button class="btn-c" onclick="closeDlg('gMethodDlg')">Cancel</button>
+      <button class="btn-p" id="gMethodNext" onclick="proceedSetup()">Next →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Password Setup -->
+<div class="overlay" id="gPwdSetDlg">
+  <div class="dlg">
+    <h3>🔑 Set Lock Password</h3>
+    <p style="font-size:13px;color:var(--smoke);margin-bottom:12px">This password will be required to unlock editing.</p>
+    <input type="password" id="gPw1" placeholder="Password (min 4 characters)">
+    <input type="password" id="gPw2" placeholder="Confirm password">
+    <div class="dlg-row">
+      <button class="btn-c" onclick="closeDlg('gPwdSetDlg')">Cancel</button>
+      <button class="btn-p" onclick="gPwdSetConfirm()">🔒 Lock Now</button>
+    </div>
+  </div>
+</div>
+
+<!-- Password Unlock -->
+<div class="overlay" id="gPwdUnlDlg">
+  <div class="dlg">
+    <h3>🔑 Enter Password to Unlock</h3>
+    <input type="password" id="gPwUn" placeholder="Enter your lock password" style="margin-top:10px">
+    <div class="dlg-row" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <button class="btn-link" onclick="gResetLock()">Reset lock</button>
+      <div style="display:flex;gap:8px">
+        <button class="btn-c" onclick="closeDlg('gPwdUnlDlg')">Cancel</button>
+        <button class="btn-p" onclick="gPwdUnlConfirm()">🔓 Unlock</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- OTP Setup -->
+<div class="overlay" id="gOtpSetDlg">
+  <div class="dlg">
+    <h3>📧 Email OTP Setup</h3>
+    <p style="font-size:13px;color:var(--smoke);margin-bottom:10px">Uses <strong>EmailJS</strong> (free). <a href="https://www.emailjs.com" target="_blank" style="color:var(--forest)">Sign up at emailjs.com</a>, create a service + template with <code>{{otp}}</code> and <code>{{to_email}}</code> variables.</p>
+    <input type="text" id="gEjsPub" placeholder="EmailJS Public Key">
+    <input type="text" id="gEjsSvc" placeholder="Service ID (e.g. service_xxxx)">
+    <input type="text" id="gEjsTpl" placeholder="Template ID (e.g. template_xxxx)">
+    <input type="email" id="gEjsEmail" placeholder="Your email address">
+    <div class="dlg-row">
+      <button class="btn-c" onclick="closeDlg('gOtpSetDlg')">Cancel</button>
+      <button class="btn-p" onclick="gOtpSetConfirm()">Save & Lock</button>
+    </div>
+  </div>
+</div>
+
+<!-- OTP Unlock -->
+<div class="overlay" id="gOtpUnlDlg">
+  <div class="dlg">
+    <h3>📧 Enter OTP to Unlock</h3>
+    <p style="font-size:13px;color:var(--smoke);margin-bottom:12px" id="gOtpMsg">Sending OTP to your registered email…</p>
+    <input type="text" id="gOtpIn" class="otp-input" placeholder="000000" maxlength="6">
+    <div class="dlg-row" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        <button class="btn-link" onclick="gSendOtp()">Resend OTP</button>
+        <button class="btn-link" onclick="gResetLock()">Reset lock</button>
+      </div>
+      <div style="display:flex;gap:8px">
+        <button class="btn-c" onclick="closeDlg('gOtpUnlDlg')">Cancel</button>
+        <button class="btn-p" onclick="gOtpUnlConfirm()">🔓 Unlock</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Face Setup -->
+<div class="overlay" id="gFaceSetDlg">
+  <div class="dlg" style="text-align:center">
+    <h3>👁️ Register Your Face</h3>
+    <p style="font-size:13px;color:var(--smoke);margin-bottom:14px">Look at the camera. We'll capture 3 frames to register your face. Data stays on this device only.</p>
+    <div class="face-box"><video id="gFaceVid" autoplay playsinline muted></video><div class="face-overlay" id="gFaceOverlay"></div></div>
+    <div class="face-bar-wrap"><div class="face-bar" id="gFaceBar"></div></div>
+    <div class="face-status" id="gFaceStatus">Camera starting…</div>
+    <div class="dlg-row" style="justify-content:center;margin-top:12px">
+      <button class="btn-c" onclick="gFaceCancel('set')">Cancel</button>
+      <button class="btn-p" id="gFaceCapBtn" onclick="gFaceCapture('set')" disabled>📸 Capture</button>
+    </div>
+  </div>
+</div>
+
+<!-- Face Unlock -->
+<div class="overlay" id="gFaceUnlDlg">
+  <div class="dlg" style="text-align:center">
+    <h3>👁️ Face Scan to Unlock</h3>
+    <p style="font-size:13px;color:var(--smoke);margin-bottom:14px">Look at the camera to unlock editing.</p>
+    <div class="face-box"><video id="gFaceUnlVid" autoplay playsinline muted></video><div class="face-overlay" id="gFaceUnlOverlay"></div></div>
+    <div class="face-bar-wrap"><div class="face-bar" id="gFaceUnlBar"></div></div>
+    <div class="face-status" id="gFaceUnlStatus">Camera starting…</div>
+    <div class="dlg-row" style="justify-content:center;margin-top:12px">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center">
+        <button class="btn-link" onclick="gResetLock()">Reset lock</button>
+        <button class="btn-c" onclick="gFaceCancel('unl')">Cancel</button>
+        <button class="btn-p" id="gFaceUnlBtn" onclick="gFaceScan()" disabled>🔍 Scan Face</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -576,12 +907,23 @@ document.addEventListener('keydown',e=>{
     if(document.getElementById('previewOv').classList.contains('show')){closePreview();return;}
     // Close file modal
     if(document.getElementById('fileModal').classList.contains('show')){closeFileModal();return;}
-    // Close dialogs
-    for(const id of ['cardLockDlg','addL2Dlg','addL1Dlg']){
-      if(document.getElementById(id).classList.contains('show')){closeDlg(id);return;}
+    // Close dialogs (global lock dialogs first, then card lock, then rename/add)
+    for(const id of ['gFaceUnlDlg','gFaceSetDlg','gOtpUnlDlg','gOtpSetDlg','gPwdUnlDlg','gPwdSetDlg','gMethodDlg','clFaceUnlDlg','clFaceSetDlg','clOtpUnlDlg','clOtpSetDlg','cardLockDlg','renameDlg','addL2Dlg','addL1Dlg']){
+      if(document.getElementById(id).classList.contains('show')){
+        if(id==='gFaceSetDlg') gFaceCancel('set');
+        else if(id==='gFaceUnlDlg') gFaceCancel('unl');
+        else if(id==='clFaceSetDlg') clFaceCancel('set');
+        else if(id==='clFaceUnlDlg') clFaceCancel('unl');
+        else closeDlg(id);
+        return;
+      }
     }
   }
   if(e.key==='Enter'){
+    if(document.getElementById('gPwdSetDlg').classList.contains('show')){gPwdSetConfirm();return;}
+    if(document.getElementById('gPwdUnlDlg').classList.contains('show')){gPwdUnlConfirm();return;}
+    if(document.getElementById('gOtpUnlDlg').classList.contains('show')){gOtpUnlConfirm();return;}
+    if(document.getElementById('renameDlg').classList.contains('show')){confirmRename();return;}
     if(document.getElementById('addL1Dlg').classList.contains('show')){confirmAddL1();return;}
     if(document.getElementById('addL2Dlg').classList.contains('show')){confirmAddL2();return;}
     if(document.getElementById('cardLockDlg').classList.contains('show')){
@@ -590,12 +932,14 @@ document.addEventListener('keydown',e=>{
       if(lk)doCardLock();else if(ul)doCardUnlock();
       return;
     }
+    if(document.getElementById('clOtpUnlDlg').classList.contains('show')){clOtpUnlConfirm();return;}
   }
 });
 
 /* ══════ APP STATE ══════ */
 let currentSec='',currentL1=null,addL1Sec='',addL2Ctx=null,fmCtx=null,selIcon='📄';
 let cardLockKey='',cardLockCb=null;
+let renameCtx=null; // {type:'l1'|'l2', sec, l1id, itemId, cb}
 const ICONS=['📄','📁','📊','📋','📝','🔍','⚠️','✅','🏗️','🌿','♻️','💧','🔬','📌','📎','🖼️','🌐','📜','🗂️','📦','⚙️','🏢','💡','🔑','📐','🧾','🛡️','🧪','📡','📉'];
 const DEFAULT_SOIL=[
   {id:'plastic',name:'Plastic Waste',icon:'♻️',bg:'#e8f3ec'},
@@ -620,44 +964,339 @@ const getL2=(s,i)=>LS.get('l2_'+s+'_'+i,[]);
 const saveL2=(s,i,a)=>LS.set('l2_'+s+'_'+i,a);
 const getFiles=(s,l1,l2)=>LS.get('files_'+s+'_'+l1+'_'+l2,[]);
 const saveFiles=(s,l1,l2,a)=>LS.set('files_'+s+'_'+l1+'_'+l2,a);
-const getCardLock=k=>LS.get('cl_'+k,null);
-const setCardLock=(k,v)=>v?LS.set('cl_'+k,v):LS.del('cl_'+k);
-const isCardLocked=k=>getCardLock(k)!==null;
+
 
 function openSection(sec){currentSec=sec;currentL1=null;navStack=[];const title=sec==='soil'?'🪨 Soil Division':'🏛️ Buildings Division';const bread='Home → '+(sec==='soil'?'Soil':'Buildings');pushNav({page:'pg-'+sec,sec,l1:null,title,bread});showPage('pg-'+sec);document.getElementById(sec+'-title').textContent=title;document.getElementById(sec+'-bread').textContent=bread;renderL1(sec);saveNavState();}
 
-function renderL1(sec){currentL1=null;const grid=document.getElementById(sec+'-grid');grid.innerHTML='';if(sec==='bldg'){const w=document.createElement('div');w.className='l1-wrap';w.innerHTML=`<div class="l1-circle map-l1-circle" style="cursor:pointer">🗺️</div><div class="map-l1-label">Lands &amp; Buildings<br><em>RO Status Map</em></div>`;w.querySelector('.l1-circle').addEventListener('click',openMap);w.querySelector('.map-l1-label').addEventListener('click',openMap);grid.appendChild(w)}getL1(sec).forEach(s=>{const key='l1_'+sec+'_'+s.id;const locked=isCardLocked(key);const w=document.createElement('div');w.className='l1-wrap';w.innerHTML=`<div class="l1-circle" style="background:${s.bg||'#e8f3ec'}">${s.icon}${locked?'<div class="card-locked-overlay">🔒</div>':''}</div><div class="l1-label">${s.name}</div><div class="l1-controls"><button class="l1-ctrl-btn del" title="Delete">🗑</button><button class="l1-ctrl-btn lk">${locked?'🔓':'🔒'}</button></div>`;w.querySelector('.l1-circle').addEventListener('click',()=>locked?openCardUnlock(key,()=>renderL1(sec)):openL1(sec,s));w.querySelector('.l1-label').addEventListener('click',()=>locked?openCardUnlock(key,()=>renderL1(sec)):openL1(sec,s));w.querySelector('.l1-ctrl-btn.del').addEventListener('click',e=>{e.stopPropagation();deleteL1(sec,s.id)});w.querySelector('.l1-ctrl-btn.lk').addEventListener('click',e=>{e.stopPropagation();locked?openCardUnlock(key,()=>renderL1(sec)):openCardLock(key,()=>renderL1(sec))});grid.appendChild(w)});const aw=document.createElement('div');aw.className='add-l1-wrap';aw.innerHTML=`<button class="add-l1-btn">＋</button><div class="add-l1-label">Add Category</div>`;aw.querySelector('.add-l1-btn').addEventListener('click',()=>openAddL1(sec));grid.appendChild(aw)}
+function renderL1(sec){currentL1=null;const grid=document.getElementById(sec+'-grid');grid.innerHTML='';if(sec==='bldg'){const w=document.createElement('div');w.className='l1-wrap';w.innerHTML=`<div class="l1-circle map-l1-circle" style="cursor:pointer">🗺️</div><div class="map-l1-label">Lands &amp; Buildings<br><em>RO Status Map</em></div>`;w.querySelector('.l1-circle').addEventListener('click',openMap);w.querySelector('.map-l1-label').addEventListener('click',openMap);grid.appendChild(w)}getL1(sec).forEach(s=>{const key='l1_'+sec+'_'+s.id;const locked=isCardLocked(key);const cb=()=>renderL1(sec);const w=document.createElement('div');w.className='l1-wrap';w.innerHTML=`<div class="l1-circle" style="background:${s.bg||'#e8f3ec'}">${s.icon}${locked?'<div class="card-locked-overlay">🔒</div>':''}</div><div class="l1-label">${s.name}</div><div class="l1-controls"><button class="l1-ctrl-btn ren" title="Rename">✏️</button><button class="l1-ctrl-btn del" title="Delete">🗑</button><button class="l1-ctrl-btn lk">${locked?'🔓':'🔒'}</button></div>`;w.querySelector('.l1-circle').addEventListener('click',()=>locked?openCardUnlock(key,cb):openL1(sec,s));w.querySelector('.l1-label').addEventListener('click',()=>locked?openCardUnlock(key,cb):openL1(sec,s));w.querySelector('.l1-ctrl-btn.ren').addEventListener('click',e=>{e.stopPropagation();if(!editGuard())return;if(locked){alert('Unlock card first.');return}openRenameDialog({type:'l1',sec,itemId:s.id,icon:s.icon,name:s.name,cb})});w.querySelector('.l1-ctrl-btn.del').addEventListener('click',e=>{e.stopPropagation();deleteL1(sec,s.id)});w.querySelector('.l1-ctrl-btn.lk').addEventListener('click',e=>{e.stopPropagation();locked?openCardUnlock(key,cb):openCardLock(key,cb)});grid.appendChild(w)});const aw=document.createElement('div');aw.className='add-l1-wrap';aw.innerHTML=`<button class="add-l1-btn">＋</button><div class="add-l1-label">Add Category</div>`;aw.querySelector('.add-l1-btn').addEventListener('click',()=>openAddL1(sec));grid.appendChild(aw)}
 function openL1(sec,s){currentL1=s;const label=sec==='soil'?'Soil':'Buildings';const title=s.icon+' '+s.name;const bread='Home → '+label+' → '+s.name;document.getElementById(sec+'-title').textContent=title;document.getElementById(sec+'-bread').textContent=bread;pushNav({page:'pg-'+sec,sec,l1:s,title,bread});renderL2(sec,s.id,document.getElementById(sec+'-grid'));saveNavState();}
-function renderL2(sec,l1id,grid){grid.innerHTML='';getL2(sec,l1id).forEach(c=>{const key='l2_'+sec+'_'+l1id+'_'+c.id;const locked=isCardLocked(key);const fc=(getFiles(sec,l1id,c.id)||[]).length;const w=document.createElement('div');w.className='l2-wrap';w.innerHTML=`<div class="l2-circle">${c.icon}${locked?'<div class="card-locked-overlay" style="font-size:18px">🔒</div>':''}</div>${fc?`<div class="l2-badge">${fc}</div>`:''}<div class="l2-label">${c.name}</div><div class="l2-actions"><button class="l2-act ren">✏️</button><button class="l2-act del">🗑</button><button class="l2-act lk">${locked?'🔓':'🔒'}</button></div>`;const cb=()=>renderL2(sec,l1id,grid);w.querySelector('.l2-circle').addEventListener('click',()=>locked?openCardUnlock(key,cb):openFileModal(sec,l1id,c));w.querySelector('.l2-label').addEventListener('click',()=>locked?openCardUnlock(key,cb):openFileModal(sec,l1id,c));w.querySelector('.l2-act.ren').addEventListener('click',e=>{e.stopPropagation();if(locked){alert('Unlock first.');return}const n=prompt('Rename:',c.name);if(n&&n.trim()){const a=getL2(sec,l1id);const i=a.findIndex(x=>x.id===c.id);if(i>=0){a[i].name=n.trim();saveL2(sec,l1id,a);cb()}}});w.querySelector('.l2-act.del').addEventListener('click',e=>{e.stopPropagation();if(locked){alert('Unlock first.');return}if(confirm('Delete "'+c.name+'" and all files?')){saveL2(sec,l1id,getL2(sec,l1id).filter(x=>x.id!==c.id));LS.del('files_'+sec+'_'+l1id+'_'+c.id);cb()}});w.querySelector('.l2-act.lk').addEventListener('click',e=>{e.stopPropagation();locked?openCardUnlock(key,cb):openCardLock(key,cb)});grid.appendChild(w)});const aw=document.createElement('div');aw.className='add-l2-wrap';aw.innerHTML=`<button class="add-l2-btn">＋</button><div class="add-l2-label">Add Card</div>`;aw.querySelector('.add-l2-btn').addEventListener('click',()=>openAddL2(sec,l1id,grid));grid.appendChild(aw)}
-function openAddL1(sec){addL1Sec=sec;selIcon='📄';document.getElementById('l1NameIn').value='';buildIconGrid('l1IconGrid');document.getElementById('addL1Dlg').classList.add('show')}
+function renderL2(sec,l1id,grid){grid.innerHTML='';getL2(sec,l1id).forEach(c=>{const key='l2_'+sec+'_'+l1id+'_'+c.id;const locked=isCardLocked(key);const fc=(getFiles(sec,l1id,c.id)||[]).length;const w=document.createElement('div');w.className='l2-wrap';w.innerHTML=`<div class="l2-circle">${c.icon}${locked?'<div class="card-locked-overlay" style="font-size:18px">🔒</div>':''}</div>${fc?`<div class="l2-badge">${fc}</div>`:''}<div class="l2-label">${c.name}</div><div class="l2-actions"><button class="l2-act ren">✏️</button><button class="l2-act del">🗑</button><button class="l2-act lk">${locked?'🔓':'🔒'}</button></div>`;const cb=()=>renderL2(sec,l1id,grid);w.querySelector('.l2-circle').addEventListener('click',()=>locked?openCardUnlock(key,cb):openFileModal(sec,l1id,c));w.querySelector('.l2-label').addEventListener('click',()=>locked?openCardUnlock(key,cb):openFileModal(sec,l1id,c));w.querySelector('.l2-act.ren').addEventListener('click',e=>{e.stopPropagation();if(!editGuard())return;if(locked){alert('Unlock card first.');return}openRenameDialog({type:'l2',sec,l1id,itemId:c.id,icon:c.icon,name:c.name,cb})});w.querySelector('.l2-act.del').addEventListener('click',e=>{e.stopPropagation();if(!editGuard())return;if(locked){alert('Unlock card first.');return}if(confirm('Delete "'+c.name+'" and all files?')){saveL2(sec,l1id,getL2(sec,l1id).filter(x=>x.id!==c.id));LS.del('files_'+sec+'_'+l1id+'_'+c.id);cb()}});w.querySelector('.l2-act.lk').addEventListener('click',e=>{e.stopPropagation();locked?openCardUnlock(key,cb):openCardLock(key,cb)});grid.appendChild(w)});const aw=document.createElement('div');aw.className='add-l2-wrap';aw.innerHTML=`<button class="add-l2-btn">＋</button><div class="add-l2-label">Add Card</div>`;aw.querySelector('.add-l2-btn').addEventListener('click',()=>openAddL2(sec,l1id,grid));grid.appendChild(aw)}
+function openAddL1(sec){if(!editGuard())return;addL1Sec=sec;selIcon='📄';document.getElementById('l1NameIn').value='';buildIconGrid('l1IconGrid');document.getElementById('addL1Dlg').classList.add('show')}
 function confirmAddL1(){const n=document.getElementById('l1NameIn').value.trim();if(!n){alert('Enter a name.');return}const a=getL1(addL1Sec);const bgs=['#e8f3ec','#e8ecf3','#f3f3e8','#f3ece8','#efe8f3','#e8f0f3','#f3e8ed'];a.push({id:'l1_'+Date.now(),name:n,icon:selIcon||'📄',bg:bgs[a.length%bgs.length]});saveL1(addL1Sec,a);closeDlg('addL1Dlg');renderL1(addL1Sec)}
-function deleteL1(sec,id){const a=getL1(sec);const item=a.find(x=>x.id===id);if(!item)return;if(!confirm('Delete "'+item.name+'" and all cards?'))return;saveL1(sec,a.filter(x=>x.id!==id));renderL1(sec)}
-function openAddL2(sec,l1id,grid){addL2Ctx={sec,l1id,grid};selIcon='📄';document.getElementById('l2NameIn').value='';buildIconGrid('l2IconGrid');document.getElementById('addL2Dlg').classList.add('show')}
+function deleteL1(sec,id){if(!editGuard())return;const a=getL1(sec);const item=a.find(x=>x.id===id);if(!item)return;if(!confirm('Delete "'+item.name+'" and all cards?'))return;saveL1(sec,a.filter(x=>x.id!==id));renderL1(sec)}
+function openAddL2(sec,l1id,grid){if(!editGuard())return;addL2Ctx={sec,l1id,grid};selIcon='📄';document.getElementById('l2NameIn').value='';buildIconGrid('l2IconGrid');document.getElementById('addL2Dlg').classList.add('show')}
 function confirmAddL2(){const n=document.getElementById('l2NameIn').value.trim();if(!n){alert('Enter a name.');return}const{sec,l1id,grid}=addL2Ctx;const a=getL2(sec,l1id);a.push({id:'c_'+Date.now(),name:n,icon:selIcon||'📄'});saveL2(sec,l1id,a);closeDlg('addL2Dlg');renderL2(sec,l1id,grid)}
 function buildIconGrid(cid){const c=document.getElementById(cid);c.innerHTML='';ICONS.forEach(ic=>{const el=document.createElement('div');el.className='icon-opt'+(ic===selIcon?' sel':'');el.textContent=ic;el.addEventListener('click',()=>{c.querySelectorAll('.icon-opt').forEach(x=>x.classList.remove('sel'));el.classList.add('sel');selIcon=ic});c.appendChild(el)})}
 async function sha256(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}
-function openCardLock(key,cb){cardLockKey=key;cardLockCb=cb;document.getElementById('clTitle').textContent='🔒 Lock This Card';document.getElementById('clBody').innerHTML=`<p style="font-size:13px;color:var(--smoke);margin-bottom:14px">Set a password. Card stays visible but locked until unlocked.</p><input type="password" id="clPw1" placeholder="Password (min 4 chars)"><input type="password" id="clPw2" placeholder="Confirm password"><div class="dlg-row"><button class="btn-c" onclick="closeDlg('cardLockDlg')">Cancel</button><button class="btn-p" onclick="doCardLock()">🔒 Lock</button></div>`;document.getElementById('cardLockDlg').classList.add('show')}
-async function doCardLock(){const p1=document.getElementById('clPw1').value,p2=document.getElementById('clPw2').value;if(!p1||p1.length<4){alert('Min 4 chars.');return}if(p1!==p2){alert('Passwords do not match.');return}setCardLock(cardLockKey,{hash:await sha256(p1)});closeDlg('cardLockDlg');if(cardLockCb)cardLockCb()}
-function openCardUnlock(key,cb){cardLockKey=key;cardLockCb=cb;document.getElementById('clTitle').textContent='🔓 Unlock Card';document.getElementById('clBody').innerHTML=`<input type="password" id="clUnPw" placeholder="Enter password"><div class="dlg-row"><button class="btn-link" onclick="resetCardLock()">Forgot? Remove lock</button><button class="btn-c" onclick="closeDlg('cardLockDlg')">Cancel</button><button class="btn-p" onclick="doCardUnlock()">🔓 Unlock</button></div>`;document.getElementById('cardLockDlg').classList.add('show')}
-async function doCardUnlock(){const p=document.getElementById('clUnPw').value;const h=await sha256(p);const lock=getCardLock(cardLockKey);if(lock&&h===lock.hash){setCardLock(cardLockKey,null);closeDlg('cardLockDlg');if(cardLockCb)cardLockCb()}else alert('Wrong password.')}
-function resetCardLock(){if(!confirm('Remove this card lock?'))return;setCardLock(cardLockKey,null);closeDlg('cardLockDlg');if(cardLockCb)cardLockCb()}
+/* ══════════════════════════════════════════════════
+   RENAME DIALOG
+══════════════════════════════════════════════════ */
+function openRenameDialog(ctx){
+  renameCtx=ctx;
+  document.getElementById('renIcon').textContent=ctx.icon||'📄';
+  document.getElementById('renOldName').textContent='Current: '+ctx.name;
+  const inp=document.getElementById('renNameIn');
+  inp.value=ctx.name;
+  document.getElementById('renameDlg').classList.add('show');
+  setTimeout(()=>{inp.select();},80);
+}
+function confirmRename(){
+  const n=document.getElementById('renNameIn').value.trim();
+  if(!n){alert('Enter a name.');return}
+  if(!renameCtx)return;
+  const {type,sec,l1id,itemId,cb}=renameCtx;
+  if(type==='l1'){
+    const a=getL1(sec);
+    const i=a.findIndex(x=>x.id===itemId);
+    if(i>=0){a[i].name=n;saveL1(sec,a);}
+  } else {
+    const a=getL2(sec,l1id);
+    const i=a.findIndex(x=>x.id===itemId);
+    if(i>=0){a[i].name=n;saveL2(sec,l1id,a);}
+  }
+  closeDlg('renameDlg');
+  renameCtx=null;
+  cb();
+}
+
+/* ══════════════════════════════════════════════════
+   PER-CARD LOCK ENGINE — 3 Methods
+   Password · Email OTP · Face ID
+   (same methods as global lock but per-card scoped)
+══════════════════════════════════════════════════ */
+// cardLockData: {method:'pwd'|'otp'|'face', hash?, otpCfg?, faceData?}
+const getCardLockData=k=>LS.get('cl_'+k,null);
+const setCardLockData=(k,v)=>v?LS.set('cl_'+k,v):LS.del('cl_'+k);
+// Override old helpers to be compatible
+function getCardLock(k){return getCardLockData(k)}
+function setCardLock(k,v){setCardLockData(k,v)}
+function isCardLocked(k){return getCardLockData(k)!==null}
+
+let _clSelMethod=null, _clOtp='', _clStream=null;
+
+/* ── Open Lock Dialog (set lock) ── */
+function openCardLock(key,cb){
+  cardLockKey=key; cardLockCb=cb;
+  _clSelMethod=null;
+  document.getElementById('clTitle').textContent='🔒 Lock This Card';
+  document.getElementById('clBody').innerHTML=`
+    <p style="font-size:13px;color:var(--smoke);margin-bottom:4px">Choose how to lock this card. Viewing is always possible — only editing requires unlock.</p>
+    <div class="cl-method-grid">
+      <div class="cl-method-card" id="clmc-pwd" onclick="clSelectMethod('pwd')">
+        <div class="cl-method-icon">🔑</div>
+        <div class="cl-method-name">Password</div>
+      </div>
+      <div class="cl-method-card" id="clmc-otp" onclick="clSelectMethod('otp')">
+        <div class="cl-method-icon">📧</div>
+        <div class="cl-method-name">Email OTP</div>
+      </div>
+      <div class="cl-method-card" id="clmc-face" onclick="clSelectMethod('face')">
+        <div class="cl-method-icon">👁️</div>
+        <div class="cl-method-name">Face ID</div>
+      </div>
+    </div>
+    <div class="dlg-row">
+      <button class="btn-c" onclick="closeDlg('cardLockDlg')">Cancel</button>
+      <button class="btn-p" onclick="clProceedLock()">Next →</button>
+    </div>`;
+  document.getElementById('cardLockDlg').classList.add('show');
+}
+
+function clSelectMethod(m){
+  _clSelMethod=m;
+  document.querySelectorAll('.cl-method-card').forEach(c=>c.classList.remove('sel'));
+  const el=document.getElementById('clmc-'+m);
+  if(el) el.classList.add('sel');
+}
+
+function clProceedLock(){
+  if(!_clSelMethod){alert('Choose a method.');return}
+  closeDlg('cardLockDlg');
+  if(_clSelMethod==='pwd') clShowPwdSet();
+  else if(_clSelMethod==='otp') document.getElementById('clOtpSetDlg').classList.add('show');
+  else clFaceSetOpen();
+}
+
+/* ── Password Lock ── */
+function clShowPwdSet(){
+  document.getElementById('clTitle').textContent='🔑 Set Card Password';
+  document.getElementById('clBody').innerHTML=`
+    <p style="font-size:13px;color:var(--smoke);margin-bottom:12px">Password will be required to unlock this card for editing.</p>
+    <input type="password" id="clPw1" placeholder="Password (min 4 chars)">
+    <input type="password" id="clPw2" placeholder="Confirm password">
+    <div class="dlg-row">
+      <button class="btn-c" onclick="closeDlg('cardLockDlg')">Cancel</button>
+      <button class="btn-p" onclick="doCardLock()">🔒 Lock Card</button>
+    </div>`;
+  document.getElementById('cardLockDlg').classList.add('show');
+}
+
+async function doCardLock(){
+  const p1=document.getElementById('clPw1')?.value||'';
+  const p2=document.getElementById('clPw2')?.value||'';
+  if(!p1||p1.length<4){alert('Min 4 chars.');return}
+  if(p1!==p2){alert('Passwords do not match.');return}
+  setCardLockData(cardLockKey,{method:'pwd',hash:await sha256(p1)});
+  closeDlg('cardLockDlg');
+  if(cardLockCb)cardLockCb();
+}
+
+/* ── OTP Lock ── */
+async function clOtpSetConfirm(){
+  const pub=document.getElementById('clEjsPub').value.trim();
+  const svc=document.getElementById('clEjsSvc').value.trim();
+  const tpl=document.getElementById('clEjsTpl').value.trim();
+  const email=document.getElementById('clEjsEmail').value.trim();
+  if(!pub||!svc||!tpl||!email){alert('Fill all fields.');return}
+  setCardLockData(cardLockKey,{method:'otp',otpCfg:{pub,svc,tpl,email}});
+  ['clEjsPub','clEjsSvc','clEjsTpl','clEjsEmail'].forEach(id=>document.getElementById(id).value='');
+  closeDlg('clOtpSetDlg');
+  if(cardLockCb)cardLockCb();
+}
+
+async function clSendOtp(){
+  const data=getCardLockData(cardLockKey);
+  if(!data||!data.otpCfg)return;
+  const cfg=data.otpCfg;
+  _clOtp=String(Math.floor(100000+Math.random()*900000));
+  document.getElementById('clOtpMsg').textContent='Sending OTP to '+cfg.email+'…';
+  document.getElementById('clOtpIn').value='';
+  try{
+    await new Promise((res,rej)=>{
+      if(window.emailjs){res();return}
+      const s=document.createElement('script');s.onload=res;s.onerror=rej;
+      s.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+      document.head.appendChild(s);
+    });
+    await emailjs.send(cfg.svc,cfg.tpl,{otp:_clOtp,to_email:cfg.email},cfg.pub);
+    document.getElementById('clOtpMsg').textContent='OTP sent to '+cfg.email+'.';
+  }catch(e){
+    document.getElementById('clOtpMsg').textContent='Send failed. Check EmailJS config.';
+  }
+}
+
+function clOtpUnlConfirm(){
+  const entered=document.getElementById('clOtpIn').value.trim();
+  if(entered===_clOtp&&_clOtp){
+    _clOtp='';
+    document.getElementById('clOtpIn').value='';
+    closeDlg('clOtpUnlDlg');
+    setCardLockData(cardLockKey,null);
+    if(cardLockCb)cardLockCb();
+  } else {
+    alert('❌ Wrong OTP.');
+  }
+}
+
+/* ── Face Lock ── */
+function clFaceSetOpen(){
+  document.getElementById('clFaceBar').style.width='0%';
+  document.getElementById('clFaceStatus').textContent='Camera starting…';
+  document.getElementById('clFaceCapBtn').disabled=true;
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:240,height:240}})
+    .then(stream=>{
+      _clStream=stream;
+      const v=document.getElementById('clFaceVid');
+      v.srcObject=stream;v.play();
+      document.getElementById('clFaceStatus').textContent='Position face, then click Capture.';
+      document.getElementById('clFaceCapBtn').disabled=false;
+    })
+    .catch(()=>{document.getElementById('clFaceStatus').textContent='Camera access denied.';});
+  document.getElementById('clFaceSetDlg').classList.add('show');
+}
+
+async function clFaceCapture(){
+  const vid=document.getElementById('clFaceVid');
+  const status=document.getElementById('clFaceStatus');
+  const bar=document.getElementById('clFaceBar');
+  document.getElementById('clFaceOverlay').classList.add('scanning');
+  status.textContent='Capturing…';
+  const frames=[];
+  for(let i=0;i<3;i++){bar.style.width=((i+1)/3*100)+'%';frames.push(captureFrame(vid));await sleep(300);}
+  const avg=frames[0].map((_,j)=>frames.reduce((s,f)=>s+f[j],0)/frames.length);
+  setCardLockData(cardLockKey,{method:'face',faceData:avg});
+  document.getElementById('clFaceOverlay').classList.remove('scanning');
+  status.textContent='✅ Registered! Card locked.';
+  bar.style.width='100%';
+  await sleep(700);
+  clStopStream();
+  closeDlg('clFaceSetDlg');
+  if(cardLockCb)cardLockCb();
+}
+
+function clFaceUnlOpen(){
+  document.getElementById('clFaceUnlBar').style.width='0%';
+  document.getElementById('clFaceUnlStatus').textContent='Camera starting…';
+  document.getElementById('clFaceUnlBtn').disabled=true;
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:240,height:240}})
+    .then(stream=>{
+      _clStream=stream;
+      const v=document.getElementById('clFaceUnlVid');
+      v.srcObject=stream;v.play();
+      document.getElementById('clFaceUnlStatus').textContent='Look at camera, then click Scan.';
+      document.getElementById('clFaceUnlBtn').disabled=false;
+    })
+    .catch(()=>{document.getElementById('clFaceUnlStatus').textContent='Camera access denied.';});
+  document.getElementById('clFaceUnlDlg').classList.add('show');
+}
+
+async function clFaceScan(){
+  const vid=document.getElementById('clFaceUnlVid');
+  const status=document.getElementById('clFaceUnlStatus');
+  const bar=document.getElementById('clFaceUnlBar');
+  const data=getCardLockData(cardLockKey);
+  if(!data||!data.faceData){status.textContent='No face registered.';return}
+  document.getElementById('clFaceUnlOverlay').classList.add('scanning');
+  status.textContent='Scanning…';
+  const frames=[];
+  for(let i=0;i<4;i++){bar.style.width=((i+1)/4*100)+'%';frames.push(captureFrame(vid));await sleep(250);}
+  const avg=frames[0].map((_,j)=>frames.reduce((s,f)=>s+f[j],0)/frames.length);
+  const sim=cosineSim(avg,data.faceData);
+  document.getElementById('clFaceUnlOverlay').classList.remove('scanning');
+  if(sim>0.92){
+    status.textContent='✅ Matched! Unlocking…';
+    bar.style.width='100%';
+    await sleep(600);
+    clStopStream();
+    closeDlg('clFaceUnlDlg');
+    setCardLockData(cardLockKey,null);
+    if(cardLockCb)cardLockCb();
+  } else {
+    status.textContent='❌ Not recognised ('+Math.round(sim*100)+'% match). Try again.';
+    bar.style.width='0%';
+  }
+}
+
+function clFaceCancel(mode){
+  clStopStream();
+  closeDlg(mode==='set'?'clFaceSetDlg':'clFaceUnlDlg');
+}
+function clStopStream(){
+  if(_clStream){_clStream.getTracks().forEach(t=>t.stop());_clStream=null;}
+}
+
+/* ── Open Unlock Dialog ── */
+function openCardUnlock(key,cb){
+  cardLockKey=key; cardLockCb=cb;
+  const data=getCardLockData(key);
+  if(!data){setCardLockData(key,null);cb();return} // stale lock
+  const method=data.method||'pwd';
+  if(method==='pwd'){
+    document.getElementById('clTitle').textContent='🔓 Unlock Card';
+    document.getElementById('clBody').innerHTML=`
+      <input type="password" id="clUnPw" placeholder="Enter password" style="margin-top:6px">
+      <div class="dlg-row" style="justify-content:space-between;flex-wrap:wrap;gap:8px">
+        <button class="btn-link" onclick="clResetCardLock()">Remove lock</button>
+        <div style="display:flex;gap:8px">
+          <button class="btn-c" onclick="closeDlg('cardLockDlg')">Cancel</button>
+          <button class="btn-p" onclick="doCardUnlock()">🔓 Unlock</button>
+        </div>
+      </div>`;
+    document.getElementById('cardLockDlg').classList.add('show');
+  } else if(method==='otp'){
+    document.getElementById('clOtpMsg').textContent='Sending OTP…';
+    document.getElementById('clOtpUnlDlg').classList.add('show');
+    clSendOtp();
+  } else if(method==='face'){
+    clFaceUnlOpen();
+  }
+}
+
+async function doCardUnlock(){
+  const p=document.getElementById('clUnPw')?.value||'';
+  const h=await sha256(p);
+  const data=getCardLockData(cardLockKey);
+  if(data&&h===data.hash){
+    setCardLockData(cardLockKey,null);
+    closeDlg('cardLockDlg');
+    if(cardLockCb)cardLockCb();
+  } else {
+    document.getElementById('clUnPw').value='';
+    alert('❌ Wrong password.');
+  }
+}
+
+function clResetCardLock(){
+  if(!confirm('Remove this card lock completely?'))return;
+  clStopStream();
+  ['cardLockDlg','clOtpUnlDlg','clFaceUnlDlg'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el.classList.contains('show'))closeDlg(id);
+  });
+  setCardLockData(cardLockKey,null);
+  if(cardLockCb)cardLockCb();
+}
+
+function resetCardLock(){clResetCardLock();} // legacy alias
 function openFileModal(sec,l1id,card){fmCtx={sec,l1id,l2id:card.id};document.getElementById('fmTitle').textContent=card.icon+' '+card.name;renderFileList();document.getElementById('fileModal').classList.add('show')}
 function closeFileModal(){document.getElementById('fileModal').classList.remove('show');document.getElementById('urlIn').value='';document.getElementById('urlName').value='';fmCtx=null;if(currentL1&&currentSec)renderL2(currentSec,currentL1.id,document.getElementById(currentSec+'-grid'))}
-function renderFileList(){if(!fmCtx)return;const{sec,l1id,l2id}=fmCtx;const files=getFiles(sec,l1id,l2id);const list=document.getElementById('fileList');if(!files.length){list.innerHTML=`<div class="empty-box"><div class="ei">📂</div><p>No files yet.</p></div>`;return}list.innerHTML='';files.forEach((f,i)=>{const ext=(f.name||'').split('.').pop().toLowerCase();const icon=f.type==='url'?'🌐':['pdf'].includes(ext)?'📄':['jpg','jpeg','png','gif','webp'].includes(ext)?'🖼️':['xlsx','xls','csv'].includes(ext)?'📊':['docx','doc'].includes(ext)?'📝':'📎';const row=document.createElement('div');row.className='file-row';row.innerHTML=`<span class="file-icon">${icon}</span><span class="file-name">${f.name}</span><span class="file-tag">${f.type==='url'?'URL':'FILE'}</span><button class="file-del">🗑</button>`;row.querySelector('.file-name').addEventListener('click',()=>previewFile(f));row.querySelector('.file-del').addEventListener('click',()=>{const a=getFiles(sec,l1id,l2id);a.splice(i,1);saveFiles(sec,l1id,l2id,a);renderFileList()});list.appendChild(row)})}
+function renderFileList(){if(!fmCtx)return;const{sec,l1id,l2id}=fmCtx;const files=getFiles(sec,l1id,l2id);const list=document.getElementById('fileList');if(!files.length){list.innerHTML=`<div class="empty-box"><div class="ei">📂</div><p>No files yet.</p></div>`;return}list.innerHTML='';files.forEach((f,i)=>{const ext=(f.name||'').split('.').pop().toLowerCase();const icon=f.type==='url'?'🌐':['pdf'].includes(ext)?'📄':['jpg','jpeg','png','gif','webp'].includes(ext)?'🖼️':['xlsx','xls','csv'].includes(ext)?'📊':['docx','doc'].includes(ext)?'📝':'📎';const row=document.createElement('div');row.className='file-row';row.innerHTML=`<span class="file-icon">${icon}</span><span class="file-name">${f.name}</span><span class="file-tag">${f.type==='url'?'URL':'FILE'}</span><button class="file-del">🗑</button>`;row.querySelector('.file-name').addEventListener('click',()=>previewFile(f));row.querySelector('.file-del').addEventListener('click',()=>{if(!editGuard())return;const a=getFiles(sec,l1id,l2id);a.splice(i,1);saveFiles(sec,l1id,l2id,a);renderFileList()});list.appendChild(row)})}
 const dz=document.getElementById('dropZone');
 dz.addEventListener('click',()=>document.getElementById('fileInput').click());
 dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag')});
 dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
 dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');handleFiles(e.dataTransfer.files)});
 function onFileInput(e){handleFiles(e.target.files);e.target.value=''}
-function handleFiles(files){const{sec,l1id,l2id}=fmCtx;Array.from(files).forEach(f=>{const r=new FileReader();r.onload=ev=>{const a=getFiles(sec,l1id,l2id);a.push({id:'f_'+Date.now(),name:f.name,type:'file',mime:f.type,data:ev.target.result});saveFiles(sec,l1id,l2id,a);renderFileList()};r.readAsDataURL(f)})}
-function importURL(){const url=document.getElementById('urlIn').value.trim();const name=document.getElementById('urlName').value.trim()||url;if(!url){alert('Enter a URL.');return}const{sec,l1id,l2id}=fmCtx;const a=getFiles(sec,l1id,l2id);a.push({id:'u_'+Date.now(),name,type:'url',url});saveFiles(sec,l1id,l2id,a);document.getElementById('urlIn').value='';document.getElementById('urlName').value='';renderFileList()}
+function handleFiles(files){if(!editGuard())return;const{sec,l1id,l2id}=fmCtx;Array.from(files).forEach(f=>{const r=new FileReader();r.onload=ev=>{const a=getFiles(sec,l1id,l2id);a.push({id:'f_'+Date.now(),name:f.name,type:'file',mime:f.type,data:ev.target.result});saveFiles(sec,l1id,l2id,a);renderFileList()};r.readAsDataURL(f)})}
+function importURL(){if(!editGuard())return;const url=document.getElementById('urlIn').value.trim();const name=document.getElementById('urlName').value.trim()||url;if(!url){alert('Enter a URL.');return}const{sec,l1id,l2id}=fmCtx;const a=getFiles(sec,l1id,l2id);a.push({id:'u_'+Date.now(),name,type:'url',url});saveFiles(sec,l1id,l2id,a);document.getElementById('urlIn').value='';document.getElementById('urlName').value='';renderFileList()}
 function previewFile(f){if(f.type==='url'){window.open(f.url,'_blank');return}const pc=document.getElementById('previewContent');if(f.mime&&f.mime.startsWith('image/'))pc.innerHTML=`<img src="${f.data}" alt="${f.name}">`;else if(f.mime==='application/pdf')pc.innerHTML=`<iframe src="${f.data}"></iframe>`;else{const a=document.createElement('a');a.href=f.data;a.download=f.name;a.click();return}document.getElementById('previewOv').classList.add('show')}
 function closePreview(){document.getElementById('previewOv').classList.remove('show')}
 function closeDlg(id){
   document.getElementById(id).classList.remove('show');
   if(id==='addL2Dlg')addL2Ctx=null;
+  if(id==='renameDlg')renameCtx=null;
   if(id==='cardLockDlg'){cardLockKey='';cardLockCb=null;}
+  if(id==='clOtpSetDlg'||id==='clOtpUnlDlg')_clOtp='';
 }
 
 /* ═══════════════════════════════════════════════
@@ -1065,6 +1704,287 @@ function saveTab(tab){
   const n=document.getElementById('savedNote');
   if(n){n.classList.add('show');setTimeout(()=>n.classList.remove('show'),2000)}
 }
+
+/* ══════════════════════════════════════════════════
+   GLOBAL LOCK ENGINE
+   3 methods: Password · Email OTP · Face ID
+   Locks: add/delete/rename/upload (editing actions)
+   Viewing always works — lock is edit-only guard
+══════════════════════════════════════════════════ */
+const GL={
+  isLocked(){ return LS.get('gl_locked',false) },
+  getMethod(){ return LS.get('gl_method',null) }, // 'pwd'|'otp'|'face'
+  getPwdHash(){ return LS.get('gl_pwd_hash',null) },
+  setPwdHash(h){ LS.set('gl_pwd_hash',h) },
+  getOtpCfg(){ return LS.get('gl_otp_cfg',null) },
+  setOtpCfg(c){ LS.set('gl_otp_cfg',c) },
+  getFaceData(){ return LS.get('gl_face_data',null) },
+  setFaceData(d){ LS.set('gl_face_data',d) },
+  lock(method){ LS.set('gl_locked',true); LS.set('gl_method',method); applyGLock(true) },
+  unlock(){ LS.set('gl_locked',false); applyGLock(false) },
+  clearAll(){ ['gl_locked','gl_method','gl_pwd_hash','gl_otp_cfg','gl_face_data'].forEach(k=>LS.del(k)); applyGLock(false) }
+};
+
+function applyGLock(locked){
+  document.body.classList.toggle('glocked', locked);
+  document.getElementById('gLockBanner').classList.toggle('show', locked);
+  const btn=document.getElementById('gLockBtn');
+  if(locked){ btn.textContent='🔒 Locked'; btn.classList.add('locked'); }
+  else { btn.textContent='🔓 Lock Editing'; btn.classList.remove('locked'); }
+}
+
+// Called on every edit action — if locked, show unlock dialog and return false
+function editGuard(){
+  if(GL.isLocked()){ gUnlockPrompt(); return false; }
+  return true;
+}
+
+/* ── Startup ── */
+(function initGLock(){
+  if(GL.isLocked()) applyGLock(true);
+})();
+
+/* ── Main toggle button ── */
+let _selMethod=null;
+function gLockToggle(){
+  if(GL.isLocked()){ gUnlockPrompt(); return; }
+  // Already configured? Just re-lock with same method
+  const m=GL.getMethod();
+  if(m==='pwd' && GL.getPwdHash()){ showDlg('gPwdSetDlg'); return; }
+  if(m==='otp' && GL.getOtpCfg()){ GL.lock('otp'); return; }
+  if(m==='face' && GL.getFaceData()){ GL.lock('face'); return; }
+  // First time — show method picker
+  _selMethod=null;
+  document.querySelectorAll('.lk-method-card').forEach(c=>c.classList.remove('sel'));
+  showDlg('gMethodDlg');
+}
+
+function selectMethod(m){
+  _selMethod=m;
+  document.querySelectorAll('.lk-method-card').forEach(c=>c.classList.remove('sel'));
+  document.getElementById('mc-'+m).classList.add('sel');
+}
+
+function proceedSetup(){
+  if(!_selMethod){ alert('Please choose a method.'); return; }
+  closeDlg('gMethodDlg');
+  if(_selMethod==='pwd') showDlg('gPwdSetDlg');
+  else if(_selMethod==='otp') showDlg('gOtpSetDlg');
+  else gFaceSetOpen();
+}
+
+/* ── PASSWORD method ── */
+async function gPwdSetConfirm(){
+  const p1=document.getElementById('gPw1').value;
+  const p2=document.getElementById('gPw2').value;
+  if(!p1||p1.length<4){ alert('Minimum 4 characters.'); return; }
+  if(p1!==p2){ alert('Passwords do not match.'); return; }
+  GL.setPwdHash(await sha256(p1));
+  document.getElementById('gPw1').value='';
+  document.getElementById('gPw2').value='';
+  closeDlg('gPwdSetDlg');
+  GL.lock('pwd');
+}
+
+function gUnlockPrompt(){
+  const m=GL.getMethod();
+  if(m==='pwd') showDlg('gPwdUnlDlg');
+  else if(m==='otp'){ showDlg('gOtpUnlDlg'); gSendOtp(); }
+  else if(m==='face') gFaceUnlOpen();
+  else { GL.unlock(); } // no method set, just unlock
+}
+
+async function gPwdUnlConfirm(){
+  const p=document.getElementById('gPwUn').value;
+  const h=await sha256(p);
+  if(h===GL.getPwdHash()){
+    document.getElementById('gPwUn').value='';
+    closeDlg('gPwdUnlDlg');
+    GL.unlock();
+  } else {
+    document.getElementById('gPwUn').value='';
+    alert('❌ Wrong password. Try again.');
+  }
+}
+
+/* ── OTP method ── */
+let _curOtp='';
+function gOtpSetConfirm(){
+  const pub=document.getElementById('gEjsPub').value.trim();
+  const svc=document.getElementById('gEjsSvc').value.trim();
+  const tpl=document.getElementById('gEjsTpl').value.trim();
+  const email=document.getElementById('gEjsEmail').value.trim();
+  if(!pub||!svc||!tpl||!email){ alert('Fill all fields.'); return; }
+  GL.setOtpCfg({pub,svc,tpl,email});
+  ['gEjsPub','gEjsSvc','gEjsTpl','gEjsEmail'].forEach(id=>document.getElementById(id).value='');
+  closeDlg('gOtpSetDlg');
+  GL.lock('otp');
+}
+
+async function gSendOtp(){
+  const cfg=GL.getOtpCfg(); if(!cfg) return;
+  _curOtp=String(Math.floor(100000+Math.random()*900000));
+  document.getElementById('gOtpMsg').textContent='Sending OTP to '+cfg.email+'…';
+  document.getElementById('gOtpIn').value='';
+  try{
+    await new Promise((res,rej)=>{
+      const s=document.createElement('script');
+      s.onload=res; s.onerror=rej;
+      s.src='https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js';
+      if(window.emailjs){res();s.remove();return}
+      document.head.appendChild(s);
+    });
+    await emailjs.send(cfg.svc, cfg.tpl, {otp:_curOtp, to_email:cfg.email}, cfg.pub);
+    document.getElementById('gOtpMsg').textContent='OTP sent to '+cfg.email+'. Check your inbox.';
+  } catch(e){
+    document.getElementById('gOtpMsg').textContent='Send failed. Check EmailJS config.';
+    console.error(e);
+  }
+}
+
+function gOtpUnlConfirm(){
+  const entered=document.getElementById('gOtpIn').value.trim();
+  if(entered===_curOtp && _curOtp){
+    _curOtp='';
+    document.getElementById('gOtpIn').value='';
+    closeDlg('gOtpUnlDlg');
+    GL.unlock();
+  } else {
+    alert('❌ Wrong OTP. Try again or resend.');
+  }
+}
+
+/* ── FACE ID method ── */
+let _faceStream=null, _faceDescriptor=null;
+
+function gFaceSetOpen(){
+  showDlg('gFaceSetDlg');
+  document.getElementById('gFaceBar').style.width='0%';
+  document.getElementById('gFaceStatus').textContent='Camera starting…';
+  document.getElementById('gFaceCapBtn').disabled=true;
+  _faceDescriptor=null;
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:320,height:320}})
+    .then(stream=>{
+      _faceStream=stream;
+      const v=document.getElementById('gFaceVid');
+      v.srcObject=stream; v.play();
+      document.getElementById('gFaceStatus').textContent='Position your face in the circle, then click Capture.';
+      document.getElementById('gFaceCapBtn').disabled=false;
+    })
+    .catch(()=>{ document.getElementById('gFaceStatus').textContent='Camera access denied.'; });
+}
+
+async function gFaceCapture(mode){
+  const vid=document.getElementById('gFaceVid');
+  const status=document.getElementById('gFaceStatus');
+  const bar=document.getElementById('gFaceBar');
+  const overlay=document.getElementById('gFaceOverlay');
+  overlay.classList.add('scanning');
+  status.textContent='Capturing…';
+  const frames=[];
+  for(let i=0;i<3;i++){
+    bar.style.width=((i+1)/3*100)+'%';
+    const desc=captureFrame(vid);
+    frames.push(desc);
+    await sleep(300);
+  }
+  // Average the 3 frames
+  const avg=frames[0].map((_,j)=>frames.reduce((s,f)=>s+f[j],0)/frames.length);
+  GL.setFaceData(avg);
+  overlay.classList.remove('scanning');
+  status.textContent='✅ Face registered! Locking now…';
+  bar.style.width='100%';
+  await sleep(700);
+  gFaceStopStream();
+  closeDlg('gFaceSetDlg');
+  GL.lock('face');
+}
+
+function gFaceUnlOpen(){
+  showDlg('gFaceUnlDlg');
+  document.getElementById('gFaceUnlBar').style.width='0%';
+  document.getElementById('gFaceUnlStatus').textContent='Camera starting…';
+  document.getElementById('gFaceUnlBtn').disabled=true;
+  navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:320,height:320}})
+    .then(stream=>{
+      _faceStream=stream;
+      const v=document.getElementById('gFaceUnlVid');
+      v.srcObject=stream; v.play();
+      document.getElementById('gFaceUnlStatus').textContent='Look at the camera, then click Scan Face.';
+      document.getElementById('gFaceUnlBtn').disabled=false;
+    })
+    .catch(()=>{ document.getElementById('gFaceUnlStatus').textContent='Camera access denied.'; });
+}
+
+async function gFaceScan(){
+  const vid=document.getElementById('gFaceUnlVid');
+  const status=document.getElementById('gFaceUnlStatus');
+  const bar=document.getElementById('gFaceUnlBar');
+  const overlay=document.getElementById('gFaceUnlOverlay');
+  const stored=GL.getFaceData(); if(!stored){ status.textContent='No face registered.'; return; }
+  overlay.classList.add('scanning');
+  status.textContent='Scanning…';
+  const frames=[];
+  for(let i=0;i<4;i++){
+    bar.style.width=((i+1)/4*100)+'%';
+    frames.push(captureFrame(vid));
+    await sleep(250);
+  }
+  const avg=frames[0].map((_,j)=>frames.reduce((s,f)=>s+f[j],0)/frames.length);
+  const sim=cosineSim(avg,stored);
+  overlay.classList.remove('scanning');
+  if(sim>0.92){
+    status.textContent='✅ Matched! Unlocking…';
+    bar.style.width='100%';
+    await sleep(600);
+    gFaceStopStream();
+    closeDlg('gFaceUnlDlg');
+    GL.unlock();
+  } else {
+    status.textContent='❌ Face not recognised ('+Math.round(sim*100)+'% match). Try again.';
+    bar.style.width='0%';
+    overlay.classList.remove('scanning');
+  }
+}
+
+function gFaceCancel(mode){
+  gFaceStopStream();
+  closeDlg(mode==='set'?'gFaceSetDlg':'gFaceUnlDlg');
+}
+function gFaceStopStream(){
+  if(_faceStream){_faceStream.getTracks().forEach(t=>t.stop());_faceStream=null;}
+}
+
+/* Face helper: capture 20×20 pixel luminance descriptor */
+function captureFrame(vid){
+  const c=document.createElement('canvas'); c.width=20; c.height=20;
+  c.getContext('2d').drawImage(vid,0,0,20,20);
+  const d=c.getContext('2d').getImageData(0,0,20,20).data;
+  const lum=[];
+  for(let i=0;i<d.length;i+=4) lum.push((d[i]*.299+d[i+1]*.587+d[i+2]*.114)/255);
+  return lum;
+}
+function cosineSim(a,b){
+  let dot=0,na=0,nb=0;
+  for(let i=0;i<a.length;i++){dot+=a[i]*b[i];na+=a[i]*a[i];nb+=b[i]*b[i];}
+  return dot/(Math.sqrt(na)*Math.sqrt(nb)||1);
+}
+function sleep(ms){return new Promise(r=>setTimeout(r,ms))}
+
+/* ── Reset lock ── */
+function gResetLock(){
+  if(!confirm('Remove the global lock completely? You will need to set it up again.')) return;
+  ['gPwdUnlDlg','gOtpUnlDlg','gFaceUnlDlg'].forEach(id=>{ const el=document.getElementById(id); if(el.classList.contains('show')) closeDlg(id); });
+  gFaceStopStream();
+  GL.clearAll();
+}
+
+/* ── Patch edit actions to respect global lock ── */
+// openAddL1/openAddL2 include editGuard check inline (see definitions above)
+
+// Dialogs helper (centralised show)
+function showDlg(id){ document.getElementById(id).classList.add('show'); }
+
 </script>
 </body>
 </html>
