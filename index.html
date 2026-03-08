@@ -2,1009 +2,1069 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>APPCB — Soil &amp; Buildings Division</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>APPCB – Soil & Buildings Division</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=Tiro+Telugu&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css"/>
-<link href="https://fonts.googleapis.com/css2?family=Tiro+Telugu&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Outfit:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <style>
-/* ══════════════════════════════════════
-   TOKENS
-══════════════════════════════════════ */
-*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* ─── PORTAL TOKENS ─── */
 :root{
-  --cream:#f7f3ec; --cream2:#f0ead8; --linen:#ede8df; --linen2:#ddd6c8; --white:#fff;
-  --forest:#1c4a2f; --forest2:#27653f; --forest3:#3a8055; --fern:#6ba880; --mint:#b8d4c0; --mist:#e8f2ec;
-  --soil:#7a4f2e; --soil2:#a06840; --clay:#d4a574; --sand:#f2e4d0;
-  --ink:#1a2018; --ink2:#3d4a38; --ink3:#6b7a65; --stone:#8a9485; --fog:#c4ccc0;
-  --gold:#c49a2a; --sky:#2a6899;
-  --sh-xs:0 1px 3px rgba(26,74,47,.06);
-  --sh-sm:0 2px 8px rgba(26,74,47,.08),0 1px 3px rgba(26,74,47,.05);
-  --sh-md:0 6px 20px rgba(26,74,47,.10),0 2px 8px rgba(26,74,47,.06);
-  --sh-lg:0 16px 48px rgba(26,74,47,.12),0 4px 16px rgba(26,74,47,.07);
-  --ff:'Outfit',system-ui,sans-serif;
-  --ff-s:'Cormorant Garamond',Georgia,serif;
-  --ff-m:'DM Mono',monospace;
-  --ff-t:'Tiro Telugu',serif;
-  --nav-h:58px;
+  --cream:#f8f5ef;--parch:#efe9de;--white:#fff;
+  --ink:#1c1c1c;--smoke:#6b6b6b;--border:#ddd6c8;
+  --forest:#1a5e38;--sage:#3d7a55;
+  --red:#c0392b;--nav-h:58px;
+  --sh-s:0 2px 12px rgba(0,0,0,.07);
+  --sh-m:0 6px 28px rgba(0,0,0,.11);
+  --sh-l:0 16px 56px rgba(0,0,0,.18);
 }
-html{height:100%}
-body{height:100%;font-family:var(--ff);color:var(--ink);-webkit-font-smoothing:antialiased;background:var(--cream);overflow:hidden;display:flex;flex-direction:column}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'DM Sans',sans-serif;background:var(--cream);color:var(--ink);min-height:100vh}
+
+/* NAV */
+#nav{position:fixed;top:0;left:0;right:0;height:var(--nav-h);background:var(--forest);
+  display:flex;align-items:center;padding:0 20px;gap:12px;z-index:9000;
+  box-shadow:0 2px 16px rgba(0,0,0,.28)}
+.nav-brand{flex:1;display:flex;flex-direction:column;gap:1px}
+.nav-brand-title{font-family:'Cormorant Garamond',serif;font-size:19px;font-weight:700;color:#fff}
+.nav-brand-sub{font-size:10.5px;color:rgba(255,255,255,.58);letter-spacing:.4px}
+
+/* APP */
+#app{padding-top:var(--nav-h);min-height:100vh}
+.page{display:none;min-height:calc(100vh - var(--nav-h));flex-direction:column}
+.page.active{display:flex}
+
+/* HOME */
+#pg-home{align-items:center;justify-content:center;padding:60px 24px 48px;gap:36px;text-align:center}
+.home-badge{display:inline-block;background:var(--forest);color:#fff;font-size:10px;
+  letter-spacing:2.5px;text-transform:uppercase;padding:5px 16px;border-radius:20px;margin-bottom:18px}
+.home-title{font-family:'Cormorant Garamond',serif;font-size:clamp(32px,5.5vw,56px);
+  line-height:1.08;color:var(--forest);font-weight:700;margin-bottom:12px;text-align:center}
+.home-sub{font-size:15px;color:var(--smoke);max-width:440px;margin:0 auto;line-height:1.6;text-align:center}
+.home-cards{display:flex;gap:26px;flex-wrap:wrap;justify-content:center}
+.h-card{background:var(--white);border:1px solid var(--border);border-radius:22px;
+  padding:34px 28px 26px;width:254px;display:flex;flex-direction:column;
+  align-items:center;gap:14px;text-align:center;box-shadow:var(--sh-s)}
+.h-card-icon{width:72px;height:72px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:30px}
+.hci-soil{background:linear-gradient(135deg,#ede0c8,#c9a96e)}
+.hci-bldg{background:linear-gradient(135deg,#c8dde0,#6ea8c9)}
+.h-card-name{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:700;color:var(--ink)}
+.open-btn{margin-top:4px;width:100%;background:var(--forest);color:#fff;border:none;
+  padding:12px 0;border-radius:22px;font-family:'DM Sans',sans-serif;font-size:14px;
+  font-weight:500;cursor:pointer;transition:background .2s,transform .15s}
+.open-btn:hover{background:var(--sage);transform:translateY(-1px)}
+
+/* SEC HEADER */
+.sec-hd{background:var(--white);border-bottom:1px solid var(--border);padding:0 18px;
+  display:flex;align-items:center;gap:12px;min-height:50px;flex-shrink:0;
+  position:sticky;top:var(--nav-h);z-index:200}
+.back-btn{background:none;border:none;font-size:20px;cursor:pointer;color:var(--forest);
+  padding:4px 8px;border-radius:8px;transition:background .15s;line-height:1}
+.back-btn:hover{background:var(--parch)}
+.sec-title{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--forest);flex:1}
+.breadcrumb{font-size:11px;color:var(--smoke)}
+.card-area{flex:1;overflow-y:auto;padding:26px 22px}
+.card-grid{display:flex;flex-wrap:wrap;gap:22px;align-content:flex-start}
+
+/* L1 */
+.l1-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;width:128px;position:relative}
+.l1-circle{width:106px;height:106px;border-radius:50%;display:flex;align-items:center;
+  justify-content:center;font-size:36px;box-shadow:var(--sh-s);
+  transition:transform .2s,box-shadow .2s;cursor:pointer;position:relative}
+.l1-wrap:hover .l1-circle{transform:scale(1.06);box-shadow:var(--sh-m)}
+.l1-label{font-size:12.5px;font-weight:500;text-align:center;color:var(--ink);line-height:1.3;cursor:pointer}
+.l1-lock-badge{position:absolute;bottom:2px;right:2px;width:22px;height:22px;border-radius:50%;
+  background:rgba(0,0,0,.55);color:#fff;font-size:11px;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+.l1-controls{position:absolute;top:-4px;right:-4px;display:none;gap:3px;flex-direction:column}
+.l1-wrap:hover .l1-controls{display:flex}
+.l1-ctrl-btn{width:22px;height:22px;border-radius:50%;border:none;cursor:pointer;font-size:10px;
+  display:flex;align-items:center;justify-content:center;color:#fff}
+.l1-ctrl-btn.del{background:var(--red)}
+.l1-ctrl-btn.lk{background:#555}
+.map-l1-circle{background:linear-gradient(135deg,#1a5e38,#3d7a55);color:#fff}
+.map-l1-label{font-size:12.5px;font-weight:600;text-align:center;color:var(--forest);line-height:1.3;cursor:pointer}
+.add-l1-wrap{display:flex;flex-direction:column;align-items:center;gap:10px;width:128px}
+.add-l1-btn{width:106px;height:106px;border-radius:50%;border:2.5px dashed var(--border);
+  background:transparent;font-size:32px;color:var(--border);cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center}
+.add-l1-btn:hover{border-color:var(--forest);color:var(--forest);background:rgba(26,94,56,.04)}
+.add-l1-label{font-size:12px;color:#aaa}
+
+/* L2 */
+.l2-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;width:108px;position:relative}
+.l2-circle{width:86px;height:86px;border-radius:50%;background:var(--white);
+  border:2px solid var(--border);display:flex;align-items:center;justify-content:center;
+  font-size:26px;box-shadow:var(--sh-s);transition:transform .2s,border-color .2s,box-shadow .2s;cursor:pointer;position:relative}
+.l2-wrap:hover .l2-circle{border-color:var(--forest);transform:scale(1.07);box-shadow:0 8px 24px rgba(26,94,56,.15)}
+.l2-label{font-size:11.5px;font-weight:500;text-align:center;color:var(--ink);line-height:1.3;cursor:pointer}
+.l2-lock-badge{position:absolute;bottom:0;right:0;width:20px;height:20px;border-radius:50%;
+  background:rgba(0,0,0,.5);color:#fff;font-size:10px;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+.l2-badge{position:absolute;top:-2px;left:-2px;background:var(--forest);color:#fff;font-size:9px;padding:1px 5px;border-radius:8px}
+.l2-actions{position:absolute;top:-5px;right:-5px;display:none;gap:2px}
+.l2-wrap:hover .l2-actions{display:flex}
+.l2-act{width:20px;height:20px;border-radius:50%;border:none;cursor:pointer;font-size:10px;
+  display:flex;align-items:center;justify-content:center;color:#fff}
+.l2-act.ren{background:var(--forest)}.l2-act.del{background:var(--red)}.l2-act.lk{background:#555}
+.add-l2-wrap{display:flex;flex-direction:column;align-items:center;gap:8px;width:108px}
+.add-l2-btn{width:86px;height:86px;border-radius:50%;border:2.5px dashed var(--border);
+  background:transparent;font-size:26px;color:var(--border);cursor:pointer;transition:all .2s;
+  display:flex;align-items:center;justify-content:center}
+.add-l2-btn:hover{border-color:var(--forest);color:var(--forest);background:rgba(26,94,56,.04)}
+.add-l2-label{font-size:11px;color:#aaa}
+.card-locked-overlay{position:absolute;inset:0;border-radius:50%;background:rgba(0,0,0,.45);
+  display:flex;align-items:center;justify-content:center;font-size:22px;cursor:default;z-index:5}
+
+/* DIALOGS */
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);
+  z-index:10000;align-items:center;justify-content:center}
+.overlay.show{display:flex}
+.dlg{background:var(--white);border-radius:22px;padding:28px 26px;max-width:420px;
+  width:92%;box-shadow:var(--sh-l);max-height:90vh;overflow-y:auto}
+.dlg h3{font-family:'Cormorant Garamond',serif;font-size:21px;color:var(--forest);margin-bottom:16px}
+.dlg input,.dlg textarea{width:100%;border:1px solid var(--border);border-radius:10px;
+  padding:10px 13px;font-family:'DM Sans',sans-serif;font-size:14px;margin-bottom:12px;
+  background:var(--cream);outline:none;transition:border-color .2s}
+.dlg input:focus,.dlg textarea:focus{border-color:var(--forest)}
+.icon-grid{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.icon-opt{width:36px;height:36px;border:1.5px solid var(--border);border-radius:8px;
+  cursor:pointer;font-size:17px;display:flex;align-items:center;justify-content:center;transition:all .15s}
+.icon-opt:hover,.icon-opt.sel{border-color:var(--forest);background:rgba(26,94,56,.08)}
+.dlg-row{display:flex;gap:10px;justify-content:flex-end;margin-top:4px;flex-wrap:wrap}
+.btn-p{background:var(--forest);color:#fff;border:none;padding:10px 22px;border-radius:22px;
+  cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13.5px;font-weight:500;transition:background .2s}
+.btn-p:hover{background:var(--sage)}
+.btn-c{background:var(--parch);color:var(--smoke);border:1px solid var(--border);
+  padding:10px 22px;border-radius:22px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:13.5px}
+.btn-link{background:none;border:none;color:var(--forest);cursor:pointer;font-size:13px;
+  text-decoration:underline;font-family:'DM Sans',sans-serif}
+
+/* FILE MODAL */
+#fileModal{z-index:10001}
+.fm-inner{background:var(--white);border-radius:22px;max-width:550px;width:95%;
+  max-height:88vh;display:flex;flex-direction:column;box-shadow:var(--sh-l)}
+.fm-hd{padding:16px 20px 12px;border-bottom:1px solid var(--border);
+  display:flex;align-items:center;gap:12px;flex-shrink:0}
+.fm-title{font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--forest);flex:1}
+.fm-close{background:none;border:none;font-size:20px;cursor:pointer;color:var(--smoke)}
+.fm-body{padding:16px 20px;overflow-y:auto;flex:1}
+.drop-zone{border:2px dashed var(--border);border-radius:14px;padding:24px;text-align:center;
+  cursor:pointer;transition:all .2s;margin-bottom:13px}
+.drop-zone:hover,.drop-zone.drag{border-color:var(--forest);background:rgba(26,94,56,.04)}
+.drop-zone p{color:var(--smoke);font-size:13px;margin-top:6px}
+.url-row{display:flex;gap:8px;margin-bottom:13px;flex-wrap:wrap}
+.url-row input{flex:1;min-width:110px;border:1px solid var(--border);border-radius:10px;
+  padding:9px 12px;font-size:13px;font-family:'DM Sans',sans-serif;background:var(--cream)}
+.url-row button{background:var(--forest);color:#fff;border:none;padding:9px 15px;
+  border-radius:10px;cursor:pointer;font-size:13px;white-space:nowrap}
+.file-list{display:flex;flex-direction:column;gap:7px}
+.file-row{display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--parch);border-radius:10px}
+.file-icon{font-size:16px;flex-shrink:0}
+.file-name{flex:1;font-size:13px;font-weight:500;cursor:pointer;color:var(--forest);
+  text-decoration:underline;text-decoration-color:transparent;transition:.2s}
+.file-name:hover{text-decoration-color:var(--forest)}
+.file-tag{font-size:9.5px;background:var(--forest);color:#fff;padding:2px 7px;border-radius:8px}
+.file-del{background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;padding:2px 6px}
+.empty-box{text-align:center;padding:32px 20px;color:var(--smoke)}
+.empty-box .ei{font-size:38px;opacity:.33;margin-bottom:9px}
+
+/* PREVIEW */
+#previewOv{display:none;position:fixed;inset:0;background:rgba(0,0,0,.87);
+  z-index:20000;flex-direction:column;align-items:center;justify-content:center;gap:14px}
+#previewOv.show{display:flex}
+#previewOv iframe{width:88vw;height:80vh;border:none;border-radius:8px}
+#previewOv img{max-width:88vw;max-height:80vh;border-radius:8px}
+.prev-close{background:#fff;color:#000;border:none;padding:10px 28px;border-radius:22px;
+  cursor:pointer;font-size:14px;font-weight:600}
 
 /* ══════════════════════════════════════
-   FIXED TOP NAV
+   MAP SCREEN  —  LIGHT & BEAUTIFUL
+   Replicates uploaded map's full feature
+   set: side panel, tabs, legend, markers
 ══════════════════════════════════════ */
-.nav{
-  position:fixed;top:0;left:0;right:0;height:var(--nav-h);
-  display:flex;align-items:center;justify-content:space-between;
-  padding:0 32px;background:var(--white);
-  border-bottom:1px solid var(--linen2);
-  box-shadow:var(--sh-xs);z-index:2000;
-}
-.nav-brand{display:flex;align-items:center;gap:10px;cursor:pointer;text-decoration:none}
-.nav-seal{width:32px;height:32px;border-radius:8px;flex-shrink:0;background:linear-gradient(145deg,var(--forest),var(--forest3));display:flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 2px 8px rgba(28,74,47,.3)}
-.nav-name{font-family:var(--ff-s);font-size:1.05rem;font-weight:700;color:var(--forest);line-height:1.1}
-.nav-org{font-size:.57rem;color:var(--stone);letter-spacing:.13em;text-transform:uppercase;margin-top:1px}
-.nav-bc{display:flex;align-items:center;gap:5px;font-size:.7rem}
-.nbc-link{color:var(--forest2);cursor:pointer;font-weight:500;transition:color .2s}
-.nbc-link:hover{color:var(--forest)}
-.nbc-sep{color:var(--fog)}
-.nbc-cur{color:var(--stone)}
-.nav-r{display:flex;align-items:center;gap:9px}
-.btn-back{display:none;align-items:center;gap:5px;padding:5px 14px;border-radius:20px;border:1.5px solid var(--forest);background:transparent;color:var(--forest);font-size:.72rem;font-weight:500;cursor:pointer;transition:all .2s;font-family:var(--ff)}
-.btn-back:hover{background:var(--forest);color:#fff}
-.btn-back.show{display:flex}
-.nav-date{font-family:var(--ff-m);font-size:.6rem;color:var(--stone);padding:3px 9px;border:1px solid var(--linen2);border-radius:4px;background:var(--cream)}
+#mapScreen{display:none;position:fixed;inset:0;z-index:9500;flex-direction:column}
+#mapScreen.show{display:flex}
 
-/* ══════════════════════════════════════
-   PAGE WRAPPER (below fixed nav)
-══════════════════════════════════════ */
-#app{
-  margin-top:var(--nav-h);
-  flex:1;overflow:hidden;position:relative;
-}
-.page{
-  position:absolute;inset:0;
-  display:flex;flex-direction:column;
-  background:var(--cream);
-  opacity:0;pointer-events:none;
-  transition:opacity .38s ease,transform .38s ease;
-  transform:translateY(12px);
-}
-.page.active{opacity:1;pointer-events:all;transform:none}
+/* Map topbar */
+.map-header{background:var(--forest);display:flex;align-items:center;padding:0 16px;
+  height:50px;gap:10px;border-bottom:2px solid rgba(255,255,255,.1);flex-shrink:0;flex-wrap:wrap}
+.map-header-left{display:flex;align-items:center;gap:10px;flex:1}
+.map-logo-box{width:28px;height:28px;background:rgba(255,255,255,.18);border-radius:6px;
+  display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0}
+.map-header-title h2{font-family:'Cormorant Garamond',serif;font-size:16px;color:#fff;line-height:1}
+.map-header-title p{font-size:9px;color:rgba(255,255,255,.55);letter-spacing:.1em;
+  text-transform:uppercase;margin-top:1px}
+.map-header-controls{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.layer-btn{font-size:11px;padding:5px 12px;border-radius:20px;
+  border:1px solid rgba(255,255,255,.25);background:transparent;
+  color:rgba(255,255,255,.7);cursor:pointer;transition:all .2s;
+  text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.layer-btn.active{background:rgba(255,255,255,.25);color:#fff;font-weight:700;border-color:rgba(255,255,255,.5)}
+.layer-btn.active.ro-btn{background:rgba(110,200,160,.25);border-color:rgba(110,200,160,.6);color:#a8f0c8}
+.map-back-btn{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);
+  color:#fff;padding:6px 15px;border-radius:20px;cursor:pointer;font-size:12.5px;
+  font-family:'DM Sans',sans-serif;transition:background .2s;white-space:nowrap}
+.map-back-btn:hover{background:rgba(255,255,255,.22)}
+.map-pulse{width:6px;height:6px;background:#7debb0;border-radius:50%;animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.6)}}
 
-/* ══════════════════════════════════════
-   HOME PAGE
-══════════════════════════════════════ */
-#pg-home{overflow-y:auto}
-.home-wrap{min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 32px 32px;position:relative}
-.home-deco{position:absolute;top:0;right:0;width:320px;height:320px;pointer-events:none;overflow:hidden;opacity:.06;z-index:0}
-.home-deco svg{position:absolute;top:-50px;right:-50px}
-.home-z{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;width:100%}
-.home-kicker{font-size:.68rem;letter-spacing:.2em;text-transform:uppercase;color:var(--forest3);font-weight:600;margin-bottom:14px;display:flex;align-items:center;gap:10px}
-.home-kicker::before,.home-kicker::after{content:'';flex:0 0 32px;height:1px;background:linear-gradient(to right,transparent,var(--fern))}
-.home-kicker::after{background:linear-gradient(to left,transparent,var(--fern))}
-.home-title{font-family:var(--ff-s);font-size:clamp(2rem,5vw,3.4rem);font-weight:700;color:var(--ink);line-height:1.05;text-align:center;letter-spacing:-.01em;margin-bottom:8px}
-.home-title em{color:var(--forest);font-style:italic}
-.home-tel{font-family:var(--ff-t);font-size:.95rem;color:var(--forest2);opacity:.75;text-align:center;margin-bottom:8px}
-.home-place{font-size:.78rem;color:var(--stone);text-align:center;letter-spacing:.04em}
-.home-rule{display:flex;align-items:center;gap:10px;margin:22px 0 30px;width:160px}
-.home-rule::before,.home-rule::after{content:'';flex:1;height:1px;background:var(--linen2)}
-.home-rule-dot{width:5px;height:5px;background:var(--fern);border-radius:50%;flex-shrink:0}
-.home-cards{display:flex;gap:24px;flex-wrap:wrap;justify-content:center;max-width:660px;width:100%;margin-bottom:36px}
+/* Map body */
+.map-body{flex:1;display:flex;overflow:hidden;position:relative}
+#theLeafMap{flex:1}
+.leaflet-container{background:linear-gradient(135deg,#e8f5ee 0%,#d4eae0 100%) !important}
+.leaflet-tile-pane{display:none !important}
+.leaflet-control-zoom a{background:var(--white)!important;color:var(--forest)!important;border-color:var(--border)!important}
+.leaflet-control-zoom a:hover{background:var(--parch)!important}
+.leaflet-control-attribution{background:rgba(248,245,239,.85)!important;color:var(--smoke)!important;font-size:9px!important}
 
-/* HOME CARDS — only button clickable */
-.h-card{flex:1;min-width:240px;max-width:290px;background:var(--white);border:1px solid var(--linen2);border-radius:18px;padding:34px 26px 30px;text-align:center;position:relative;box-shadow:var(--sh-sm);transition:box-shadow .25s}
-.h-card:hover{box-shadow:var(--sh-md)}
-.h-card.soil{border-top:3px solid var(--soil2)}
-.h-card.bldg{border-top:3px solid var(--forest2)}
-.hci{font-size:2.8rem;margin-bottom:16px;display:block;filter:drop-shadow(0 4px 8px rgba(0,0,0,.1))}
-.hcl{font-family:var(--ff-s);font-size:1.75rem;font-weight:700;color:var(--ink);margin-bottom:22px}
-.hcb{display:inline-flex;align-items:center;gap:6px;padding:10px 26px;border-radius:100px;border:none;cursor:pointer;font-family:var(--ff);font-size:.78rem;font-weight:600;letter-spacing:.04em;transition:transform .2s,box-shadow .2s,filter .2s}
-.hcb:hover{transform:translateY(-2px);filter:brightness(1.07)}
-.hcb:active{transform:scale(.97)}
-.hcb .arr{display:inline-block;transition:transform .2s}
-.hcb:hover .arr{transform:translateX(4px)}
-.home-footer{font-size:.62rem;color:var(--stone);text-align:center;letter-spacing:.05em;line-height:2.1}
+/* AP tooltip */
+.ap-tip{background:var(--white)!important;border:1px solid var(--border)!important;
+  color:var(--ink)!important;font-family:'DM Sans',sans-serif!important;
+  font-size:12px!important;font-weight:600!important;padding:4px 10px!important;
+  border-radius:8px!important;box-shadow:var(--sh-s)!important;white-space:nowrap!important}
+.ap-tip::before{display:none!important}
 
-/* ══════════════════════════════════════
-   INNER PAGE LAYOUT
-══════════════════════════════════════ */
-#pg-soil,#pg-buildings{overflow:hidden}
-.sec-hd{flex-shrink:0;background:var(--white);border-bottom:1px solid var(--linen2);box-shadow:var(--sh-xs);padding:16px 32px 0;z-index:10;position:relative}
-.shd-row{display:flex;align-items:flex-end;justify-content:space-between;padding-bottom:12px;gap:12px;flex-wrap:wrap}
-.shd-icon{font-size:1.6rem;margin-bottom:3px;display:block}
-.shd-title{font-family:var(--ff-s);font-size:1.9rem;font-weight:700;color:var(--ink);line-height:1}
-.shd-title em{font-style:italic}
-.shd-sub{font-size:.68rem;color:var(--stone);margin-top:4px;letter-spacing:.02em}
-.shd-badge{padding:4px 13px;border-radius:20px;font-family:var(--ff-m);font-size:.58rem;font-weight:500;letter-spacing:.1em;text-transform:uppercase;border:1.5px solid}
+/* ── LEGEND ── */
+#mapLegend{position:absolute;bottom:16px;left:14px;z-index:800;
+  background:rgba(255,255,255,.97);border:1px solid var(--border);border-radius:14px;
+  padding:11px 14px;max-width:200px;box-shadow:var(--sh-m);backdrop-filter:blur(6px)}
+.leg-header{cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:8px;
+  user-select:none;margin-bottom:0}
+.leg-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.12em;color:var(--forest)}
+.leg-toggle-arrow{font-size:11px;color:var(--smoke);line-height:1;transition:transform .25s}
+.leg-toggle-arrow.open{transform:rotate(0deg)}
+.leg-toggle-arrow.closed{transform:rotate(180deg)}
+#legItems{margin-top:9px;border-top:1px solid var(--border);padding-top:8px}
+#legItems.hidden{display:none}
+.leg-row{display:flex;align-items:center;gap:7px;margin-bottom:6px;cursor:pointer;
+  font-size:11px;color:var(--smoke);transition:color .15s;border-radius:6px;padding:1px 3px}
+.leg-row:hover{color:var(--forest);background:rgba(26,94,56,.04)}
+.leg-swatch{width:13px;height:13px;border-radius:3px;flex-shrink:0;
+  border:1px solid rgba(0,0,0,.08);box-shadow:0 1px 3px rgba(0,0,0,.1)}
+.leg-pin-row{display:flex;align-items:center;gap:7px;padding-top:7px;margin-top:3px;
+  border-top:1px solid var(--border);font-size:11px;color:var(--smoke)}
 
-/* TAB BAR */
-.tab-bar{display:flex;gap:0;overflow-x:auto;scrollbar-width:none;border-top:1px solid var(--linen2)}
-.tab-bar::-webkit-scrollbar{display:none}
-.tb{display:flex;align-items:center;gap:6px;padding:8px 16px 10px;white-space:nowrap;font-family:var(--ff);font-size:.7rem;font-weight:500;color:var(--stone);background:transparent;border:none;cursor:pointer;border-bottom:2.5px solid transparent;transition:color .2s,border-color .2s,background .2s}
-.tb .ti{font-size:.95rem;transition:transform .2s}
-.tb:hover{color:var(--ink2);background:rgba(0,0,0,.02)}
-.tb:hover .ti{transform:scale(1.15)}
-.tb.on{color:var(--forest);font-weight:600;border-bottom-color:var(--forest)}
-.tb .tnew{font-size:.48rem;padding:1px 5px;border-radius:6px;background:var(--mist);color:var(--forest2);border:1px solid var(--mint);font-weight:700;letter-spacing:.04em}
-
-/* PANE WRAP + PANES */
-.pane-wrap{flex:1;overflow:hidden;position:relative;min-height:0}
-.pane{position:absolute;inset:0;overflow-y:auto;padding:24px 32px 36px;opacity:0;pointer-events:none;transform:translateY(8px);transition:opacity .25s,transform .25s;background:var(--cream);scrollbar-width:thin;scrollbar-color:var(--linen2) transparent}
-/* Map pane gets tighter padding so map fills height */
-#bp-map{padding:16px 20px 16px}
-.pane::-webkit-scrollbar{width:4px}
-.pane::-webkit-scrollbar-thumb{background:var(--linen2);border-radius:4px}
-.pane.on{opacity:1;pointer-events:all;transform:none}
-
-/* ══════════════════════════════════════
-   DYNAMIC WORKSPACE
-══════════════════════════════════════ */
-.ws-topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;flex-wrap:wrap;gap:8px}
-.ws-info h3{font-family:var(--ff-s);font-size:1.2rem;font-weight:700;color:var(--ink)}
-.ws-info p{font-size:.68rem;color:var(--stone);margin-top:2px}
-.ws-add-btn{display:flex;align-items:center;gap:6px;padding:8px 18px;border-radius:8px;background:var(--forest);color:#fff;border:none;cursor:pointer;font-family:var(--ff);font-size:.75rem;font-weight:600;letter-spacing:.03em;transition:all .2s;box-shadow:0 2px 8px rgba(28,74,47,.2)}
-.ws-add-btn:hover{background:var(--forest2);box-shadow:var(--sh-md)}
-.ws-add-btn svg{width:14px;height:14px;flex-shrink:0}
-
-/* CARD GRID */
-.card-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:14px}
-
-/* INDIVIDUAL WORKSPACE CARD */
-.ws-card{background:var(--white);border:1px solid var(--linen2);border-radius:14px;padding:20px 16px 16px;text-align:center;position:relative;box-shadow:var(--sh-xs);cursor:pointer;transition:all .22s;display:flex;flex-direction:column;align-items:center;gap:8px;min-height:140px}
-.ws-card:hover{box-shadow:var(--sh-md);transform:translateY(-2px);border-color:var(--fern)}
-.ws-card-ico{width:48px;height:48px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0;margin-bottom:2px}
-.ws-card-name{font-family:var(--ff-s);font-size:.95rem;font-weight:700;color:var(--ink);line-height:1.2;word-break:break-word}
-.ws-card-count{font-size:.62rem;color:var(--stone);margin-top:auto}
-.ws-card-actions{position:absolute;top:6px;right:6px;display:flex;gap:3px;opacity:0;transition:opacity .2s}
-.ws-card:hover .ws-card-actions{opacity:1}
-.wca{width:20px;height:20px;border-radius:4px;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.7rem;background:var(--cream);color:var(--stone);transition:all .15s}
-.wca:hover{background:var(--linen2);color:var(--ink)}
-.wca.del:hover{background:#fee2e2;color:#dc2626}
-
-/* ADD CARD BUTTON (last in grid) */
-.ws-card-add{background:transparent;border:2px dashed var(--fog);cursor:pointer;transition:all .2s}
-.ws-card-add:hover{border-color:var(--fern);background:var(--mist)}
-.ws-card-add .plus{font-size:1.6rem;color:var(--fog);transition:color .2s}
-.ws-card-add:hover .plus{color:var(--fern)}
-.ws-card-add span{font-size:.7rem;color:var(--stone)}
-
-/* ══════════════════════════════════════
-   CARD DETAIL MODAL (file viewer)
-══════════════════════════════════════ */
-.modal-bg{position:fixed;inset:0;background:rgba(26,32,24,.55);backdrop-filter:blur(4px);z-index:3000;display:none;align-items:center;justify-content:center;padding:20px}
-.modal-bg.open{display:flex}
-.modal{background:var(--white);border-radius:18px;width:100%;max-width:820px;max-height:88vh;display:flex;flex-direction:column;box-shadow:var(--sh-lg);overflow:hidden;animation:mIn .28s ease}
-@keyframes mIn{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
-.modal-head{padding:16px 20px 14px;border-bottom:1px solid var(--linen2);display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
-.modal-title{font-family:var(--ff-s);font-size:1.25rem;font-weight:700;color:var(--ink)}
-.modal-title-input{font-family:var(--ff-s);font-size:1.2rem;font-weight:700;color:var(--ink);border:none;outline:none;background:transparent;width:calc(100% - 40px);padding:0}
-.modal-x{width:28px;height:28px;border-radius:50%;border:none;background:var(--cream);color:var(--stone);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:all .2s;flex-shrink:0}
-.modal-x:hover{background:var(--linen2)}
-.modal-body{flex:1;overflow-y:auto;padding:20px;scrollbar-width:thin;scrollbar-color:var(--linen2) transparent}
-.modal-body::-webkit-scrollbar{width:4px}
-.modal-body::-webkit-scrollbar-thumb{background:var(--linen2);border-radius:4px}
-
-/* File upload area in modal */
-.upload-drop{border:2px dashed var(--fog);border-radius:12px;padding:28px 20px;text-align:center;transition:all .2s;cursor:pointer;margin-bottom:18px;position:relative}
-.upload-drop:hover,.upload-drop.drag{border-color:var(--fern);background:var(--mist)}
-.upload-drop input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer}
-.ud-ico{font-size:2rem;margin-bottom:8px;display:block;opacity:.5}
-.ud-title{font-family:var(--ff-s);font-size:1.05rem;color:var(--stone);margin-bottom:4px}
-.ud-sub{font-size:.7rem;color:var(--stone);opacity:.8}
-.ud-btn{display:inline-flex;align-items:center;gap:5px;margin-top:12px;padding:7px 18px;border-radius:7px;background:var(--forest);color:#fff;font-size:.72rem;font-weight:600;border:none;cursor:pointer;font-family:var(--ff);transition:all .2s;pointer-events:none}
-
-/* Files list */
-.files-list{display:flex;flex-direction:column;gap:8px}
-.file-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--cream);border:1px solid var(--linen2);border-radius:9px;transition:all .2s;cursor:pointer}
-.file-row:hover{background:var(--mist);border-color:var(--mint)}
-.file-ico{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:1.2rem;flex-shrink:0}
-.file-name{flex:1;font-size:.78rem;font-weight:500;color:var(--ink2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.file-size{font-size:.62rem;color:var(--stone);white-space:nowrap}
-.file-del{width:22px;height:22px;border-radius:5px;border:none;background:transparent;color:var(--fog);cursor:pointer;font-size:.75rem;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
-.file-del:hover{background:#fee2e2;color:#dc2626}
-.file-view-badge{font-size:.58rem;padding:2px 7px;border-radius:8px;background:var(--mist);color:var(--forest2);border:1px solid var(--mint);white-space:nowrap;flex-shrink:0}
-
-/* File preview overlay */
-.preview-bg{position:fixed;inset:0;background:rgba(0,0,0,.82);z-index:4000;display:none;flex-direction:column;align-items:center;justify-content:center}
-.preview-bg.open{display:flex}
-.preview-bar{position:absolute;top:0;left:0;right:0;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;background:rgba(0,0,0,.5);backdrop-filter:blur(4px)}
-.preview-name{font-size:.82rem;color:#fff;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.preview-x{padding:5px 14px;border-radius:6px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);color:#fff;font-size:.72rem;cursor:pointer;font-family:var(--ff);transition:background .2s}
-.preview-x:hover{background:rgba(255,255,255,.22)}
-.preview-content{max-width:92vw;max-height:80vh;border-radius:8px;overflow:auto}
-.preview-content img{max-width:88vw;max-height:78vh;border-radius:8px;display:block}
-.preview-content iframe{width:80vw;height:78vh;border:none;border-radius:8px;background:#fff}
-
-/* New card dialog */
-.nc-dialog{position:fixed;inset:0;background:rgba(26,32,24,.5);backdrop-filter:blur(3px);z-index:5000;display:none;align-items:center;justify-content:center}
-.nc-dialog.open{display:flex}
-.nc-box{background:var(--white);border-radius:16px;width:360px;padding:28px 26px 24px;box-shadow:var(--sh-lg);animation:mIn .25s ease}
-.nc-title{font-family:var(--ff-s);font-size:1.3rem;font-weight:700;color:var(--ink);margin-bottom:16px}
-.nc-label{font-size:.68rem;font-weight:600;color:var(--stone);text-transform:uppercase;letter-spacing:.09em;margin-bottom:6px}
-.nc-input{width:100%;padding:9px 12px;border:1.5px solid var(--linen2);border-radius:8px;font-family:var(--ff);font-size:.85rem;color:var(--ink);outline:none;transition:border-color .2s;background:var(--cream)}
-.nc-input:focus{border-color:var(--fern);background:var(--white)}
-.nc-icons{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px;margin-bottom:16px}
-.nc-ico-btn{width:36px;height:36px;border-radius:8px;border:1.5px solid var(--linen2);background:var(--cream);font-size:1.1rem;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s}
-.nc-ico-btn:hover,.nc-ico-btn.sel{border-color:var(--forest);background:var(--mist)}
-.nc-row{display:flex;gap:8px;margin-top:4px}
-.nc-cancel{flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--linen2);background:transparent;color:var(--stone);font-family:var(--ff);font-size:.78rem;cursor:pointer;transition:all .2s}
-.nc-cancel:hover{background:var(--cream)}
-.nc-ok{flex:1;padding:9px;border-radius:8px;border:none;background:var(--forest);color:#fff;font-family:var(--ff);font-size:.78rem;font-weight:600;cursor:pointer;transition:all .2s}
-.nc-ok:hover{background:var(--forest2)}
-
-/* ══════════════════════════════════════
-   BUILDINGS — MAP SECTION
-══════════════════════════════════════ */
-.map-shell{border-radius:14px;overflow:hidden;border:1px solid var(--linen2);box-shadow:var(--sh-md);height:calc(100vh - 280px);min-height:400px;display:flex;flex-direction:column;background:var(--white)}
-.map-bar{flex-shrink:0;padding:9px 14px;background:var(--white);border-bottom:1px solid var(--linen2);display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.map-bar-t{font-size:.7rem;font-weight:600;color:var(--forest);letter-spacing:.06em;text-transform:uppercase}
-.map-bar-s{font-size:.6rem;color:var(--stone);margin-top:1px}
-.lyr-btns{display:flex;gap:5px}
-.lbtn{font-size:.62rem;padding:4px 12px;border-radius:14px;border:1.5px solid var(--linen2);background:var(--cream);color:var(--stone);cursor:pointer;font-family:var(--ff);font-weight:500;transition:all .2s}
-.lbtn.on{background:var(--forest);border-color:var(--forest);color:#fff}
-.lbtn.on.sky{background:var(--sky);border-color:var(--sky)}
-.map-body{flex:1;position:relative;overflow:hidden}
-#embMap{width:100%;height:100%;background:#e6ede6}
-.leaflet-container{background:#e6ede6!important}
-.leaflet-tile-pane{display:none!important}
-.map-spin{position:absolute;inset:0;z-index:200;background:linear-gradient(135deg,#eef3ee,#e6ede6);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px}
-.spin{width:30px;height:30px;border-radius:50%;border:3px solid rgba(28,74,47,.1);border-top-color:var(--forest3);animation:sp .8s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
-.map-spin p{font-size:.72rem;color:var(--stone);font-weight:500}
-#map-leg{
-  position:absolute;bottom:36px;right:12px;z-index:300;
-  background:rgba(255,255,255,.97);border:1px solid var(--linen2);
-  border-radius:10px;backdrop-filter:blur(6px);box-shadow:var(--sh-sm);
-  overflow:hidden;transition:all .25s;width:190px;
-}
-#map-leg.collapsed{width:auto}
-#map-leg-toggle{
-  display:flex;align-items:center;justify-content:space-between;gap:8px;
-  padding:6px 10px;cursor:pointer;user-select:none;
-  font-size:.58rem;font-weight:700;color:var(--forest);
-  text-transform:uppercase;letter-spacing:.1em;
-  background:var(--mist);border-bottom:1px solid var(--linen2);
-  white-space:nowrap;
-}
-#map-leg.collapsed #map-leg-toggle{border-bottom:none}
-.leg-arr{font-size:.65rem;color:var(--stone);transition:transform .25s;margin-left:4px}
-#map-leg.collapsed .leg-arr{transform:rotate(180deg)}
-#map-leg-body{padding:7px 10px 6px;max-height:240px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--linen2) transparent}
-#map-leg-body::-webkit-scrollbar{width:3px}
-#map-leg-body::-webkit-scrollbar-thumb{background:var(--linen2);border-radius:3px}
-#map-leg.collapsed #map-leg-body{display:none}
-.lg-row{display:flex;align-items:center;gap:7px;margin-bottom:5px;font-size:.62rem;color:var(--stone)}
-.lg-row:last-child{margin-bottom:0}
-.lg-sw{width:10px;height:10px;border-radius:2px;flex-shrink:0;border:1px solid rgba(0,0,0,.1)}
-.ap-tt{background:var(--white)!important;border:1px solid var(--linen2)!important;color:var(--ink)!important;font-family:var(--ff)!important;font-size:.7rem!important;font-weight:600!important;padding:4px 10px!important;border-radius:5px!important;box-shadow:var(--sh-md)!important;white-space:nowrap!important}
-.ap-tt::before{display:none!important}
-.leaflet-control-zoom a{background:var(--white)!important;color:var(--forest)!important;border-color:var(--linen2)!important}
-.leaflet-control-zoom a:hover{background:var(--mist)!important}
-.leaflet-control-attribution{background:rgba(255,255,255,.8)!important;color:var(--stone)!important;font-size:.5rem!important}
+/* ── RO PIN marker ── */
 .ro-marker-icon{background:transparent;border:none}
-.ro-pin{width:24px;height:24px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;border:2px solid rgba(255,255,255,.8);box-shadow:0 2px 6px rgba(0,0,0,.18);cursor:pointer}
-.ro-pin-i{transform:rotate(45deg);font-size:11px;line-height:1}
-.msp{position:absolute;right:0;top:0;bottom:0;width:0;overflow:hidden;background:var(--white);border-left:1px solid var(--linen2);box-shadow:-3px 0 20px rgba(26,64,47,.08);transition:width .35s cubic-bezier(.4,0,.2,1);display:flex;flex-direction:column;z-index:400}
-.msp.open{width:320px}
-.msp-in{width:320px;height:100%;display:flex;flex-direction:column;overflow:hidden}
-.msp-hd{padding:13px 13px 10px;border-bottom:1px solid var(--linen2);flex-shrink:0;position:relative;background:linear-gradient(to bottom,var(--mist),var(--white))}
-.msp-bdg{font-size:.54rem;text-transform:uppercase;letter-spacing:.1em;padding:2px 7px;border-radius:7px;margin-bottom:5px;display:inline-block;font-weight:700}
-.msp-bdg.ro{background:var(--mist);color:var(--forest2);border:1px solid var(--mint)}
-.msp-bdg.dst{background:var(--sand);color:var(--soil);border:1px solid rgba(212,165,116,.4)}
-.msp-name{font-family:var(--ff-s);font-size:1.15rem;font-weight:700;color:var(--ink);line-height:1.1}
-.msp-sub{font-size:.67rem;color:var(--stone);margin-top:2px}
-.msp-tel{font-family:var(--ff-t);font-size:.77rem;color:var(--forest2);margin-top:2px}
-.msp-meta{display:flex;gap:4px;flex-wrap:wrap;margin-top:6px}
-.msp-pill{font-size:.56rem;padding:2px 7px;border-radius:7px;background:var(--cream);border:1px solid var(--linen2);color:var(--stone);text-transform:uppercase;letter-spacing:.04em}
-.msp-x{position:absolute;top:10px;right:10px;background:var(--cream);border:1px solid var(--linen2);color:var(--stone);width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:12px;display:flex;align-items:center;justify-content:center;transition:all .2s}
-.msp-x:hover{background:var(--sand);color:var(--soil)}
-.msp-tabs{display:flex;border-bottom:1px solid var(--linen2);flex-shrink:0}
-.msp-tab{flex:1;padding:7px 4px;font-size:.58rem;text-align:center;text-transform:uppercase;letter-spacing:.07em;color:var(--stone);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;font-family:var(--ff);font-weight:500}
-.msp-tab.on{color:var(--forest);border-bottom-color:var(--forest);background:var(--mist)}
-.msp-body{flex:1;overflow-y:auto;padding:12px 13px;scrollbar-width:thin;scrollbar-color:var(--linen2) transparent}
-.msp-body::-webkit-scrollbar{width:3px}
-.msp-body::-webkit-scrollbar-thumb{background:var(--linen2);border-radius:3px}
-.ms-sec{font-size:.54rem;text-transform:uppercase;letter-spacing:.12em;color:var(--forest2);margin-bottom:7px;display:flex;align-items:center;gap:5px;font-weight:700}
-.ms-sec::after{content:'';flex:1;height:1px;background:var(--mint)}
-.ms-grid{display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-bottom:11px}
-.ms-card{background:var(--cream);border:1px solid var(--linen2);border-radius:7px;padding:6px 9px}
-.ms-lbl{font-size:.52rem;color:var(--stone);text-transform:uppercase;letter-spacing:.08em}
-.ms-val{font-size:.85rem;font-weight:700;color:var(--forest);font-family:var(--ff-s);margin-top:1px}
-.ms-addr{background:var(--mist);border:1px solid var(--mint);border-radius:7px;padding:8px 10px;margin-bottom:10px;font-size:.69rem;line-height:1.65;color:var(--ink2)}
-.ms-addr-l{font-size:.52rem;color:var(--forest2);text-transform:uppercase;letter-spacing:.08em;margin-bottom:2px;font-weight:700}
-.ms-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
-.ms-chip{font-size:.64rem;padding:3px 8px;border-radius:5px;cursor:pointer;border:1px solid;transition:all .15s;font-weight:500}
-.ms-chip:hover{filter:brightness(.93)}
-.ms-tl{position:relative;padding-left:17px}
-.ms-tl::before{content:'';position:absolute;left:4px;top:6px;bottom:6px;width:2px;background:linear-gradient(to bottom,var(--forest),var(--mint),transparent);border-radius:2px}
-.ms-ti{position:relative;margin-bottom:10px}
-.ms-dot{position:absolute;left:-13px;top:4px;width:7px;height:7px;border-radius:50%;border:2px solid var(--white)}
-.ms-dot.d{background:var(--gold)}.ms-dot.i{background:var(--forest3)}.ms-dot.h{background:var(--soil2)}
-.ms-yr{font-size:.58rem;font-weight:700;letter-spacing:.06em;margin-bottom:1px}
-.ms-yr.d{color:var(--gold)}.ms-yr.i{color:var(--forest2)}.ms-yr.h{color:var(--soil2)}
-.ms-txt{font-size:.71rem;line-height:1.55;color:var(--ink2)}
-.ms-txt strong{color:var(--ink);font-weight:600}
-.ms-ea{width:100%;background:var(--cream);border:1.5px solid var(--linen2);border-radius:6px;color:var(--ink2);font-family:var(--ff-m);font-size:.66rem;line-height:1.7;padding:8px 10px;resize:vertical;min-height:100px;outline:none;transition:border-color .2s}
-.ms-ea:focus{border-color:var(--fern);background:var(--white)}
-.ms-ea::placeholder{color:var(--fog)}
-.ms-sv-row{display:flex;justify-content:flex-end;align-items:center;margin-top:4px;gap:6px}
-.ms-sv-btn{font-size:.67rem;padding:5px 13px;border-radius:6px;background:var(--forest);border:none;color:#fff;cursor:pointer;font-weight:600;transition:all .2s;font-family:var(--ff)}
-.ms-sv-btn:hover{background:var(--forest2)}
-.ms-svd{font-size:.59rem;color:var(--forest3);opacity:0;transition:opacity .3s}
-.ms-svd.show{opacity:1}
+.ro-pin{width:30px;height:30px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);
+  display:flex;align-items:center;justify-content:center;
+  border:2px solid rgba(255,255,255,.85);
+  box-shadow:0 3px 12px rgba(0,0,0,.22),0 1px 4px rgba(0,0,0,.15);
+  cursor:pointer;transition:transform .15s}
+.ro-pin:hover{transform:rotate(-45deg) scale(1.15)}
+.ro-pin-inner{transform:rotate(45deg);font-size:13px;line-height:1}
 
-/* Responsive */
+/* ── SIDE PANEL ── */
+.map-panel{width:0;overflow:hidden;background:var(--white);
+  border-left:1px solid var(--border);
+  transition:width .38s cubic-bezier(.4,0,.2,1);
+  display:flex;flex-direction:column;flex-shrink:0;
+  box-shadow:-3px 0 20px rgba(0,0,0,.08)}
+.map-panel.open{width:380px}
+.panel-inner{width:380px;height:100%;display:flex;flex-direction:column;overflow:hidden}
+
+.panel-hd{padding:15px 16px 11px;border-bottom:1px solid var(--border);flex-shrink:0;position:relative}
+.panel-type-badge{font-size:9px;text-transform:uppercase;letter-spacing:.14em;
+  padding:3px 10px;border-radius:20px;margin-bottom:8px;display:inline-block;font-weight:700}
+.badge-ro{background:rgba(26,94,56,.1);border:1px solid rgba(26,94,56,.25);color:var(--forest)}
+.badge-dist{background:rgba(184,150,46,.1);border:1px solid rgba(184,150,46,.3);color:#8a6e10}
+.panel-name{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:700;color:var(--ink);line-height:1.1}
+.panel-sub{font-size:12px;color:var(--smoke);margin-top:3px}
+.panel-telugu{font-family:'Tiro Telugu',serif;font-size:13px;color:var(--sage);margin-top:3px}
+.panel-meta{display:flex;gap:5px;flex-wrap:wrap;margin-top:8px}
+.meta-pill{font-size:10px;padding:2px 8px;border-radius:12px;
+  background:rgba(26,94,56,.07);border:1px solid rgba(26,94,56,.14);color:var(--forest)}
+.panel-close-btn{position:absolute;top:12px;right:12px;background:var(--parch);
+  border:1px solid var(--border);color:var(--smoke);width:28px;height:28px;border-radius:50%;
+  cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.panel-close-btn:hover{background:var(--border)}
+
+/* Panel tabs */
+.panel-tabs{display:flex;border-bottom:1px solid var(--border);background:var(--parch);flex-shrink:0}
+.panel-tab{flex:1;padding:9px 6px;font-size:10px;text-align:center;text-transform:uppercase;
+  letter-spacing:.08em;font-weight:600;color:var(--smoke);cursor:pointer;
+  border-bottom:2.5px solid transparent;transition:all .2s}
+.panel-tab.active{color:var(--forest);border-bottom-color:var(--forest);background:var(--white)}
+
+/* Panel body */
+.panel-body{flex:1;overflow-y:auto;padding:14px 16px;
+  scrollbar-width:thin;scrollbar-color:rgba(26,94,56,.15) transparent}
+.panel-body::-webkit-scrollbar{width:3px}
+.panel-body::-webkit-scrollbar-thumb{background:rgba(26,94,56,.15);border-radius:3px}
+
+/* Panel content pieces */
+.addr-card{background:rgba(26,94,56,.05);border:1px solid rgba(26,94,56,.12);
+  border-radius:10px;padding:10px 13px;margin-bottom:12px;font-size:13px;line-height:1.6;color:var(--ink)}
+.addr-label{font-size:9.5px;text-transform:uppercase;letter-spacing:.1em;
+  color:var(--sage);margin-bottom:4px;font-weight:700}
+.stats-row{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:14px}
+.stat-card{background:var(--parch);border:1px solid var(--border);border-radius:9px;padding:8px 10px}
+.stat-label{font-size:9.5px;color:var(--smoke);text-transform:uppercase;letter-spacing:.08em}
+.stat-value{font-size:17px;font-weight:700;color:var(--forest);
+  font-family:'Cormorant Garamond',serif;margin-top:2px}
+.section-hd{font-size:9.5px;text-transform:uppercase;letter-spacing:.12em;color:var(--sage);
+  font-weight:700;margin:14px 0 9px;display:flex;align-items:center;gap:8px}
+.section-hd::after{content:'';flex:1;height:1px;background:rgba(26,94,56,.12)}
+.dist-chip-grid{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:12px}
+.dist-chip{font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;
+  transition:all .2s;font-weight:600;border:1px solid rgba(255,255,255,.3)}
+.dist-chip:hover{filter:brightness(.88);transform:translateY(-1px)}
+
+/* Timeline */
+.timeline{position:relative;padding-left:20px}
+.timeline::before{content:'';position:absolute;left:4px;top:8px;bottom:8px;width:2px;
+  background:linear-gradient(to bottom,var(--forest),rgba(26,94,56,.1));border-radius:2px}
+.tl-item{position:relative;margin-bottom:13px;animation:tlFade .3s ease both}
+.tl-item:nth-child(1){animation-delay:.03s}.tl-item:nth-child(2){animation-delay:.07s}
+.tl-item:nth-child(3){animation-delay:.11s}.tl-item:nth-child(4){animation-delay:.15s}
+@keyframes tlFade{from{opacity:0;transform:translateX(6px)}to{opacity:1;transform:none}}
+.tl-dot{position:absolute;left:-16px;top:5px;width:8px;height:8px;border-radius:50%;border:2px solid var(--cream)}
+.tl-dot.d{background:var(--forest);box-shadow:0 0 5px rgba(26,94,56,.3)}
+.tl-dot.i{background:var(--sage);box-shadow:0 0 5px rgba(61,122,85,.25)}
+.tl-dot.h{background:#8b6914;box-shadow:0 0 5px rgba(139,105,20,.25)}
+.tl-year{font-size:11px;font-weight:700;letter-spacing:.05em;margin-bottom:1px}
+.tl-year.d{color:var(--forest)}.tl-year.i{color:var(--sage)}.tl-year.h{color:#8b6914}
+.tl-text{font-size:13px;line-height:1.55;color:var(--ink)}
+
+/* Editable areas */
+.editable-area{width:100%;background:var(--parch);border:1px solid var(--border);
+  border-radius:9px;color:var(--ink);font-family:'DM Sans',sans-serif;font-size:13px;
+  line-height:1.6;padding:10px 12px;resize:vertical;min-height:140px;
+  outline:none;transition:border-color .2s}
+.editable-area:focus{border-color:var(--forest);background:var(--white)}
+.editable-area::placeholder{color:rgba(107,107,107,.45)}
+.save-row{display:flex;justify-content:flex-end;align-items:center;margin-top:8px;gap:10px}
+.save-btn{font-size:12px;padding:6px 16px;border-radius:8px;background:rgba(26,94,56,.1);
+  border:1px solid rgba(26,94,56,.28);color:var(--forest);cursor:pointer;font-weight:700;transition:all .2s}
+.save-btn:hover{background:rgba(26,94,56,.18)}
+.saved-notice{font-size:11px;color:var(--sage);opacity:0;transition:opacity .3s}
+.saved-notice.show{opacity:1}
+
 @media(max-width:640px){
-  .home-cards{flex-direction:column}
-  .h-card{max-width:100%;min-width:unset}
-  .nav,.sec-hd,.pane{padding-left:16px;padding-right:16px}
-  .msp.open{width:100%;position:absolute}
-  .msp-in{width:100%}
-  #map-leg{display:none}
-  .card-grid{grid-template-columns:repeat(auto-fill,minmax(130px,1fr))}
+  .home-cards{flex-direction:column}.h-card{width:100%;max-width:290px}
+  .map-panel.open{width:100vw;position:absolute;right:0;top:50px;bottom:0;z-index:900}
+  .panel-inner{width:100vw}
+  #mapLegend{display:none}
 }
 </style>
 </head>
 <body>
 
-<!-- ════════════ FIXED NAV ════════════ -->
-<nav class="nav">
-  <div class="nav-brand" onclick="goHome()">
-    <div class="nav-seal">🌿</div>
-    <div>
-      <div class="nav-name">Soil &amp; Buildings Division</div>
-      <div class="nav-org">APPCB · Head Office · Vijayawada</div>
-    </div>
-  </div>
-  <div id="nav-bc" class="nav-bc" style="display:none">
-    <span class="nbc-link" onclick="goHome()">Home</span>
-    <span class="nbc-sep">›</span>
-    <span class="nbc-cur" id="bc-s">—</span>
-    <span class="nbc-sep" id="bc-s2" style="display:none">›</span>
-    <span class="nbc-cur" id="bc-t"></span>
-  </div>
-  <div class="nav-r">
-    <button class="btn-back" id="btn-back" onclick="goHome()">← Back</button>
-    <div class="nav-date" id="nav-date"></div>
+<nav id="nav">
+  <div class="nav-brand">
+    <div class="nav-brand-title">🌿 APPCB</div>
+    <div class="nav-brand-sub">Soil & Buildings Division · HQ Vijayawada</div>
   </div>
 </nav>
 
-<!-- ════════════ APP WRAPPER ════════════ -->
 <div id="app">
-
-<!-- ════ HOME ════ -->
-<div class="page active" id="pg-home">
-  <div class="home-wrap">
-    <div class="home-deco">
-      <svg width="400" height="400" viewBox="0 0 400 400" fill="none">
-        <circle cx="200" cy="200" r="170" stroke="#1c4a2f" stroke-width="1"/>
-        <circle cx="200" cy="200" r="120" stroke="#1c4a2f" stroke-width=".7"/>
-        <circle cx="200" cy="200" r="70"  stroke="#1c4a2f" stroke-width=".5"/>
-        <line x1="30" y1="200" x2="370" y2="200" stroke="#1c4a2f" stroke-width=".5"/>
-        <line x1="200" y1="30" x2="200" y2="370" stroke="#1c4a2f" stroke-width=".5"/>
-        <line x1="80" y1="80" x2="320" y2="320" stroke="#1c4a2f" stroke-width=".4"/>
-        <line x1="320" y1="80" x2="80" y2="320" stroke="#1c4a2f" stroke-width=".4"/>
-      </svg>
+  <div class="page active" id="pg-home">
+    <div style="text-align:center;padding-top:8px">
+      <div class="home-badge">Andhra Pradesh Pollution Control Board</div>
+      <h1 class="home-title">Soil &amp; Buildings<br>Division Portal</h1>
+      <p class="home-sub">Integrated management for solid waste compliance and APPCB infrastructure across Andhra Pradesh</p>
     </div>
-    <div class="home-z">
-      <div class="home-kicker">Andhra Pradesh Pollution Control Board</div>
-      <h1 class="home-title">Soil &amp; <em>Buildings</em><br>Division</h1>
-      <p class="home-tel">మట్టి &amp; భవనాల విభాగం</p>
-      <p class="home-place">Head Office, Vijayawada &nbsp;·&nbsp; Government of Andhra Pradesh</p>
-      <div class="home-rule"><div class="home-rule-dot"></div></div>
-      <div class="home-cards">
-        <div class="h-card soil">
-          <span class="hci">🪨</span>
-          <div class="hcl">Soil</div>
-          <button class="hcb" onclick="openSec('soil')"
-            style="background:linear-gradient(135deg,#7a4f2e,#a06840);color:#fff;box-shadow:0 4px 14px rgba(122,79,46,.28)">
-            Open Section <span class="arr">→</span>
-          </button>
+    <div class="home-cards">
+      <div class="h-card">
+        <div class="h-card-icon hci-soil">🪨</div>
+        <div class="h-card-name">Soil Division</div>
+        <button class="open-btn" onclick="openSection('soil')">Open Section →</button>
+      </div>
+      <div class="h-card">
+        <div class="h-card-icon hci-bldg">🏛️</div>
+        <div class="h-card-name">Buildings Division</div>
+        <button class="open-btn" onclick="openSection('bldg')">Open Section →</button>
+      </div>
+    </div>
+  </div>
+  <div class="page" id="pg-soil">
+    <div class="sec-hd">
+      <button class="back-btn" onclick="navBack()">←</button>
+      <span class="sec-title" id="soil-title">🪨 Soil Division</span>
+      <span class="breadcrumb" id="soil-bread"></span>
+    </div>
+    <div class="card-area"><div class="card-grid" id="soil-grid"></div></div>
+  </div>
+  <div class="page" id="pg-bldg">
+    <div class="sec-hd">
+      <button class="back-btn" onclick="navBack()">←</button>
+      <span class="sec-title" id="bldg-title">🏛️ Buildings Division</span>
+      <span class="breadcrumb" id="bldg-bread"></span>
+    </div>
+    <div class="card-area"><div class="card-grid" id="bldg-grid"></div></div>
+  </div>
+</div>
+
+<!-- MAP SCREEN (fullscreen, self-contained) -->
+<div id="mapScreen">
+  <div class="map-header">
+    <div class="map-header-left">
+      <button class="map-back-btn" onclick="closeMap()">← Back</button>
+      <div class="map-logo-box">🌿</div>
+      <div class="map-header-title">
+        <h2>APPCB — Andhra Pradesh</h2>
+        <p>13 Regional Offices · 28 Districts · Interactive Map</p>
+      </div>
+    </div>
+    <div class="map-header-controls">
+      <div class="map-pulse"></div>
+      <button class="layer-btn active" id="btn-districts" onclick="toggleMapLayer('districts')">Districts</button>
+      <button class="layer-btn active ro-btn" id="btn-ro" onclick="toggleMapLayer('ro')">RO Offices</button>
+    </div>
+  </div>
+  <div class="map-body">
+    <div id="theLeafMap"></div>
+    <!-- Legend -->
+    <div id="mapLegend">
+      <div class="leg-header" onclick="toggleLegend()">
+        <span class="leg-title">🗂 Map Legend</span>
+        <span class="leg-toggle-arrow open" id="legArrow">▲</span>
+      </div>
+      <div id="legItems"></div>
+    </div>
+    <!-- Side Panel -->
+    <div class="map-panel" id="sidePanel">
+      <div class="panel-inner">
+        <div class="panel-hd" id="panelHd">
+          <div class="panel-type-badge badge-ro" id="panelBadge">Regional Office</div>
+          <div class="panel-name" id="panelName">—</div>
+          <div class="panel-sub" id="panelSub"></div>
+          <div class="panel-telugu" id="panelTelugu"></div>
+          <div class="panel-meta" id="panelMeta"></div>
+          <button class="panel-close-btn" onclick="closePanel()">✕</button>
         </div>
-        <div class="h-card bldg">
-          <span class="hci">🏛️</span>
-          <div class="hcl">Buildings</div>
-          <button class="hcb" onclick="openSec('buildings')"
-            style="background:linear-gradient(135deg,#1c4a2f,#27653f);color:#fff;box-shadow:0 4px 14px rgba(28,74,47,.28)">
-            Open Section <span class="arr">→</span>
-          </button>
+        <div class="panel-tabs" id="panelTabs">
+          <div class="panel-tab active" id="tab-overview" onclick="switchTab('overview')">Overview</div>
+          <div class="panel-tab" id="tab-lands" onclick="switchTab('lands')">Lands &amp; Buildings</div>
+          <div class="panel-tab" id="tab-notes" onclick="switchTab('notes')">Notes</div>
         </div>
-      </div>
-      <div class="home-footer">
-        <strong style="color:var(--ink2)">Andhra Pradesh Pollution Control Board</strong> &nbsp;·&nbsp; Soil &amp; Buildings Division<br>
-        Paryavaran Bhavan, APIIC Colony, Autonagar, Vijayawada – 520 007
+        <div class="panel-body" id="panelBody"></div>
       </div>
     </div>
   </div>
 </div>
 
-<!-- ════ SOIL ════ -->
-<div class="page" id="pg-soil">
-  <div class="sec-hd">
-    <div class="shd-row">
-      <div>
-        <span class="shd-icon">🪨</span>
-        <div class="shd-title">Soil <em style="color:var(--soil)">Section</em></div>
-        <div class="shd-sub">Waste Management · Circular Economy · Capacity Building · APPCB Soil &amp; Buildings Division, Vijayawada</div>
+<!-- FILE MODAL -->
+<div class="overlay" id="fileModal">
+  <div class="fm-inner">
+    <div class="fm-hd">
+      <div class="fm-title" id="fmTitle">Files</div>
+      <button class="fm-close" onclick="closeFileModal()">✕</button>
+    </div>
+    <div class="fm-body">
+      <div class="drop-zone" id="dropZone">
+        <div style="font-size:28px">📎</div>
+        <p>Drop files here or <strong>click to browse</strong></p>
+        <p style="font-size:11.5px;margin-top:4px;color:#aaa">PDF, images, Word, Excel — any type</p>
+        <input type="file" id="fileInput" multiple style="display:none" onchange="onFileInput(event)">
       </div>
-      <span class="shd-badge" style="color:var(--soil);border-color:rgba(160,104,64,.3);background:var(--sand)">Soil Division</span>
-    </div>
-    <div class="tab-bar" id="soil-bar">
-      <button class="tb on"  onclick="soilTab('plastic',this)"><span class="ti">♻️</span>Plastic Waste</button>
-      <button class="tb"     onclick="soilTab('ewaste',this)"><span class="ti">💻</span>E-Waste</button>
-      <button class="tb"     onclick="soilTab('battery',this)"><span class="ti">🔋</span>Battery Waste</button>
-      <button class="tb"     onclick="soilTab('cnd',this)"><span class="ti">🧱</span>C&amp;D Waste</button>
-      <button class="tb"     onclick="soilTab('flyash',this)"><span class="ti">🌫️</span>Fly Ash</button>
-      <button class="tb"     onclick="soilTab('circular',this)"><span class="ti">🔄</span>Circular Economy<span class="tnew">New</span></button>
-      <button class="tb"     onclick="soilTab('training',this)"><span class="ti">🎓</span>Training &amp; Workshops</button>
-    </div>
-  </div>
-  <div class="pane-wrap">
-    <div class="pane on"  id="sp-plastic"></div>
-    <div class="pane"     id="sp-ewaste"></div>
-    <div class="pane"     id="sp-battery"></div>
-    <div class="pane"     id="sp-cnd"></div>
-    <div class="pane"     id="sp-flyash"></div>
-    <div class="pane"     id="sp-circular"></div>
-    <div class="pane"     id="sp-training"></div>
-  </div>
-</div>
-
-<!-- ════ BUILDINGS ════ -->
-<div class="page" id="pg-buildings">
-  <div class="sec-hd">
-    <div class="shd-row">
-      <div>
-        <span class="shd-icon">🏛️</span>
-        <div class="shd-title">Buildings <em style="color:var(--forest)">Section</em></div>
-        <div class="shd-sub">Office Infrastructure · Land Records · Property Management · 13 Regional Offices · 28 Districts</div>
+      <div style="font-size:13px;font-weight:500;color:#888;margin-bottom:7px">🌐 Import from Internet</div>
+      <div class="url-row">
+        <input type="text" id="urlIn" placeholder="Paste URL…">
+        <input type="text" id="urlName" placeholder="Display name">
+        <button onclick="importURL()">Import</button>
       </div>
-      <span class="shd-badge" style="color:var(--forest);border-color:var(--mint);background:var(--mist)">Buildings Division</span>
-    </div>
-    <div class="tab-bar" id="bldg-bar">
-      <button class="tb on" onclick="bldgTab('map',this)"><span class="ti">🗺️</span>RO Map<span class="tnew">Live</span></button>
-      <button class="tb" onclick="bldgTab('land',this)"><span class="ti">📋</span>Land Records</button>
-      <button class="tb" onclick="bldgTab('construct',this)"><span class="ti">🏗️</span>Constructions</button>
-      <button class="tb" onclick="bldgTab('lease',this)"><span class="ti">📝</span>Leases &amp; Rentals</button>
-      <button class="tb" onclick="bldgTab('repair',this)"><span class="ti">🔧</span>Repairs &amp; Maintenance</button>
-      <button class="tb" onclick="bldgTab('misc',this)"><span class="ti">📁</span>Section 6</button>
-    </div>
-  </div>
-  <div class="pane-wrap">
-    <div class="pane on" id="bp-map">
-      <div class="map-shell">
-        <div class="map-bar">
-          <div>
-            <div class="map-bar-t">🌿 APPCB Regional Offices — AP District Map</div>
-            <div class="map-bar-s">13 ROs · 28 Districts · Click any district or RO pin for editable Lands &amp; Buildings details</div>
-          </div>
-          <div class="lyr-btns">
-            <button class="lbtn on" id="lb-d" onclick="mLyr('d')">Districts</button>
-            <button class="lbtn on sky" id="lb-r" onclick="mLyr('r')">RO Pins</button>
-          </div>
-        </div>
-        <div class="map-body">
-          <div id="embMap"></div>
-          <div class="map-spin" id="map-spin"><div class="spin"></div><p>Loading AP district boundaries…</p></div>
-          <!-- Legend — collapsible, bottom-right inside map -->
-          <div id="map-leg">
-            <div id="map-leg-toggle" onclick="document.getElementById('map-leg').classList.toggle('collapsed')">
-              🗂️ RO Legend <span class="leg-arr">▲</span>
-            </div>
-            <div id="map-leg-body">
-              <div id="leg-rows"></div>
-              <div class="lg-row" style="margin-top:6px;padding-top:6px;border-top:1px solid var(--linen2)"><span>📍</span><span style="margin-left:3px">APPCB Regional Office</span></div>
-            </div>
-          </div>
-          <div class="msp" id="msp"><div class="msp-in">
-            <div class="msp-hd">
-              <div class="msp-bdg ro" id="msp-bdg">Regional Office</div>
-              <div class="msp-name" id="msp-name">—</div>
-              <div class="msp-sub" id="msp-sub"></div>
-              <div class="msp-tel" id="msp-tel"></div>
-              <div class="msp-meta" id="msp-meta"></div>
-              <button class="msp-x" onclick="closeMsp()">✕</button>
-            </div>
-            <div class="msp-tabs">
-              <div class="msp-tab on" id="mt-ov" onclick="mspTab('ov')">Overview</div>
-              <div class="msp-tab" id="mt-lb" onclick="mspTab('lb')">Lands &amp; Bldgs</div>
-              <div class="msp-tab" id="mt-nt" onclick="mspTab('nt')">Notes</div>
-            </div>
-            <div class="msp-body" id="msp-body"></div>
-          </div></div>
-        </div>
-      </div>
-    </div>
-    <div class="pane" id="bp-land"></div>
-    <div class="pane" id="bp-construct"></div>
-    <div class="pane" id="bp-lease"></div>
-    <div class="pane" id="bp-repair"></div>
-    <div class="pane" id="bp-misc"></div>
-  </div>
-</div>
-
-</div><!-- #app -->
-
-<!-- ════ NEW CARD DIALOG ════ -->
-<div class="nc-dialog" id="nc-dialog">
-  <div class="nc-box">
-    <div class="nc-title">Add New Card</div>
-    <div class="nc-label">Card Name</div>
-    <input class="nc-input" id="nc-name" placeholder="e.g. PWM Rules, EPR Data…" maxlength="50" onkeydown="if(event.key==='Enter')ncOk()">
-    <div class="nc-label" style="margin-top:12px">Choose Icon</div>
-    <div class="nc-icons" id="nc-icons"></div>
-    <div class="nc-row">
-      <button class="nc-cancel" onclick="ncClose()">Cancel</button>
-      <button class="nc-ok" onclick="ncOk()">Create Card</button>
+      <div id="fileList" class="file-list"></div>
     </div>
   </div>
 </div>
 
-<!-- ════ CARD DETAIL MODAL ════ -->
-<div class="modal-bg" id="modal-bg" onclick="if(event.target===this)closeModal()">
-  <div class="modal">
-    <div class="modal-head">
-      <input class="modal-title-input" id="modal-title" placeholder="Card name…" onblur="saveModalTitle()">
-      <button class="modal-x" onclick="closeModal()">✕</button>
-    </div>
-    <div class="modal-body">
-      <div class="upload-drop" id="upload-drop">
-        <input type="file" id="file-input" multiple accept="*/*" onchange="handleFiles(this.files)">
-        <span class="ud-ico">📎</span>
-        <div class="ud-title">Drop files here or click to browse</div>
-        <div class="ud-sub">PDF, Images, Word, Excel, any document<br>Files are stored locally in your browser</div>
-        <button class="ud-btn" style="pointer-events:none">Browse Files</button>
-      </div>
-      <div class="files-list" id="files-list"></div>
+<!-- ADD L1 -->
+<div class="overlay" id="addL1Dlg">
+  <div class="dlg">
+    <h3>Add New Category</h3>
+    <input type="text" id="l1NameIn" placeholder="Category name">
+    <div style="font-size:13px;color:#888;margin-bottom:8px">Choose icon:</div>
+    <div class="icon-grid" id="l1IconGrid"></div>
+    <div class="dlg-row">
+      <button class="btn-c" onclick="closeDlg('addL1Dlg')">Cancel</button>
+      <button class="btn-p" onclick="confirmAddL1()">Create</button>
     </div>
   </div>
 </div>
-
-<!-- ════ FILE PREVIEW ════ -->
-<div class="preview-bg" id="preview-bg">
-  <div class="preview-bar">
-    <span class="preview-name" id="preview-name"></span>
-    <button class="preview-x" onclick="closePreview()">✕ Close</button>
+<!-- ADD L2 -->
+<div class="overlay" id="addL2Dlg">
+  <div class="dlg">
+    <h3>Add New Card</h3>
+    <input type="text" id="l2NameIn" placeholder="Card name">
+    <div style="font-size:13px;color:#888;margin-bottom:8px">Choose icon:</div>
+    <div class="icon-grid" id="l2IconGrid"></div>
+    <div class="dlg-row">
+      <button class="btn-c" onclick="closeDlg('addL2Dlg')">Cancel</button>
+      <button class="btn-p" onclick="confirmAddL2()">Create</button>
+    </div>
   </div>
-  <div class="preview-content" id="preview-content"></div>
+</div>
+<!-- CARD LOCK -->
+<div class="overlay" id="cardLockDlg">
+  <div class="dlg">
+    <h3 id="clTitle">🔒 Lock Card</h3>
+    <div id="clBody"></div>
+  </div>
+</div>
+<!-- PREVIEW -->
+<div id="previewOv">
+  <div id="previewContent"></div>
+  <button class="prev-close" onclick="closePreview()">✕ Close</button>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
 <script>
-/* ── Date ──────────────────────────────────────────── */
-document.getElementById('nav-date').textContent =
-  new Date().toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'});
+/* ══════ STORAGE ══════ */
+const LS={
+  get(k,d=null){try{const v=localStorage.getItem('appcb7_'+k);return v!==null?JSON.parse(v):d}catch{return d}},
+  set(k,v){try{localStorage.setItem('appcb7_'+k,JSON.stringify(v))}catch{}},
+  del(k){try{localStorage.removeItem('appcb7_'+k)}catch{}}
+};
+function lsRaw(k,d=''){try{return localStorage.getItem(k)||d}catch{return d}}
+function lsRawSet(k,v){try{localStorage.setItem(k,v)}catch{}}
 
-/* ── Page nav ──────────────────────────────────────── */
-function goHome(){
-  showPage('pg-home');
-  document.getElementById('nav-bc').style.display='none';
-  document.getElementById('btn-back').classList.remove('show');
+/* ══════ NAV ══════ */
+let navStack=[];
+function pushNav(s){navStack.push(s)}
+function navBack(){navStack.pop();if(!navStack.length){goHome();return}const p=navStack[navStack.length-1];reapplyNav(p);}
+function reapplyNav(s){showPage(s.page);if(s.sec){document.getElementById(s.sec+'-title').textContent=s.title;document.getElementById(s.sec+'-bread').textContent=s.bread;if(s.l1){currentL1=s.l1;renderL2(s.sec,s.l1.id,document.getElementById(s.sec+'-grid'))}else{currentL1=null;renderL1(s.sec)}}saveNavState();}
+function goHome(){navStack=[];currentL1=null;currentSec='';showPage('pg-home');saveNavState();}
+function showPage(id){document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));document.getElementById(id).classList.add('active');}
+
+/* ── Persist nav state in sessionStorage so refresh stays on same page ── */
+function saveNavState(){
+  try{
+    const state={sec:currentSec,l1:currentL1?{id:currentL1.id,name:currentL1.name,icon:currentL1.icon,bg:currentL1.bg||''}:null};
+    sessionStorage.setItem('appcb_nav',JSON.stringify(state));
+  }catch(e){}
 }
-function openSec(s){
-  showPage('pg-'+s);
-  document.getElementById('nav-bc').style.display='flex';
-  document.getElementById('bc-s').textContent=s==='soil'?'Soil Section':'Buildings Section';
-  document.getElementById('bc-t').textContent='';
-  document.getElementById('bc-s2').style.display='none';
-  document.getElementById('btn-back').classList.add('show');
-  if(s==='buildings'&&!mapOk) setTimeout(initMap,200);
+function restoreNavState(){
+  try{
+    const raw=sessionStorage.getItem('appcb_nav');
+    if(!raw)return;
+    const s=JSON.parse(raw);
+    if(!s||!s.sec)return;
+    currentSec=s.sec;
+    if(s.l1){
+      currentL1=s.l1;
+      const title=s.l1.icon+' '+s.l1.name;
+      const label=s.sec==='soil'?'Soil':'Buildings';
+      const bread='Home → '+label+' → '+s.l1.name;
+      navStack=[
+        {page:'pg-'+s.sec,sec:s.sec,l1:null,title:s.sec==='soil'?'🪨 Soil Division':'🏛️ Buildings Division',bread:'Home → '+label},
+        {page:'pg-'+s.sec,sec:s.sec,l1:s.l1,title,bread}
+      ];
+      showPage('pg-'+s.sec);
+      document.getElementById(s.sec+'-title').textContent=title;
+      document.getElementById(s.sec+'-bread').textContent=bread;
+      renderL2(s.sec,s.l1.id,document.getElementById(s.sec+'-grid'));
+    } else {
+      const title=s.sec==='soil'?'🪨 Soil Division':'🏛️ Buildings Division';
+      const label=s.sec==='soil'?'Soil':'Buildings';
+      const bread='Home → '+label;
+      navStack=[{page:'pg-'+s.sec,sec:s.sec,l1:null,title,bread}];
+      showPage('pg-'+s.sec);
+      document.getElementById(s.sec+'-title').textContent=title;
+      document.getElementById(s.sec+'-bread').textContent=bread;
+      renderL1(s.sec);
+    }
+  }catch(e){}
 }
-function showPage(id){
-  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
+window.addEventListener('load', restoreNavState);
+
+// Keyboard support
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    // Close map first if open
+    if(document.getElementById('mapScreen').classList.contains('show')){closeMap();return;}
+    // Close preview
+    if(document.getElementById('previewOv').classList.contains('show')){closePreview();return;}
+    // Close file modal
+    if(document.getElementById('fileModal').classList.contains('show')){closeFileModal();return;}
+    // Close dialogs
+    for(const id of ['cardLockDlg','addL2Dlg','addL1Dlg']){
+      if(document.getElementById(id).classList.contains('show')){closeDlg(id);return;}
+    }
+  }
+  if(e.key==='Enter'){
+    if(document.getElementById('addL1Dlg').classList.contains('show')){confirmAddL1();return;}
+    if(document.getElementById('addL2Dlg').classList.contains('show')){confirmAddL2();return;}
+    if(document.getElementById('cardLockDlg').classList.contains('show')){
+      const lk=document.getElementById('clPw2');
+      const ul=document.getElementById('clUnPw');
+      if(lk)doCardLock();else if(ul)doCardUnlock();
+      return;
+    }
+  }
+});
+
+/* ══════ APP STATE ══════ */
+let currentSec='',currentL1=null,addL1Sec='',addL2Ctx=null,fmCtx=null,selIcon='📄';
+let cardLockKey='',cardLockCb=null;
+const ICONS=['📄','📁','📊','📋','📝','🔍','⚠️','✅','🏗️','🌿','♻️','💧','🔬','📌','📎','🖼️','🌐','📜','🗂️','📦','⚙️','🏢','💡','🔑','📐','🧾','🛡️','🧪','📡','📉'];
+const DEFAULT_SOIL=[
+  {id:'plastic',name:'Plastic Waste',icon:'♻️',bg:'#e8f3ec'},
+  {id:'ewaste',name:'E-Waste',icon:'💻',bg:'#e8ecf3'},
+  {id:'battery',name:'Battery Waste',icon:'🔋',bg:'#f3f3e8'},
+  {id:'cnd',name:'C&D Waste',icon:'🧱',bg:'#f3ece8'},
+  {id:'flyash',name:'Fly Ash',icon:'🌫️',bg:'#efe8f3'},
+  {id:'circular',name:'Circular Economy',icon:'🔄',bg:'#e8f0f3'},
+  {id:'training',name:'Training & Workshops',icon:'🎓',bg:'#f3e8ed'},
+];
+const DEFAULT_BLDG=[
+  {id:'landrecords',name:'Land Records',icon:'📋',bg:'#e8eff3'},
+  {id:'constructions',name:'Constructions',icon:'🏗️',bg:'#f3ece8'},
+  {id:'leases',name:'Leases & Rentals',icon:'📝',bg:'#e8f3ec'},
+  {id:'repairs',name:'Repairs & Maintenance',icon:'🔧',bg:'#f3f0e8'},
+  {id:'legal',name:'Legal & Disputes',icon:'⚖️',bg:'#ece8f3'},
+  {id:'budget',name:'Budget & Finance',icon:'💰',bg:'#e8f3ef'},
+];
+const getL1=s=>LS.get('l1_'+s,JSON.parse(JSON.stringify(s==='soil'?DEFAULT_SOIL:DEFAULT_BLDG)));
+const saveL1=(s,a)=>LS.set('l1_'+s,a);
+const getL2=(s,i)=>LS.get('l2_'+s+'_'+i,[]);
+const saveL2=(s,i,a)=>LS.set('l2_'+s+'_'+i,a);
+const getFiles=(s,l1,l2)=>LS.get('files_'+s+'_'+l1+'_'+l2,[]);
+const saveFiles=(s,l1,l2,a)=>LS.set('files_'+s+'_'+l1+'_'+l2,a);
+const getCardLock=k=>LS.get('cl_'+k,null);
+const setCardLock=(k,v)=>v?LS.set('cl_'+k,v):LS.del('cl_'+k);
+const isCardLocked=k=>getCardLock(k)!==null;
+
+function openSection(sec){currentSec=sec;currentL1=null;navStack=[];const title=sec==='soil'?'🪨 Soil Division':'🏛️ Buildings Division';const bread='Home → '+(sec==='soil'?'Soil':'Buildings');pushNav({page:'pg-'+sec,sec,l1:null,title,bread});showPage('pg-'+sec);document.getElementById(sec+'-title').textContent=title;document.getElementById(sec+'-bread').textContent=bread;renderL1(sec);saveNavState();}
+
+function renderL1(sec){currentL1=null;const grid=document.getElementById(sec+'-grid');grid.innerHTML='';if(sec==='bldg'){const w=document.createElement('div');w.className='l1-wrap';w.innerHTML=`<div class="l1-circle map-l1-circle" style="cursor:pointer">🗺️</div><div class="map-l1-label">Lands &amp; Buildings<br><em>RO Status Map</em></div>`;w.querySelector('.l1-circle').addEventListener('click',openMap);w.querySelector('.map-l1-label').addEventListener('click',openMap);grid.appendChild(w)}getL1(sec).forEach(s=>{const key='l1_'+sec+'_'+s.id;const locked=isCardLocked(key);const w=document.createElement('div');w.className='l1-wrap';w.innerHTML=`<div class="l1-circle" style="background:${s.bg||'#e8f3ec'}">${s.icon}${locked?'<div class="card-locked-overlay">🔒</div>':''}</div><div class="l1-label">${s.name}</div><div class="l1-controls"><button class="l1-ctrl-btn del" title="Delete">🗑</button><button class="l1-ctrl-btn lk">${locked?'🔓':'🔒'}</button></div>`;w.querySelector('.l1-circle').addEventListener('click',()=>locked?openCardUnlock(key,()=>renderL1(sec)):openL1(sec,s));w.querySelector('.l1-label').addEventListener('click',()=>locked?openCardUnlock(key,()=>renderL1(sec)):openL1(sec,s));w.querySelector('.l1-ctrl-btn.del').addEventListener('click',e=>{e.stopPropagation();deleteL1(sec,s.id)});w.querySelector('.l1-ctrl-btn.lk').addEventListener('click',e=>{e.stopPropagation();locked?openCardUnlock(key,()=>renderL1(sec)):openCardLock(key,()=>renderL1(sec))});grid.appendChild(w)});const aw=document.createElement('div');aw.className='add-l1-wrap';aw.innerHTML=`<button class="add-l1-btn">＋</button><div class="add-l1-label">Add Category</div>`;aw.querySelector('.add-l1-btn').addEventListener('click',()=>openAddL1(sec));grid.appendChild(aw)}
+function openL1(sec,s){currentL1=s;const label=sec==='soil'?'Soil':'Buildings';const title=s.icon+' '+s.name;const bread='Home → '+label+' → '+s.name;document.getElementById(sec+'-title').textContent=title;document.getElementById(sec+'-bread').textContent=bread;pushNav({page:'pg-'+sec,sec,l1:s,title,bread});renderL2(sec,s.id,document.getElementById(sec+'-grid'));saveNavState();}
+function renderL2(sec,l1id,grid){grid.innerHTML='';getL2(sec,l1id).forEach(c=>{const key='l2_'+sec+'_'+l1id+'_'+c.id;const locked=isCardLocked(key);const fc=(getFiles(sec,l1id,c.id)||[]).length;const w=document.createElement('div');w.className='l2-wrap';w.innerHTML=`<div class="l2-circle">${c.icon}${locked?'<div class="card-locked-overlay" style="font-size:18px">🔒</div>':''}</div>${fc?`<div class="l2-badge">${fc}</div>`:''}<div class="l2-label">${c.name}</div><div class="l2-actions"><button class="l2-act ren">✏️</button><button class="l2-act del">🗑</button><button class="l2-act lk">${locked?'🔓':'🔒'}</button></div>`;const cb=()=>renderL2(sec,l1id,grid);w.querySelector('.l2-circle').addEventListener('click',()=>locked?openCardUnlock(key,cb):openFileModal(sec,l1id,c));w.querySelector('.l2-label').addEventListener('click',()=>locked?openCardUnlock(key,cb):openFileModal(sec,l1id,c));w.querySelector('.l2-act.ren').addEventListener('click',e=>{e.stopPropagation();if(locked){alert('Unlock first.');return}const n=prompt('Rename:',c.name);if(n&&n.trim()){const a=getL2(sec,l1id);const i=a.findIndex(x=>x.id===c.id);if(i>=0){a[i].name=n.trim();saveL2(sec,l1id,a);cb()}}});w.querySelector('.l2-act.del').addEventListener('click',e=>{e.stopPropagation();if(locked){alert('Unlock first.');return}if(confirm('Delete "'+c.name+'" and all files?')){saveL2(sec,l1id,getL2(sec,l1id).filter(x=>x.id!==c.id));LS.del('files_'+sec+'_'+l1id+'_'+c.id);cb()}});w.querySelector('.l2-act.lk').addEventListener('click',e=>{e.stopPropagation();locked?openCardUnlock(key,cb):openCardLock(key,cb)});grid.appendChild(w)});const aw=document.createElement('div');aw.className='add-l2-wrap';aw.innerHTML=`<button class="add-l2-btn">＋</button><div class="add-l2-label">Add Card</div>`;aw.querySelector('.add-l2-btn').addEventListener('click',()=>openAddL2(sec,l1id,grid));grid.appendChild(aw)}
+function openAddL1(sec){addL1Sec=sec;selIcon='📄';document.getElementById('l1NameIn').value='';buildIconGrid('l1IconGrid');document.getElementById('addL1Dlg').classList.add('show')}
+function confirmAddL1(){const n=document.getElementById('l1NameIn').value.trim();if(!n){alert('Enter a name.');return}const a=getL1(addL1Sec);const bgs=['#e8f3ec','#e8ecf3','#f3f3e8','#f3ece8','#efe8f3','#e8f0f3','#f3e8ed'];a.push({id:'l1_'+Date.now(),name:n,icon:selIcon||'📄',bg:bgs[a.length%bgs.length]});saveL1(addL1Sec,a);closeDlg('addL1Dlg');renderL1(addL1Sec)}
+function deleteL1(sec,id){const a=getL1(sec);const item=a.find(x=>x.id===id);if(!item)return;if(!confirm('Delete "'+item.name+'" and all cards?'))return;saveL1(sec,a.filter(x=>x.id!==id));renderL1(sec)}
+function openAddL2(sec,l1id,grid){addL2Ctx={sec,l1id,grid};selIcon='📄';document.getElementById('l2NameIn').value='';buildIconGrid('l2IconGrid');document.getElementById('addL2Dlg').classList.add('show')}
+function confirmAddL2(){const n=document.getElementById('l2NameIn').value.trim();if(!n){alert('Enter a name.');return}const{sec,l1id,grid}=addL2Ctx;const a=getL2(sec,l1id);a.push({id:'c_'+Date.now(),name:n,icon:selIcon||'📄'});saveL2(sec,l1id,a);closeDlg('addL2Dlg');renderL2(sec,l1id,grid)}
+function buildIconGrid(cid){const c=document.getElementById(cid);c.innerHTML='';ICONS.forEach(ic=>{const el=document.createElement('div');el.className='icon-opt'+(ic===selIcon?' sel':'');el.textContent=ic;el.addEventListener('click',()=>{c.querySelectorAll('.icon-opt').forEach(x=>x.classList.remove('sel'));el.classList.add('sel');selIcon=ic});c.appendChild(el)})}
+async function sha256(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('')}
+function openCardLock(key,cb){cardLockKey=key;cardLockCb=cb;document.getElementById('clTitle').textContent='🔒 Lock This Card';document.getElementById('clBody').innerHTML=`<p style="font-size:13px;color:var(--smoke);margin-bottom:14px">Set a password. Card stays visible but locked until unlocked.</p><input type="password" id="clPw1" placeholder="Password (min 4 chars)"><input type="password" id="clPw2" placeholder="Confirm password"><div class="dlg-row"><button class="btn-c" onclick="closeDlg('cardLockDlg')">Cancel</button><button class="btn-p" onclick="doCardLock()">🔒 Lock</button></div>`;document.getElementById('cardLockDlg').classList.add('show')}
+async function doCardLock(){const p1=document.getElementById('clPw1').value,p2=document.getElementById('clPw2').value;if(!p1||p1.length<4){alert('Min 4 chars.');return}if(p1!==p2){alert('Passwords do not match.');return}setCardLock(cardLockKey,{hash:await sha256(p1)});closeDlg('cardLockDlg');if(cardLockCb)cardLockCb()}
+function openCardUnlock(key,cb){cardLockKey=key;cardLockCb=cb;document.getElementById('clTitle').textContent='🔓 Unlock Card';document.getElementById('clBody').innerHTML=`<input type="password" id="clUnPw" placeholder="Enter password"><div class="dlg-row"><button class="btn-link" onclick="resetCardLock()">Forgot? Remove lock</button><button class="btn-c" onclick="closeDlg('cardLockDlg')">Cancel</button><button class="btn-p" onclick="doCardUnlock()">🔓 Unlock</button></div>`;document.getElementById('cardLockDlg').classList.add('show')}
+async function doCardUnlock(){const p=document.getElementById('clUnPw').value;const h=await sha256(p);const lock=getCardLock(cardLockKey);if(lock&&h===lock.hash){setCardLock(cardLockKey,null);closeDlg('cardLockDlg');if(cardLockCb)cardLockCb()}else alert('Wrong password.')}
+function resetCardLock(){if(!confirm('Remove this card lock?'))return;setCardLock(cardLockKey,null);closeDlg('cardLockDlg');if(cardLockCb)cardLockCb()}
+function openFileModal(sec,l1id,card){fmCtx={sec,l1id,l2id:card.id};document.getElementById('fmTitle').textContent=card.icon+' '+card.name;renderFileList();document.getElementById('fileModal').classList.add('show')}
+function closeFileModal(){document.getElementById('fileModal').classList.remove('show');document.getElementById('urlIn').value='';document.getElementById('urlName').value='';fmCtx=null;if(currentL1&&currentSec)renderL2(currentSec,currentL1.id,document.getElementById(currentSec+'-grid'))}
+function renderFileList(){if(!fmCtx)return;const{sec,l1id,l2id}=fmCtx;const files=getFiles(sec,l1id,l2id);const list=document.getElementById('fileList');if(!files.length){list.innerHTML=`<div class="empty-box"><div class="ei">📂</div><p>No files yet.</p></div>`;return}list.innerHTML='';files.forEach((f,i)=>{const ext=(f.name||'').split('.').pop().toLowerCase();const icon=f.type==='url'?'🌐':['pdf'].includes(ext)?'📄':['jpg','jpeg','png','gif','webp'].includes(ext)?'🖼️':['xlsx','xls','csv'].includes(ext)?'📊':['docx','doc'].includes(ext)?'📝':'📎';const row=document.createElement('div');row.className='file-row';row.innerHTML=`<span class="file-icon">${icon}</span><span class="file-name">${f.name}</span><span class="file-tag">${f.type==='url'?'URL':'FILE'}</span><button class="file-del">🗑</button>`;row.querySelector('.file-name').addEventListener('click',()=>previewFile(f));row.querySelector('.file-del').addEventListener('click',()=>{const a=getFiles(sec,l1id,l2id);a.splice(i,1);saveFiles(sec,l1id,l2id,a);renderFileList()});list.appendChild(row)})}
+const dz=document.getElementById('dropZone');
+dz.addEventListener('click',()=>document.getElementById('fileInput').click());
+dz.addEventListener('dragover',e=>{e.preventDefault();dz.classList.add('drag')});
+dz.addEventListener('dragleave',()=>dz.classList.remove('drag'));
+dz.addEventListener('drop',e=>{e.preventDefault();dz.classList.remove('drag');handleFiles(e.dataTransfer.files)});
+function onFileInput(e){handleFiles(e.target.files);e.target.value=''}
+function handleFiles(files){const{sec,l1id,l2id}=fmCtx;Array.from(files).forEach(f=>{const r=new FileReader();r.onload=ev=>{const a=getFiles(sec,l1id,l2id);a.push({id:'f_'+Date.now(),name:f.name,type:'file',mime:f.type,data:ev.target.result});saveFiles(sec,l1id,l2id,a);renderFileList()};r.readAsDataURL(f)})}
+function importURL(){const url=document.getElementById('urlIn').value.trim();const name=document.getElementById('urlName').value.trim()||url;if(!url){alert('Enter a URL.');return}const{sec,l1id,l2id}=fmCtx;const a=getFiles(sec,l1id,l2id);a.push({id:'u_'+Date.now(),name,type:'url',url});saveFiles(sec,l1id,l2id,a);document.getElementById('urlIn').value='';document.getElementById('urlName').value='';renderFileList()}
+function previewFile(f){if(f.type==='url'){window.open(f.url,'_blank');return}const pc=document.getElementById('previewContent');if(f.mime&&f.mime.startsWith('image/'))pc.innerHTML=`<img src="${f.data}" alt="${f.name}">`;else if(f.mime==='application/pdf')pc.innerHTML=`<iframe src="${f.data}"></iframe>`;else{const a=document.createElement('a');a.href=f.data;a.download=f.name;a.click();return}document.getElementById('previewOv').classList.add('show')}
+function closePreview(){document.getElementById('previewOv').classList.remove('show')}
+function closeDlg(id){
+  document.getElementById(id).classList.remove('show');
+  if(id==='addL2Dlg')addL2Ctx=null;
+  if(id==='cardLockDlg'){cardLockKey='';cardLockCb=null;}
 }
 
-/* ── Tab helpers ───────────────────────────────────── */
-function soilTab(t,btn){switchTab('soil-bar','sp-',t,btn)}
-function bldgTab(t,btn){switchTab('bldg-bar','bp-',t,btn)}
-function switchTab(barId,pre,t,btn){
-  document.querySelectorAll('#'+barId+' .tb').forEach(b=>b.classList.remove('on'));
-  btn.classList.add('on');
-  document.querySelectorAll('.pane[id^="'+pre+'"]').forEach(p=>p.classList.remove('on'));
-  document.getElementById(pre+t).classList.add('on');
-  document.getElementById('bc-t').textContent=btn.textContent.trim().replace('New','').trim();
-  document.getElementById('bc-s2').style.display='inline';
-  // Render workspace if empty
-  const pane=document.getElementById(pre+t);
-  if(!pane.dataset.rendered) renderWorkspace(pane,pre+t);
-}
+/* ═══════════════════════════════════════════════
+   MAP — 100% self-contained, NO internet needed
+   Embedded AP GeoJSON + RO data + full panel UI
+   Replicates uploaded map's feature set exactly
+═══════════════════════════════════════════════ */
 
-/* ══════════════════════════════════════════════════════
-   DYNAMIC WORKSPACE ENGINE
-══════════════════════════════════════════════════════ */
-const WS_META = {
-  'sp-plastic':  {title:'Plastic Waste Management',   icon:'♻️', color:'#dc2626', desc:'PWM Rules 2016 (amended 2022) · EPR · SUP Ban · ULB Data'},
-  'sp-ewaste':   {title:'E-Waste Management',          icon:'💻', color:'#2563eb', desc:'E-Waste Rules 2022 · EPR Compliance · Authorised Recyclers'},
-  'sp-battery':  {title:'Battery Waste Management',    icon:'🔋', color:'#d97706', desc:'BWM Rules 2022 · EPR Targets · Lead-Acid Channelisation'},
-  'sp-cnd':      {title:'C&D Waste',                   icon:'🧱', color:'#57534e', desc:'C&D Rules 2016 · Bulk Generators · Processing Facilities'},
-  'sp-flyash':   {title:'Fly Ash Utilisation',         icon:'🌫️', color:'#64748b', desc:'Fly Ash Notification 2021 · Thermal Power Plants · Annual Returns'},
-  'sp-circular': {title:'Circular Economy',            icon:'🔄', color:'#059669', desc:'Resource Efficiency · Industrial Symbiosis · Waste-to-Resource'},
-  'sp-training': {title:'Training &amp; Workshops',    icon:'🎓', color:'#2a6899', desc:'Capacity Building · Stakeholder Workshops · Awareness Campaigns'},
-  'bp-land':     {title:'Land Records',                icon:'📋', color:'#c49a2a', desc:'Survey Numbers · Extent · Ownership · Patta Documents'},
-  'bp-construct':{title:'Constructions',               icon:'🏗️', color:'#1c4a2f', desc:'Tender Details · Work Orders · Physical & Financial Progress'},
-  'bp-lease':    {title:'Leases &amp; Rentals',        icon:'📝', color:'#7c3aed', desc:'Lease Agreements · Rental Status · Renewal Correspondence'},
-  'bp-repair':   {title:'Repairs &amp; Maintenance',   icon:'🔧', color:'#c2410c', desc:'AMC Documents · Repair Works · Inspection Reports'},
-  'bp-misc':     {title:'Section 6',                   icon:'📁', color:'#6b7280', desc:'Renameable section — add content as needed'},
+// ── AP District name normaliser: maps GeoJSON property names → RO district names ──
+// Different GeoJSON sources use different property keys and name spellings
+const DIST_NAME_MAP = {
+  // datameet / common spellings
+  'srikakulam':'Srikakulam',
+  'parvathipuram manyam':'Parvathipuram Manyam','parvathipuram':'Parvathipuram Manyam',
+  'vizianagaram':'Vizianagaram',
+  'alluri sitharama raju':'Alluri Sitharama Raju','alluri':'Alluri Sitharama Raju',
+  'polavaram':'Polavaram',
+  'visakhapatnam':'Visakhapatnam','vishakhapatnam':'Visakhapatnam',
+  'anakapalli':'Anakapalli',
+  'kakinada':'Kakinada',
+  'east godavari':'East Godavari',
+  'dr. b.r. ambedkar konaseema':'Konaseema','konaseema':'Konaseema','dr b r ambedkar konaseema':'Konaseema',
+  'west godavari':'West Godavari',
+  'eluru':'Eluru',
+  'ntr':'NTR','ntr district':'NTR','krishna':'Krishna',
+  'guntur':'Guntur',
+  'palnadu':'Palnadu',
+  'bapatla':'Bapatla',
+  'prakasam':'Prakasam',
+  'markapuram':'Markapuram',
+  'spsr nellore':'SPSR Nellore','nellore':'SPSR Nellore','s.p.s.r. nellore':'SPSR Nellore',
+  'tirupati':'Tirupati',
+  'chittoor':'Chittoor',
+  'ysr kadapa':'YSR Kadapa','kadapa':'YSR Kadapa','y.s.r. kadapa':'YSR Kadapa',
+  'annamayya':'Annamayya',
+  'kurnool':'Kurnool',
+  'nandyal':'Nandyal',
+  'anantapur':'Anantapur',
+  'sri sathya sai':'Sri Sathya Sai','sathya sai':'Sri Sathya Sai'
 };
 
-const CARD_ICONS=['📄','📑','📊','📈','📉','🗂️','📂','📌','📎','🖇️','✉️','📧','📬','💼','🏷️','🔖','📝','✏️','🖊️','📷','🖼️','🗃️','💾','📡','🔍','⚖️','🏛️','🌿','♻️','🔄'];
+// ── 13 RO definitions with light beautiful colours ──
+const RO_DATA = {
+  "Srikakulam RO":{id:"skl",color:"#5ba08a",
+    districts:["Srikakulam","Parvathipuram Manyam"],
+    location:{lat:18.2993,lng:83.8813},
+    address:"2nd Ln, Purushotham Nagar Colony, Gujarathipeta, Srikakulam – 532005",
+    phone:"",
+    stats:[{label:"Districts",value:"2"},{label:"Zone",value:"Vizag"},{label:"Region",value:"Uttarandhra"}],
+    overview:[{year:"Established",type:"i",text:"Covers <strong>Srikakulam</strong> and <strong>Parvathipuram Manyam</strong> districts."}]},
+  "Vizianagaram RO":{id:"vzm",color:"#5b8dd9",
+    districts:["Vizianagaram","Alluri Sitharama Raju","Polavaram"],
+    location:{lat:18.1038,lng:83.4013},
+    address:"Gayatri Nagar, Thotapalem, Vizianagaram – 535003",phone:"",
+    stats:[{label:"Districts",value:"3"},{label:"Zone",value:"Vizag"}],
+    overview:[{year:"Established",type:"i",text:"Covers <strong>Vizianagaram</strong>, <strong>Alluri Sitharama Raju</strong> and <strong>Polavaram</strong>."}]},
+  "Visakhapatnam RO":{id:"vsp",color:"#9b6fc0",
+    districts:["Visakhapatnam","Anakapalli"],
+    location:{lat:17.7500,lng:83.2481},
+    address:"AP PCB Rd, Madhavadhara, Visakhapatnam – 530018",phone:"0891-2564804",
+    stats:[{label:"Districts",value:"2"},{label:"Zone",value:"Vizag"},{label:"Zonal Lab",value:"Yes"}],
+    overview:[{year:"Established",type:"i",text:"Zonal Office covering <strong>Visakhapatnam</strong> &amp; <strong>Anakapalli</strong>. Houses Zonal Laboratory."}]},
+  "Kakinada RO":{id:"kkd",color:"#3aaa78",
+    districts:["East Godavari","Konaseema","Kakinada"],
+    location:{lat:17.0024,lng:82.2464},
+    address:"Ramanayyapeta, Rajeshwari Nagar, Kakinada – 533005",phone:"+91 884 237 4066",
+    stats:[{label:"Districts",value:"3"},{label:"Zone",value:"Vizag"},{label:"RO Lab",value:"Yes"}],
+    overview:[{year:"Established",type:"i",text:"Covers <strong>East Godavari</strong>, <strong>Konaseema</strong> and <strong>Kakinada</strong>."}]},
+  "Eluru RO":{id:"elr",color:"#7ab648",
+    districts:["Eluru","West Godavari"],
+    location:{lat:16.7125,lng:81.1073},
+    address:"22 B-3-2, Kanukolanu Vari St, Eluru – 534002",phone:"+91 88122 49668",
+    stats:[{label:"Districts",value:"2"},{label:"Zone",value:"Vijayawada"},{label:"RO Lab",value:"Yes"}],
+    overview:[{year:"Established",type:"i",text:"Covers <strong>Eluru</strong> and <strong>West Godavari</strong>."}]},
+  "Vijayawada RO":{id:"vjw",color:"#e07b3a",
+    districts:["NTR","Krishna"],
+    location:{lat:16.5039,lng:80.6709},
+    address:"Paryavaran Bhavan, APIIC Colony, Autonagar, Vijayawada – 520007",phone:"+91 99488 52909",
+    stats:[{label:"Districts",value:"2"},{label:"Zone",value:"Vijayawada"},{label:"HQ Lab",value:"Yes"}],
+    overview:[{year:"Established",type:"i",text:"<strong>APPCB Head Office</strong>. Covers <strong>NTR</strong> &amp; <strong>Krishna</strong>. Primary Zonal Laboratory."}]},
+  "Guntur RO":{id:"gnt",color:"#c9a020",
+    districts:["Guntur","Palnadu"],
+    location:{lat:16.3286,lng:80.4186},
+    address:"976b, JKC College Rd, Vijayapuri Colony, Guntur – 522006",phone:"",
+    stats:[{label:"Districts",value:"2"},{label:"Zone",value:"Vijayawada"}],
+    overview:[{year:"Established",type:"i",text:"Covers <strong>Guntur</strong> and <strong>Palnadu</strong>."}]},
+  "Ongole RO":{id:"ong",color:"#d95a5a",
+    districts:["Prakasam","Bapatla","Markapuram"],
+    location:{lat:15.5061,lng:80.0285},
+    address:"MDR127, Siva Prasad Colony, Ongole – 523002",phone:"+91 85922 95001",
+    stats:[{label:"Districts",value:"3"},{label:"Zone",value:"Vijayawada"}],
+    overview:[{year:"Established",type:"i",text:"Covers <strong>Prakasam</strong>, <strong>Bapatla</strong> and <strong>Markapuram</strong>."}]},
+  "Nellore RO":{id:"nlr",color:"#6a8fa8",
+    districts:["SPSR Nellore"],
+    location:{lat:14.4363,lng:79.9650},
+    address:"PRASANTHI Nagar, Dargamitta, Nellore – 524003",phone:"",
+    stats:[{label:"Districts",value:"1"},{label:"Zone",value:"Vijayawada"},{label:"Est.",value:"Sep 1994"}],
+    overview:[{year:"Sep 1994",type:"h",text:"<strong>Established 14 September 1994.</strong> Now covers only <strong>SPSR Nellore</strong>."}]},
+  "Tirupati RO":{id:"tpt",color:"#7060c0",
+    districts:["Tirupati","Chittoor"],
+    location:{lat:13.6329,lng:79.4088},
+    address:"1st Floor, APSFC Building, Narasimhatheertham Rd, Tirupati – 517501",phone:"+91 877 225 3981",
+    stats:[{label:"Districts",value:"2"},{label:"Zone",value:"Kurnool"},{label:"RO Lab",value:"Yes"}],
+    overview:[{year:"Established",type:"i",text:"Covers <strong>Tirupati</strong> and <strong>Chittoor</strong>."},{year:"Aug 2023",type:"h",text:"<strong>New building inaugurated</strong> opposite old LIC building."}]},
+  "Kurnool RO":{id:"knl",color:"#3a8bc0",
+    districts:["Kurnool","Nandyal"],
+    location:{lat:15.8054,lng:78.0371},
+    address:"1st Floor, Shanker Shopping Complex, Krishna Reddy Nagar, Kurnool – 518002",phone:"+91 85182 33619",
+    stats:[{label:"Districts",value:"2"},{label:"Zone",value:"Kurnool"},{label:"Zonal Lab",value:"Yes"}],
+    overview:[{year:"Established",type:"i",text:"Covers <strong>Kurnool</strong> &amp; <strong>Nandyal</strong>. Zonal Office with Zonal Laboratory."}]},
+  "Kadapa RO":{id:"kdp",color:"#4a9060",
+    districts:["YSR Kadapa","Annamayya"],
+    location:{lat:14.4861,lng:78.8088},
+    address:"Vinayaka Nagar, Guduru, Kadapa – 516003",phone:"",
+    stats:[{label:"Districts",value:"2"},{label:"Zone",value:"Kurnool"}],
+    overview:[{year:"Established",type:"i",text:"Covers <strong>YSR Kadapa</strong> and <strong>Annamayya</strong>."}]},
+  "Anantapur RO":{id:"atp",color:"#c0607a",
+    districts:["Anantapur","Sri Sathya Sai"],
+    location:{lat:14.6711,lng:77.5906},
+    address:"D.No.6-3-145, 1st Floor, Revenue Colony, Ram Nagar, Anantapur – 515004",phone:"",
+    stats:[{label:"Districts",value:"2"},{label:"Zone",value:"Kurnool"}],
+    overview:[{year:"Established",type:"i",text:"Covers <strong>Anantapur</strong> and <strong>Sri Sathya Sai</strong>."}]}
+};
 
-/* Storage helpers */
-function lsGet(k){try{return JSON.parse(localStorage.getItem('appcb3_'+k))}catch(e){return null}}
-function lsSet(k,v){try{localStorage.setItem('appcb3_'+k,JSON.stringify(v))}catch(e){}}
+// District → RO lookup
+const DIST2RO={};
+for(const[ro,d]of Object.entries(RO_DATA))
+  for(const dist of d.districts)
+    DIST2RO[dist.toLowerCase().replace(/[^a-z0-9]/g,'')]=ro;
 
-/* Render workspace into a pane */
-function renderWorkspace(pane,wsId){
-  pane.dataset.rendered='1';
-  const meta=WS_META[wsId]||{title:wsId,icon:'📁',color:'#6b7280',desc:''};
-  const cards=lsGet('ws_'+wsId)||[];
-  const accentBg=meta.color+'18', accentBdr=meta.color+'44';
+const DIST_TELUGU={"Srikakulam":"శ్రీకాకుళం","Parvathipuram Manyam":"పార్వతీపురం మన్యం","Vizianagaram":"విజయనగరం","Alluri Sitharama Raju":"అల్లూరి సీతారామ రాజు","Polavaram":"పోలవరం","Visakhapatnam":"విశాఖపట్నం","Anakapalli":"అనకాపల్లి","East Godavari":"తూర్పు గోదావరి","Konaseema":"కోనసీమ","Kakinada":"కాకినాడ","Eluru":"ఏలూరు","West Godavari":"పశ్చిమ గోదావరి","NTR":"ఎన్.టి.ఆర్ జిల్లా","Krishna":"కృష్ణా","Guntur":"గుంటూరు","Palnadu":"పల్నాడు","Prakasam":"ప్రకాశం","Bapatla":"బాపట్ల","Markapuram":"మార్కాపురం","SPSR Nellore":"శ్రీ పొట్టి శ్రీరాములు నెల్లూరు","Tirupati":"తిరుపతి","Chittoor":"చిత్తూరు","Kurnool":"కర్నూలు","Nandyal":"నంద్యాల","YSR Kadapa":"వై.యస్.ఆర్. కడప","Annamayya":"అన్నమయ్య","Anantapur":"అనంతపురం","Sri Sathya Sai":"శ్రీ సత్య సాయి"};
 
-  pane.innerHTML=`
-    <div class="ws-topbar">
-      <div class="ws-info">
-        <h3>${meta.icon} ${meta.title}</h3>
-        <p>${meta.desc}</p>
-      </div>
-      <button class="ws-add-btn" onclick="openNewCard('${wsId}')">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-        Add Card
-      </button>
-    </div>
-    <div class="card-grid" id="grid-${wsId}"></div>`;
+// Map state
+let mapReady=false, leafMap, geojsonLayer, markersLayer;
+let activeDistLayer=null, showDistricts=true, showRO=true;
+let _panelRO=null, currentTab='overview';
+let legOpen=true;
 
-  renderCards(wsId, meta);
+function getROForDistrict(raw){
+  const k=raw.toLowerCase().replace(/[^a-z0-9]/g,'');
+  if(DIST2RO[k])return DIST2RO[k];
+  for(const[dk,ro]of Object.entries(DIST2RO))if(dk.includes(k)||k.includes(dk))return ro;
+  return null;
+}
+function getROColor(raw){const ro=getROForDistrict(raw);return ro?RO_DATA[ro].color:'#a0b8b0'}
+function hexToRgb(h){return{r:parseInt(h.slice(1,3),16),g:parseInt(h.slice(3,5),16),b:parseInt(h.slice(5,7),16)}}
+function lighten(h,a=30){const{r,g,b}=hexToRgb(h);return`rgb(${Math.min(255,r+a)},${Math.min(255,g+a)},${Math.min(255,b+a)})`}
+function getDistName(p){return p.district||p.District||p.DISTRICT||p.NAME_2||p.dtname||p.name||'Unknown'}
+
+function styleDefault(feat){const c=getROColor(normDistName(feat.properties));return{fillColor:c,weight:2,color:'rgba(255,255,255,0.85)',fillOpacity:0.75}}
+function styleHover(feat){const c=getROColor(normDistName(feat.properties));return{fillColor:lighten(c,22),weight:3,color:'#fff',fillOpacity:0.95}}
+function styleActive(){return{fillColor:'rgba(255,255,255,0.5)',weight:3.5,color:'#1a5e38',fillOpacity:0.45}}
+
+function openMap(){
+  document.getElementById('mapScreen').classList.add('show');
+  if(!mapReady){initLeafMap();mapReady=true}
+}
+function closeMap(){document.getElementById('mapScreen').classList.remove('show')}
+
+// Normalise any GeoJSON district name to our standard RO-matching name
+function normDistName(props){
+  const raw = props.district||props.District||props.DISTRICT||props.dtname||props.NAME_2||props.name||props.NAME||'';
+  const key = raw.toLowerCase().trim().replace(/\s+/g,' ');
+  return DIST_NAME_MAP[key] || raw;
 }
 
-function renderCards(wsId, meta){
-  meta=meta||WS_META[wsId]||{title:wsId,icon:'📁',color:'#6b7280',desc:''};
-  const grid=document.getElementById('grid-'+wsId);
-  if(!grid) return;
-  const cards=lsGet('ws_'+wsId)||[];
-  grid.innerHTML='';
+function buildGeoLayer(geojson){
+  geojsonLayer=L.geoJSON(geojson,{
+    style:styleDefault,
+    onEachFeature(feat,layer){
+      const name=normDistName(feat.properties);
+      const ro=getROForDistrict(name);
+      layer.on({
+        mouseover(e){
+          if(layer!==activeDistLayer)layer.setStyle(styleHover(feat));
+          layer.bindTooltip(
+            `<b>${name}</b>${ro?'<br><span style="color:'+RO_DATA[ro].color+';font-size:11px">'+ro+'</span>':''}`,
+            {permanent:false,direction:'auto',className:'ap-tip',offset:[0,-4]}
+          ).openTooltip();
+        },
+        mouseout(){if(layer!==activeDistLayer)layer.setStyle(styleDefault(feat));layer.closeTooltip()},
+        click(e){
+          if(activeDistLayer&&activeDistLayer!==layer){
+            const prevFeat=activeDistLayer.feature;
+            activeDistLayer.setStyle(styleDefault(prevFeat||feat));
+          }
+          layer.setStyle(styleActive());activeDistLayer=layer;
+          L.DomEvent.stopPropagation(e);
+          ro?openROPanel(ro):openDistPanel(name);
+        }
+      });
+    }
+  }).addTo(leafMap);
 
-  cards.forEach((card,i)=>{
-    const fileCount=(lsGet('files_'+wsId+'_'+card.id)||[]).length;
-    const div=document.createElement('div');
-    div.className='ws-card';
-    div.innerHTML=`
-      <div class="ws-card-actions">
-        <button class="wca" title="Rename" onclick="event.stopPropagation();renameCard('${wsId}',${i})">✏️</button>
-        <button class="wca del" title="Delete" onclick="event.stopPropagation();deleteCard('${wsId}',${i})">🗑</button>
-      </div>
-      <div class="ws-card-ico" style="background:${meta.color}18;border:1.5px solid ${meta.color}33">${card.icon||'📄'}</div>
-      <div class="ws-card-name">${card.name}</div>
-      <div class="ws-card-count">${fileCount} file${fileCount!==1?'s':''}</div>`;
-    div.onclick=()=>openModal(wsId,i);
-    grid.appendChild(div);
-  });
-
-  // Add card button
-  const addDiv=document.createElement('div');
-  addDiv.className='ws-card ws-card-add';
-  addDiv.innerHTML='<div class="plus">+</div><span>Add Card</span>';
-  addDiv.onclick=()=>openNewCard(wsId);
-  grid.appendChild(addDiv);
-}
-
-/* ── New card dialog ───────────────────────────── */
-let _ncWs='';
-const iconsEl=document.getElementById('nc-icons');
-CARD_ICONS.forEach(ico=>{
-  const b=document.createElement('button');
-  b.className='nc-ico-btn';b.textContent=ico;
-  b.onclick=()=>{document.querySelectorAll('.nc-ico-btn').forEach(x=>x.classList.remove('sel'));b.classList.add('sel')};
-  iconsEl.appendChild(b);
-});
-// Default select first
-iconsEl.firstChild?.classList.add('sel');
-
-function openNewCard(wsId){
-  _ncWs=wsId;
-  document.getElementById('nc-name').value='';
-  document.querySelectorAll('.nc-ico-btn').forEach(b=>b.classList.remove('sel'));
-  iconsEl.firstChild?.classList.add('sel');
-  document.getElementById('nc-dialog').classList.add('open');
-  setTimeout(()=>document.getElementById('nc-name').focus(),80);
-}
-function ncClose(){document.getElementById('nc-dialog').classList.remove('open')}
-function ncOk(){
-  const name=document.getElementById('nc-name').value.trim();
-  if(!name){document.getElementById('nc-name').focus();return}
-  const ico=document.querySelector('.nc-ico-btn.sel')?.textContent||'📄';
-  const cards=lsGet('ws_'+_ncWs)||[];
-  cards.push({id:Date.now().toString(36),name,icon:ico});
-  lsSet('ws_'+_ncWs,cards);
-  ncClose();
-  renderCards(_ncWs);
-}
-
-function renameCard(wsId,idx){
-  const cards=lsGet('ws_'+wsId)||[];
-  const card=cards[idx];if(!card)return;
-  const name=prompt('Rename card:',card.name);
-  if(name&&name.trim()){cards[idx].name=name.trim();lsSet('ws_'+wsId,cards);renderCards(wsId)}
-}
-function deleteCard(wsId,idx){
-  const cards=lsGet('ws_'+wsId)||[];
-  const card=cards[idx];if(!card)return;
-  if(!confirm(`Delete "${card.name}" and all its files?`))return;
-  lsSet('files_'+wsId+'_'+card.id,[]);
-  cards.splice(idx,1);lsSet('ws_'+wsId,cards);renderCards(wsId);
-}
-
-/* ── Modal (card files) ────────────────────────── */
-let _mWs='',_mIdx=-1,_mId='';
-function openModal(wsId,idx){
-  const cards=lsGet('ws_'+wsId)||[];
-  const card=cards[idx];if(!card)return;
-  _mWs=wsId;_mIdx=idx;_mId=card.id;
-  document.getElementById('modal-title').value=card.name;
-  document.getElementById('modal-bg').classList.add('open');
-  renderFilesList();
-}
-function saveModalTitle(){
-  const name=document.getElementById('modal-title').value.trim();
-  if(!name||!_mWs)return;
-  const cards=lsGet('ws_'+_mWs)||[];
-  if(cards[_mIdx]){cards[_mIdx].name=name;lsSet('ws_'+_mWs,cards);renderCards(_mWs)}
-}
-function closeModal(){
-  document.getElementById('modal-bg').classList.remove('open');
-  _mWs='';_mIdx=-1;_mId='';
-}
-
-/* File type helpers */
-function fileIcon(name){
-  const ext=(name.split('.').pop()||'').toLowerCase();
-  if(['pdf'].includes(ext)) return '📄';
-  if(['jpg','jpeg','png','gif','webp','svg','bmp'].includes(ext)) return '🖼️';
-  if(['doc','docx'].includes(ext)) return '📝';
-  if(['xls','xlsx','csv'].includes(ext)) return '📊';
-  if(['ppt','pptx'].includes(ext)) return '📑';
-  if(['zip','rar','7z'].includes(ext)) return '🗜️';
-  return '📎';
-}
-function fmtSize(b){if(b<1024)return b+'B';if(b<1048576)return(b/1024).toFixed(1)+'KB';return(b/1048576).toFixed(1)+'MB'}
-function canPreview(name){
-  const ext=(name.split('.').pop()||'').toLowerCase();
-  return ['pdf','jpg','jpeg','png','gif','webp','bmp','svg'].includes(ext);
-}
-
-function handleFiles(files){
-  if(!_mId) return;
-  const stored=lsGet('files_'+_mWs+'_'+_mId)||[];
-  Array.from(files).forEach(file=>{
-    const reader=new FileReader();
-    reader.onload=e=>{
-      stored.push({id:Date.now().toString(36)+Math.random().toString(36).slice(2),name:file.name,size:file.size,type:file.type,data:e.target.result});
-      lsSet('files_'+_mWs+'_'+_mId,stored);
-      renderFilesList();
-      renderCards(_mWs);
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-function renderFilesList(){
-  const stored=lsGet('files_'+_mWs+'_'+_mId)||[];
-  const el=document.getElementById('files-list');
-  el.innerHTML='';
-  if(!stored.length){
-    el.innerHTML='<div style="text-align:center;padding:18px;font-size:.75rem;color:var(--stone)">No files yet — drag &amp; drop or use the area above</div>';
-    return;
+  const bounds=geojsonLayer.getBounds();
+  if(bounds.isValid()){
+    leafMap.fitBounds(bounds,{padding:[24,24]});
+    leafMap.setMaxBounds(bounds.pad(0.12));
   }
-  stored.forEach((f,i)=>{
-    const row=document.createElement('div');row.className='file-row';
-    row.innerHTML=`
-      <div class="file-ico" style="background:var(--cream)">${fileIcon(f.name)}</div>
-      <div class="file-name" title="${f.name}">${f.name}</div>
-      <div class="file-size">${fmtSize(f.size)}</div>
-      ${canPreview(f.name)?'<span class="file-view-badge">Preview</span>':''}
-      <button class="file-del" onclick="event.stopPropagation();deleteFile(${i})" title="Delete">✕</button>`;
-    if(canPreview(f.name)) row.onclick=()=>openPreview(f);
+}
+
+function showMapLoader(msg){
+  let el=document.getElementById('mapLoader');
+  if(!el){
+    el=document.createElement('div');
+    el.id='mapLoader';
+    el.style.cssText='position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(232,245,238,0.92);z-index:1000;gap:14px;font-family:DM Sans,sans-serif;';
+    el.innerHTML='<div style="font-size:38px">🗺️</div><div id="mapLoaderMsg" style="font-size:14px;color:#1a5e38;font-weight:600"></div>';
+    document.getElementById('theLeafMap').parentElement.style.position='relative';
+    document.getElementById('theLeafMap').parentElement.appendChild(el);
+  }
+  document.getElementById('mapLoaderMsg').textContent=msg;
+}
+function hideMapLoader(){const el=document.getElementById('mapLoader');if(el)el.remove();}
+
+async function initLeafMap(){
+  leafMap=L.map('theLeafMap',{center:[15.9,79.7],zoom:7,zoomControl:true,attributionControl:false});
+  L.control.attribution({position:'bottomright',prefix:false}).addTo(leafMap);
+
+  showMapLoader('Loading AP district boundaries…');
+
+  // Try multiple reliable GeoJSON sources (real official boundaries)
+  const GEOJSON_URLS=[
+    // jsDelivr (CDN for GitHub) — datameet India maps — most accurate AP districts
+    'https://cdn.jsdelivr.net/gh/datameet/maps@master/Districts/Andhra_Pradesh.geojson',
+    // udit-001 india-maps-data (also on jsDelivr)
+    'https://cdn.jsdelivr.net/gh/udit-001/india-maps-data@main/geojson/states/andhra-pradesh.geojson',
+    // raw GitHub fallback
+    'https://raw.githubusercontent.com/datameet/maps/master/Districts/Andhra_Pradesh.geojson',
+  ];
+
+  let loaded=false;
+  for(const url of GEOJSON_URLS){
+    try{
+      showMapLoader('Fetching district map…');
+      const resp=await fetch(url,{cache:'force-cache'});
+      if(!resp.ok)continue;
+      const data=await resp.json();
+      if(!data||!data.features||!data.features.length)continue;
+      hideMapLoader();
+      buildGeoLayer(data);
+      loaded=true;
+      break;
+    }catch(e){console.warn('GeoJSON source failed:',url,e)}
+  }
+
+  if(!loaded){
+    hideMapLoader();
+    // Show friendly error on the map itself
+    const errDiv=document.createElement('div');
+    errDiv.style.cssText='position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:rgba(232,245,238,.95);z-index:1000;font-family:DM Sans,sans-serif;gap:10px;padding:24px;text-align:center;';
+    errDiv.innerHTML=`<div style="font-size:42px">🌐</div>
+      <div style="font-size:15px;font-weight:700;color:#1a5e38">Map requires internet</div>
+      <div style="font-size:13px;color:#6b6b6b;max-width:300px">District boundaries are loaded from a public GeoJSON source. Please check your connection and reopen the map.</div>
+      <button onclick="document.getElementById('mapLoader2')?.remove();mapReady=false;closeMap();" style="margin-top:8px;padding:9px 22px;border-radius:20px;background:#1a5e38;color:#fff;border:none;cursor:pointer;font-size:13px">Close Map</button>`;
+    errDiv.id='mapLoader2';
+    document.getElementById('theLeafMap').parentElement.appendChild(errDiv);
+  }
+
+  addROMarkers();
+  buildLegend();
+
+  leafMap.on('click',()=>{
+    if(activeDistLayer){
+      const f=activeDistLayer.feature;
+      activeDistLayer.setStyle(styleDefault(f||{properties:{}}));
+      activeDistLayer=null;
+    }
+    closePanel();
+  });
+}
+
+function addROMarkers(){
+  markersLayer=L.layerGroup().addTo(leafMap);
+  for(const[roName,ro]of Object.entries(RO_DATA)){
+    const icon=L.divIcon({
+      className:'ro-marker-icon',
+      html:`<div class="ro-pin" style="background:${ro.color}"><div class="ro-pin-inner">🏢</div></div>`,
+      iconSize:[30,30],iconAnchor:[15,30],popupAnchor:[0,-32]
+    });
+    const m=L.marker([ro.location.lat,ro.location.lng],{icon,zIndexOffset:1000});
+    m.bindTooltip(
+      `<b>${roName}</b><br><span style="color:${ro.color};font-size:11px">${ro.districts.join(' · ')}</span>`,
+      {permanent:false,className:'ap-tip',offset:[0,-32]}
+    );
+    m.on('click',e=>{L.DomEvent.stopPropagation(e);openROPanel(roName)});
+    markersLayer.addLayer(m);
+  }
+}
+
+function buildLegend(){
+  const el=document.getElementById('legItems');el.innerHTML='';
+  for(const[name,ro]of Object.entries(RO_DATA)){
+    const row=document.createElement('div');row.className='leg-row';
+    const short=name.replace(' RO','');
+    row.innerHTML=`<div class="leg-swatch" style="background:${ro.color}"></div><span>${short} (${ro.districts.length})</span>`;
+    row.addEventListener('click',()=>openROPanel(name));
     el.appendChild(row);
-  });
+  }
+  const pin=document.createElement('div');pin.className='leg-pin-row';
+  pin.innerHTML=`<span style="font-size:14px">🏢</span><span>APPCB Regional Office</span>`;
+  el.appendChild(pin);
 }
 
-function deleteFile(idx){
-  const stored=lsGet('files_'+_mWs+'_'+_mId)||[];
-  stored.splice(idx,1);
-  lsSet('files_'+_mWs+'_'+_mId,stored);
-  renderFilesList();renderCards(_mWs);
+function toggleLegend(){
+  legOpen=!legOpen;
+  document.getElementById('legItems').classList.toggle('hidden',!legOpen);
+  const arrow=document.getElementById('legArrow');
+  arrow.textContent=legOpen?'▲':'▼';
+  arrow.className='leg-toggle-arrow '+(legOpen?'open':'closed');
 }
 
-/* ── Preview ───────────────────────────────────── */
-function openPreview(f){
-  document.getElementById('preview-name').textContent=f.name;
-  const ext=(f.name.split('.').pop()||'').toLowerCase();
-  const el=document.getElementById('preview-content');
-  if(ext==='pdf'){
-    el.innerHTML=`<iframe src="${f.data}"></iframe>`;
+function toggleMapLayer(layer){
+  if(layer==='districts'){showDistricts=!showDistricts;document.getElementById('btn-districts').classList.toggle('active',showDistricts);if(geojsonLayer){showDistricts?leafMap.addLayer(geojsonLayer):leafMap.removeLayer(geojsonLayer)}}
+  else{showRO=!showRO;document.getElementById('btn-ro').classList.toggle('active',showRO);document.getElementById('btn-ro').classList.toggle('ro-btn',showRO);if(markersLayer){showRO?leafMap.addLayer(markersLayer):leafMap.removeLayer(markersLayer)}}
+}
+
+/* ── Side Panel ── */
+function openROPanel(roName){
+  const ro=RO_DATA[roName];if(!ro)return;
+  _panelRO=roName;currentTab='overview';
+  document.getElementById('panelBadge').textContent='Regional Office';
+  document.getElementById('panelBadge').className='panel-type-badge badge-ro';
+  document.getElementById('panelName').textContent=roName;
+  document.getElementById('panelSub').textContent='Covers: '+ro.districts.join(' · ');
+  document.getElementById('panelTelugu').textContent='';
+  document.getElementById('panelMeta').innerHTML=ro.stats.map(s=>`<span class="meta-pill">${s.label}: ${s.value}</span>`).join('');
+  document.getElementById('sidePanel').classList.add('open');
+  document.querySelectorAll('.panel-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-overview').classList.add('active');
+  renderROTab('overview');
+}
+
+function openDistPanel(rawName){
+  const ro=getROForDistrict(rawName);
+  const roData=ro?RO_DATA[ro]:null;
+  const col=roData?roData.color:'#4a7c59';
+  _panelRO=ro;
+  document.getElementById('panelBadge').textContent=ro?'Under '+ro:'District';
+  document.getElementById('panelBadge').className='panel-type-badge badge-dist';
+  document.getElementById('panelName').textContent=rawName;
+  document.getElementById('panelSub').textContent=ro?'Jurisdiction: '+ro:'Andhra Pradesh';
+  document.getElementById('panelTelugu').textContent=DIST_TELUGU[rawName]||'';
+  document.getElementById('panelMeta').innerHTML=`<span class="meta-pill" style="border-color:${col}55;color:${col}">${ro||'AP'}</span>`;
+  document.getElementById('sidePanel').classList.add('open');
+  document.querySelectorAll('.panel-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-overview').classList.add('active');
+  const body=document.getElementById('panelBody');
+  let html='';
+  if(roData){
+    html+=`<div class="addr-card"><div class="addr-label">Jurisdictional RO</div><strong style="color:${col}">${ro}</strong><br><span style="font-size:12px">${roData.address}</span></div>`;
+    html+=`<div class="section-hd">All Districts Under ${ro}</div><div class="dist-chip-grid">`;
+    roData.districts.forEach(d=>{const active=d.toLowerCase()===rawName.toLowerCase();html+=`<div class="dist-chip" style="background:${active?col+'55':col+'22'};color:${col};border-color:${col+'44'};${active?'font-weight:800':''}" onclick="openDistPanel('${d}')">${d}${active?' ✦':''}</div>`});
+    html+=`</div><button style="font-size:12px;padding:5px 14px;border-radius:8px;background:${col}18;border:1px solid ${col}44;color:${col};cursor:pointer;margin-top:4px" onclick="openROPanel('${ro}')">← Back to ${ro}</button>`;
+  }
+  body.innerHTML=html;
+}
+
+function closePanel(){document.getElementById('sidePanel').classList.remove('open');_panelRO=null}
+
+function switchTab(tab){
+  currentTab=tab;
+  document.querySelectorAll('.panel-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tab).classList.add('active');
+  if(_panelRO)renderROTab(tab);
+}
+
+function renderROTab(tab){
+  const ro=RO_DATA[_panelRO];if(!ro)return;
+  const body=document.getElementById('panelBody');
+  if(tab==='overview'){
+    let html=`<div class="addr-card"><div class="addr-label">📍 Office Address</div>${ro.address}</div>`;
+    if(ro.phone)html+=`<div class="addr-card" style="margin-top:-6px"><div class="addr-label">📞 Phone</div>${ro.phone}</div>`;
+    html+=`<div class="stats-row">`;
+    ro.stats.forEach(s=>html+=`<div class="stat-card"><div class="stat-label">${s.label}</div><div class="stat-value">${s.value}</div></div>`);
+    html+=`</div>`;
+    html+=`<div class="section-hd">Districts Under This RO</div><div class="dist-chip-grid">`;
+    ro.districts.forEach(d=>html+=`<div class="dist-chip" style="background:${ro.color}22;color:${ro.color};border-color:${ro.color}44" onclick="openDistPanel('${d}')">${d}</div>`);
+    html+=`</div>`;
+    html+=`<div class="section-hd">Chronology</div><div class="timeline">`;
+    const saved=lsRaw('appcb7_ov_'+ro.id,'');
+    let items;try{items=saved?JSON.parse(saved):ro.overview}catch{items=ro.overview}
+    items.forEach(item=>html+=`<div class="tl-item"><div class="tl-dot ${item.type||'i'}"></div><div class="tl-year ${item.type||'i'}">${item.year}</div><div class="tl-text">${item.text}</div></div>`);
+    html+=`</div>`;
+    body.innerHTML=html;
+  } else if(tab==='lands'){
+    const saved=lsRaw('appcb7_lands_'+ro.id,'');
+    body.innerHTML=`<div class="section-hd">Lands &amp; Buildings — ${_panelRO}</div>
+      <div style="font-size:12px;color:var(--smoke);margin-bottom:10px;line-height:1.6">Chronological details: acquisition, construction, survey nos., ownership, litigation status…</div>
+      <textarea class="editable-area" id="editTA" placeholder="e.g.&#10;• 1985 — 500 sq.yd acquired (Survey No. 123)&#10;• 1990 — Construction completed&#10;• 2015 — Court case filed (pending)">${saved}</textarea>
+      <div class="save-row"><div class="saved-notice" id="savedNote">✓ Saved</div><button class="save-btn" onclick="saveTab('lands')">💾 Save</button></div>`;
   } else {
-    el.innerHTML=`<img src="${f.data}" alt="${f.name}">`;
-  }
-  document.getElementById('preview-bg').classList.add('open');
-}
-function closePreview(){
-  document.getElementById('preview-bg').classList.remove('open');
-  document.getElementById('preview-content').innerHTML='';
-}
-
-/* Drag & drop */
-const dd=document.getElementById('upload-drop');
-dd.addEventListener('dragover',e=>{e.preventDefault();dd.classList.add('drag')});
-dd.addEventListener('dragleave',()=>dd.classList.remove('drag'));
-dd.addEventListener('drop',e=>{e.preventDefault();dd.classList.remove('drag');handleFiles(e.dataTransfer.files)});
-
-/* Init soil panes on first load */
-document.querySelectorAll('.pane[id^="sp-"].on, .pane[id^="bp-"].on').forEach(p=>{
-  if(!p.dataset.rendered && p.id!=='bp-map') renderWorkspace(p,p.id);
-});
-// Init visible soil tab
-renderWorkspace(document.getElementById('sp-plastic'),'sp-plastic');
-
-/* ══════════════════════════════════════════════════════
-   MAP — 13 ROs × 28 Districts
-══════════════════════════════════════════════════════ */
-let mapOk=false,emb=null,gL=null,mL=null,aL=null,curRO=null;
-let showD=true,showR=true;
-
-const RO={
-"Srikakulam RO":{id:"skl",c:"#0e7490",d:["Srikakulam","Parvathipuram Manyam"],loc:{a:18.2993,n:83.8813},addr:"Purushotham Nagar Colony, Gujarathipeta, Srikakulam – 532005",ph:"",st:[{l:"Districts",v:"2"},{l:"Zone",v:"Vizag Zone"},{l:"Region",v:"Uttarandhra"}],ov:[{y:"Established",t:"i",x:"Covers <strong>Srikakulam</strong> and <strong>Parvathipuram Manyam</strong>."},{y:"Add Event",t:"d",x:"Enter chronological details here."}],lb:"Add land & building details for Srikakulam RO.\n\n• Survey No / Extent:\n• Date of Acquisition:\n• Construction:\n• Status:\n• Litigation:",nt:""},
-"Vizianagaram RO":{id:"vzm",c:"#1d4ed8",d:["Vizianagaram","Alluri Sitharama Raju","Polavaram"],loc:{a:18.1038,n:83.4013},addr:"Gayatri Nagar, Kasibugga, Vizianagaram – 535003",ph:"",st:[{l:"Districts",v:"3"},{l:"Zone",v:"Vizag Zone"},{l:"Region",v:"Uttarandhra"}],ov:[{y:"Established",t:"i",x:"Covers <strong>Vizianagaram</strong>, <strong>Alluri Sitharama Raju</strong> and <strong>Polavaram</strong>."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Vizianagaram RO.",nt:""},
-"Visakhapatnam RO":{id:"vsp",c:"#6d28d9",d:["Visakhapatnam","Anakapalli"],loc:{a:17.75,n:83.2481},addr:"AP Pollution Control Board Rd, Vuda Layout, Madhavadhara, Visakhapatnam – 530018",ph:"",st:[{l:"Districts",v:"2"},{l:"Zone",v:"Vizag Zone"},{l:"Zonal Lab",v:"Yes"}],ov:[{y:"Established",t:"i",x:"Zonal Office + RO covering <strong>Visakhapatnam</strong> and <strong>Anakapalli</strong>. Zonal Lab."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Visakhapatnam RO.",nt:""},
-"Kakinada RO":{id:"kkd",c:"#065f46",d:["East Godavari","Konaseema","Kakinada"],loc:{a:17.0024,n:82.2464},addr:"Ramanayyapeta, Rajeshwari Nagar, Kakinada – 533005",ph:"+91 884 237 4066",st:[{l:"Districts",v:"3"},{l:"Zone",v:"Vizag Zone"},{l:"RO Lab",v:"Yes"}],ov:[{y:"Established",t:"i",x:"Covers <strong>East Godavari</strong>, <strong>B.R. Ambedkar Konaseema</strong> and <strong>Kakinada</strong>."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Kakinada RO.",nt:""},
-"Eluru RO":{id:"elr",c:"#3f6212",d:["Eluru","West Godavari"],loc:{a:16.7125,n:81.1073},addr:"Kanukolanu Vari St, near Power Pet, Agraharam, Eluru – 534002",ph:"+91 88122 49668",st:[{l:"Districts",v:"2"},{l:"Zone",v:"Vijayawada Zone"},{l:"RO Lab",v:"Yes"}],ov:[{y:"Established",t:"i",x:"Covers <strong>Eluru</strong> and <strong>West Godavari</strong>."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Eluru RO.",nt:""},
-"Vijayawada RO":{id:"vjw",c:"#b45309",d:["NTR","Krishna"],loc:{a:16.5039,n:80.6709},addr:"Paryavaran Bhavan, APIIC Colony, Autonagar, Vijayawada – 520007",ph:"+91 99488 52909",st:[{l:"Districts",v:"2"},{l:"Zone",v:"Vijayawada Zone"},{l:"Type",v:"Head Office"}],ov:[{y:"Established",t:"i",x:"Houses <strong>APPCB Head Office</strong>. Covers <strong>NTR</strong> and <strong>Krishna</strong>."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Vijayawada RO / Head Office.",nt:""},
-"Guntur RO":{id:"gnt",c:"#ca8a04",d:["Guntur","Palnadu"],loc:{a:16.3286,n:80.4186},addr:"JKC College Rd, Vijayapuri Colony, Guntur – 522006",ph:"",st:[{l:"Districts",v:"2"},{l:"Zone",v:"Vijayawada Zone"},{l:"Region",v:"Coastal AP"}],ov:[{y:"Established",t:"i",x:"Covers <strong>Guntur</strong> and <strong>Palnadu</strong>."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Guntur RO.",nt:""},
-"Ongole RO":{id:"ongl",c:"#991b1b",d:["Prakasam","Bapatla","Markapuram"],loc:{a:15.5061,n:80.0285},addr:"MDR127, Siva Prasad Colony, Ongole – 523002",ph:"+91 85922 95001",st:[{l:"Districts",v:"3"},{l:"Zone",v:"Vijayawada Zone"},{l:"Region",v:"Coastal AP"}],ov:[{y:"Established",t:"i",x:"Covers <strong>Prakasam</strong>, <strong>Bapatla</strong> and <strong>Markapuram</strong>."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Ongole RO.",nt:""},
-"Nellore RO":{id:"nlr",c:"#374151",d:["SPSR Nellore"],loc:{a:14.4363,n:79.965},addr:"PRASANTHI Nagar, Dargamitta, Nellore – 524003",ph:"",st:[{l:"Districts",v:"1"},{l:"Zone",v:"Vijayawada Zone"},{l:"Est.",v:"Sep 1994"}],ov:[{y:"Sep 1994",t:"h",x:"<strong>Established 14 September 1994.</strong> Covers <strong>SPSR Nellore</strong>."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Nellore RO.",nt:""},
-"Tirupati RO":{id:"tpt",c:"#4338ca",d:["Tirupati","Chittoor"],loc:{a:13.6329,n:79.4088},addr:"APSFC Building, Narasimhatheertham Rd, near LIC, Tirupati – 517501",ph:"+91 877 225 3981",st:[{l:"Districts",v:"2"},{l:"Zone",v:"Kurnool Zone"},{l:"New Bldg",v:"Aug 2023"}],ov:[{y:"Established",t:"i",x:"Covers <strong>Tirupati</strong> and <strong>Chittoor</strong>. Regional Lab available."},{y:"Aug 2023",t:"h",x:"<strong>New building inaugurated</strong> by Minister for Environment."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Tirupati RO.",nt:""},
-"Kurnool RO":{id:"knl",c:"#1e40af",d:["Kurnool","Nandyal"],loc:{a:15.8054,n:78.0371},addr:"Shanker Shopping Complex, Krishna Reddy Nagar, Kalluru – 518002",ph:"+91 85182 33619",st:[{l:"Districts",v:"2"},{l:"Zone",v:"Kurnool Zone"},{l:"Zonal Lab",v:"Yes"}],ov:[{y:"Established",t:"i",x:"Covers <strong>Kurnool</strong> and <strong>Nandyal</strong>. Zonal Office with Zonal Laboratory."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Kurnool RO.",nt:""},
-"Kadapa RO":{id:"kdp",c:"#166534",d:["YSR Kadapa","Annamayya"],loc:{a:14.4861,n:78.8088},addr:"Vinayaka Nagar, Guduru, Kadapa – 516003",ph:"",st:[{l:"Districts",v:"2"},{l:"Zone",v:"Kurnool Zone"},{l:"Region",v:"Rayalaseema"}],ov:[{y:"Established",t:"i",x:"Covers <strong>YSR Kadapa</strong> and <strong>Annamayya</strong>."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Kadapa RO.",nt:""},
-"Anantapur RO":{id:"ant",c:"#9d174d",d:["Anantapur","Sri Sathya Sai"],loc:{a:14.6711,n:77.5906},addr:"D.No.6-3-145, Revenue Colony, Ram Nagar, Anantapur – 515004",ph:"",st:[{l:"Districts",v:"2"},{l:"Zone",v:"Kurnool Zone"},{l:"Region",v:"Rayalaseema"}],ov:[{y:"Established",t:"i",x:"Covers <strong>Anantapur</strong> and <strong>Sri Sathya Sai</strong>."},{y:"Add Event",t:"d",x:"Enter details."}],lb:"Add land & building details for Anantapur RO.",nt:""}
-};
-const TEL={"Srikakulam":"శ్రీకాకుళం","Parvathipuram Manyam":"పార్వతీపురం మన్యం","Vizianagaram":"విజయనగరం","Alluri Sitharama Raju":"అల్లూరి సీతారామ రాజు","Polavaram":"పోలవరం","Visakhapatnam":"విశాఖపట్నం","Anakapalli":"అనకాపల్లి","East Godavari":"తూర్పు గోదావరి","Konaseema":"కోనసీమ","Kakinada":"కాకినాడ","Eluru":"ఏలూరు","West Godavari":"పశ్చిమ గోదావరి","NTR":"ఎన్.టి.ఆర్ జిల్లా","Krishna":"కృష్ణా","Guntur":"గుంటూరు","Palnadu":"పల్నాడు","Prakasam":"ప్రకాశం","Bapatla":"బాపట్ల","Markapuram":"మార్కాపురం","SPSR Nellore":"శ్రీ పొట్టి శ్రీరాములు నెల్లూరు","Tirupati":"తిరుపతి","Chittoor":"చిత్తూరు","Kurnool":"కర్నూలు","Nandyal":"నంద్యాల","YSR Kadapa":"వై.యస్.ఆర్. కడప","Annamayya":"అన్నమయ్య","Anantapur":"అనంతపురం","Sri Sathya Sai":"శ్రీ సత్య సాయి"};
-
-const D2R={};
-for(const[ro,d] of Object.entries(RO)) for(const dist of d.d) D2R[dist.toLowerCase().replace(/[^a-z0-9]/g,'')]=ro;
-function getRO(n){const k=n.toLowerCase().replace(/[^a-z0-9]/g,'');if(D2R[k])return D2R[k];for(const[dk,ro] of Object.entries(D2R))if(dk.includes(k)||k.includes(dk))return ro;return null}
-function gCol(n){const ro=getRO(n);return ro?RO[ro].c:'#6b7280'}
-function gN(p){return p.district||p.District||p.DISTRICT||p.NAME_2||p.dtname||p.Dist_Name||p.DISTNAME||p.NAME_1||p.name||"Unknown"}
-function h2r(hex,a){const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);return`rgba(${r},${g},${b},${a})`}
-const sDef=f=>{const c=gCol(gN(f.properties));return{fillColor:h2r(c,.42),weight:1.5,opacity:1,color:h2r(c,.7),fillOpacity:1}};
-const sHov=f=>{const c=gCol(gN(f.properties));return{fillColor:h2r(c,.62),weight:2,opacity:1,color:c,fillOpacity:1}};
-const sAct=()=>({fillColor:'rgba(28,74,47,.12)',weight:2.5,opacity:1,color:'#1c4a2f',fillOpacity:1});
-
-function onEF(feat,layer){
-  const name=gN(feat.properties),ro=getRO(name);
-  layer.on({
-    mouseover(){if(layer!==aL)layer.setStyle(sHov(feat));layer.bindTooltip(`<b>${name}</b>${ro?`<br><span style="font-size:.62rem;color:var(--forest2)">${ro}</span>`:''}`,{permanent:false,direction:'center',className:'ap-tt',offset:[0,-4]}).openTooltip()},
-    mouseout(){if(layer!==aL)layer.setStyle(sDef(feat));layer.closeTooltip()},
-    click(e){if(aL&&aL!==layer)aL.setStyle(sDef(feat));layer.setStyle(sAct());aL=layer;L.DomEvent.stopPropagation(e);ro?openMspRO(ro):openMspDist(name)}
-  });
-}
-function initMap(){
-  if(mapOk)return;mapOk=true;
-  emb=L.map('embMap',{center:[15.9,79.7],zoom:7,zoomControl:true});
-  const URLS=["https://cdn.jsdelivr.net/gh/udit-001/india-maps-data@main/geojson/states/andhra-pradesh.geojson","https://raw.githubusercontent.com/udit-001/india-maps-data/main/geojson/states/andhra-pradesh.geojson"];
-  (async()=>{
-    for(const url of URLS){
-      try{
-        const r=await fetch(url);if(!r.ok)continue;
-        const data=await r.json();if(!data.features?.length)continue;
-        let feats=data.features;
-        const s=feats[0]?.properties||{};
-        if(s.ST_NM||s.STATE||s.state_name)feats=feats.filter(f=>(f.properties.ST_NM||f.properties.STATE||f.properties.state_name||'').toLowerCase().includes('andhra'));
-        if(!feats.length)continue;
-        gL=L.geoJSON({type:"FeatureCollection",features:feats},{style:sDef,onEachFeature:onEF}).addTo(emb);
-        const b=gL.getBounds();emb.fitBounds(b,{padding:[14,14]});emb.setMaxBounds(b.pad(0.08));
-        addPins();buildLeg();
-        const el=document.getElementById('map-spin');
-        if(el){el.style.opacity='0';el.style.transition='opacity .4s';setTimeout(()=>el.remove(),400);}
-        return;
-      }catch(e){}
-    }
-    const el=document.getElementById('map-spin');
-    if(el)el.innerHTML=`<div style="text-align:center;padding:20px"><div style="font-size:2rem;margin-bottom:8px">🌐</div><div style="font-size:.78rem;color:var(--stone);font-weight:500">Internet connection required</div><div style="font-size:.67rem;color:var(--stone);opacity:.7;margin-top:5px;line-height:1.6">Open in a browser with internet access to load the AP boundary map.</div></div>`;
-  })();
-  emb.on('click',()=>{if(aL){aL.setStyle(sDef({properties:{}}));aL=null;}closeMsp()});
-}
-function addPins(){
-  mL=L.layerGroup().addTo(emb);
-  for(const[rn,ro] of Object.entries(RO)){
-    const icon=L.divIcon({className:'ro-marker-icon',html:`<div class="ro-pin" style="background:${ro.c}"><div class="ro-pin-i">🏢</div></div>`,iconSize:[24,24],iconAnchor:[12,24],popupAnchor:[0,-26]});
-    const mk=L.marker([ro.loc.a,ro.loc.n],{icon,zIndexOffset:1000});
-    mk.bindTooltip(`<b>${rn}</b><br><span style="font-size:.62rem;color:var(--forest2)">${ro.d.join(' · ')}</span>`,{permanent:false,className:'ap-tt',offset:[0,-26]});
-    mk.on('click',e=>{L.DomEvent.stopPropagation(e);openMspRO(rn)});
-    mk.addTo(mL);
+    const saved=lsRaw('appcb7_notes_'+ro.id,'');
+    body.innerHTML=`<div class="section-hd">Notes &amp; Other Info — ${_panelRO}</div>
+      <div style="font-size:12px;color:var(--smoke);margin-bottom:10px;line-height:1.6">General notes, pending actions, inspection records, complaints…</div>
+      <textarea class="editable-area" id="editTA" style="min-height:180px" placeholder="Add notes here…">${saved}</textarea>
+      <div class="save-row"><div class="saved-notice" id="savedNote">✓ Saved</div><button class="save-btn" onclick="saveTab('notes')">💾 Save</button></div>`;
   }
 }
-function buildLeg(){
-  const el=document.getElementById('leg-rows');el.innerHTML='';
-  for(const[n,ro] of Object.entries(RO))el.innerHTML+=`<div class="lg-row"><div class="lg-sw" style="background:${ro.c}"></div><span>${n.replace(' RO','')} (${ro.d.length})</span></div>`;
-}
-function mLyr(l){
-  if(l==='d'){showD=!showD;document.getElementById('lb-d').classList.toggle('on',showD);if(gL){showD?emb.addLayer(gL):emb.removeLayer(gL)}}
-  else{showR=!showR;const b=document.getElementById('lb-r');b.className='lbtn'+(showR?' on sky':'');if(mL){showR?emb.addLayer(mL):emb.removeLayer(mL)}}
-}
 
-/* Map side panel */
-function sv(k,v){try{localStorage.setItem('appcb3_map_'+k,v)}catch(e){}}
-function ld(k,d){try{const v=localStorage.getItem('appcb3_map_'+k);if(v!==null)return v}catch(e){}return d}
-function openMspRO(rn){
-  const ro=RO[rn];if(!ro)return;curRO=rn;
-  document.getElementById('msp-bdg').textContent='Regional Office';document.getElementById('msp-bdg').className='msp-bdg ro';
-  document.getElementById('msp-name').textContent=rn;document.getElementById('msp-sub').textContent='Covers: '+ro.d.join(' · ');
-  document.getElementById('msp-tel').textContent='';
-  document.getElementById('msp-meta').innerHTML=ro.st.map(s=>`<span class="msp-pill">${s.l}: ${s.v}</span>`).join('');
-  document.querySelectorAll('.msp-tab').forEach(t=>t.classList.remove('on'));document.getElementById('mt-ov').classList.add('on');
-  renderMsp('ov');document.getElementById('msp').classList.add('open');
+function saveTab(tab){
+  const val=document.getElementById('editTA')?.value||'';
+  const ro=RO_DATA[_panelRO];if(!ro)return;
+  lsRawSet('appcb7_'+tab+'_'+ro.id,val);
+  const n=document.getElementById('savedNote');
+  if(n){n.classList.add('show');setTimeout(()=>n.classList.remove('show'),2000)}
 }
-function mspTab(t){if(curRO)renderMsp(t)}
-function renderMsp(tab){
-  const ro=RO[curRO];
-  document.querySelectorAll('.msp-tab').forEach(t=>t.classList.remove('on'));document.getElementById('mt-'+tab).classList.add('on');
-  const body=document.getElementById('msp-body');
-  if(tab==='ov'){
-    let h=`<div class="ms-addr"><div class="ms-addr-l">📍 Address</div>${ro.addr}</div>`;
-    if(ro.ph)h+=`<div class="ms-addr" style="margin-top:-6px"><div class="ms-addr-l">📞 Phone</div>${ro.ph}</div>`;
-    h+=`<div class="ms-sec">Quick Info</div><div class="ms-grid">`;
-    ro.st.forEach(s=>h+=`<div class="ms-card"><div class="ms-lbl">${s.l}</div><div class="ms-val">${s.v}</div></div>`);
-    h+=`</div><div class="ms-sec">Districts</div><div class="ms-chips">`;
-    ro.d.forEach(d=>h+=`<div class="ms-chip" style="background:${h2r(ro.c,.1)};color:${ro.c};border-color:${h2r(ro.c,.3)}" onclick="openMspDist('${d}')">${d}</div>`);
-    h+=`</div><div class="ms-sec">Chronology</div><div class="ms-tl">`;
-    ro.ov.forEach(it=>h+=`<div class="ms-ti"><div class="ms-dot ${it.t||'i'}"></div><div class="ms-yr ${it.t||'i'}">${it.y}</div><div class="ms-txt">${it.x}</div></div>`);
-    h+=`</div>`;body.innerHTML=h;
-  }else if(tab==='lb'){
-    const saved=ld(ro.id+'_lb',ro.lb||'');
-    body.innerHTML=`<div class="ms-sec">Lands &amp; Buildings — ${curRO}</div>
-    <div style="font-size:.64rem;color:var(--stone);margin-bottom:7px;line-height:1.65">Survey numbers, construction history, ownership, litigation details.</div>
-    <textarea class="ms-ea" id="ea-lb" placeholder="• Survey No:\n• Acquisition:\n• Construction:\n• Status:">${saved}</textarea>
-    <div class="ms-sv-row"><div class="ms-svd" id="svd-lb">✓ Saved</div><button class="ms-sv-btn" onclick="saveLb()">Save</button></div>`;
-  }else{
-    const saved=ld(ro.id+'_nt','');
-    body.innerHTML=`<div class="ms-sec">Notes — ${curRO}</div>
-    <textarea class="ms-ea" id="ea-nt" style="min-height:130px" placeholder="Notes, pending actions...">${saved}</textarea>
-    <div class="ms-sv-row"><div class="ms-svd" id="svd-nt">✓ Saved</div><button class="ms-sv-btn" onclick="saveNt()">Save</button></div>`;
-  }
-}
-function saveLb(){const v=document.getElementById('ea-lb')?.value||'';if(curRO)sv(RO[curRO].id+'_lb',v);flash2('svd-lb')}
-function saveNt(){const v=document.getElementById('ea-nt')?.value||'';if(curRO)sv(RO[curRO].id+'_nt',v);flash2('svd-nt')}
-function flash2(id){const n=document.getElementById(id);if(n){n.classList.add('show');setTimeout(()=>n.classList.remove('show'),2000)}}
-function openMspDist(dist){
-  const ro=getRO(dist),roD=ro?RO[ro]:null,c=roD?roD.c:'#6b7280';
-  document.getElementById('msp-bdg').textContent=ro?`Under ${ro}`:'District';document.getElementById('msp-bdg').className='msp-bdg dst';
-  document.getElementById('msp-name').textContent=dist;document.getElementById('msp-sub').textContent=ro?`Jurisdiction: ${ro}`:'AP';
-  document.getElementById('msp-tel').textContent=TEL[dist]||'';
-  document.getElementById('msp-meta').innerHTML=`<span class="msp-pill" style="background:${h2r(c,.1)};border-color:${h2r(c,.3)};color:${c}">${ro||'AP'}</span>`;
-  document.querySelectorAll('.msp-tab').forEach(t=>t.classList.remove('on'));document.getElementById('mt-ov').classList.add('on');
-  let h='';
-  if(roD){
-    h+=`<div class="ms-addr"><div class="ms-addr-l">Jurisdictional RO</div><strong style="color:${c}">${ro}</strong><br><span style="font-size:.64rem">${roD.addr}</span></div>`;
-    h+=`<div class="ms-sec">All Districts Under ${ro}</div><div class="ms-chips">`;
-    roD.d.forEach(d=>{const a=d.toLowerCase()===dist.toLowerCase();h+=`<div class="ms-chip" style="background:${a?h2r(c,.2):h2r(c,.08)};color:${c};border-color:${h2r(c,.3)};${a?'font-weight:700':''}" onclick="openMspDist('${d}')">${d}${a?' ✦':''}</div>`});
-    h+=`</div><button style="font-size:.64rem;padding:4px 11px;border-radius:6px;background:${h2r(c,.1)};border:1px solid ${h2r(c,.3)};color:${c};cursor:pointer;font-family:var(--ff);margin-top:4px" onclick="openMspRO('${ro}')">← Back to ${ro}</button>`;
-  }
-  document.getElementById('msp-body').innerHTML=h;document.getElementById('msp').classList.add('open');
-}
-function closeMsp(){document.getElementById('msp').classList.remove('open');curRO=null}
-
-/* Init buildings panes when tab switches */
-document.querySelectorAll('#bldg-bar .tb').forEach(btn=>{
-  const orig=btn.onclick;
-  btn.onclick=function(e){
-    orig.call(this,e);
-    const t=this.getAttribute('onclick').match(/'([^']+)'/)?.[1];
-    if(t&&t!=='map'){
-      const pane=document.getElementById('bp-'+t);
-      if(pane&&!pane.dataset.rendered) renderWorkspace(pane,'bp-'+t);
-    }
-  }
-});
 </script>
 </body>
 </html>
